@@ -46,7 +46,8 @@ Every command has a short alias shown in parentheses.
 ### pull — Get the published image
 
 Downloads `ghcr.io/pithtech/openspp-template:<OPENSPP_REF>` and tags it as the local image. Minutes instead of
-the 10-25 minutes a build takes.
+the 10-25 minutes a build takes. The image is private: log Docker in once with a GitHub token that has
+`read:packages` (`docker login ghcr.io`, see `training/SETUP.md` step 8) before the first pull.
 
 ```bash
 ./odoo-project pull

@@ -427,7 +427,27 @@ Do this before the session; the downloads are large.
 1. Accept the GitHub invitation to the template repository (sent by your instructor).
 2. Open the template repository on GitHub, click **Use this template > Create a new repository**, choose your own
    account as owner, name it `dswd-4ps-modules`, keep it private, and create it.
-3. Clone it and run the first commands:
+3. **Create a token for the Docker image.** The image is private, so Docker needs to log in to GitHub once:
+
+   1. On GitHub go to **Settings > Developer settings > Personal access tokens > Tokens (classic)** and click **Generate
+      new token (classic)**.
+   2. Name it `openspp-training`, set an expiry after the training, tick only **`read:packages`**, and generate it.
+   3. Copy the token (it is shown once) and log Docker in. Windows PowerShell:
+
+      ```powershell
+      $env:GH_TOKEN = "<paste token>"
+      $env:GH_TOKEN | docker login ghcr.io -u <your-github-username> --password-stdin
+      ```
+
+      macOS / Linux:
+
+      ```bash
+      echo "<paste token>" | docker login ghcr.io -u <your-github-username> --password-stdin
+      ```
+
+      You should see `Login Succeeded`. Docker remembers it; you will not need the token again.
+
+4. Clone your repository and run the first commands:
 
    **Windows (PowerShell):**
 
@@ -451,10 +471,11 @@ Do this before the session; the downloads are large.
    pre-commit install
    ```
 
-   `doctor` must show no red crosses. `pull` downloads about 2.3 GB. If it fails, run `odoo-project build` instead
-   (slower, 10 to 25 minutes).
+   `doctor` must show no red crosses. `pull` downloads about 2.3 GB. If it fails with `unauthorized` or `denied`, repeat
+   the `docker login ghcr.io` step above; if it fails for another reason, run `odoo-project build` instead (slower, 10
+   to 25 minutes).
 
-4. Optional but recommended: `odoo-project start`, wait for "Odoo available at http://localhost:8069", log in with
+5. Optional but recommended: `odoo-project start`, wait for "Odoo available at http://localhost:8069", log in with
    `admin` / `admin`, then `odoo-project stop`. The first start installs OpenSPP and takes a few minutes.
 
 ---

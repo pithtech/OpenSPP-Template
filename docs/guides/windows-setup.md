@@ -85,5 +85,6 @@ eslint hooks.
 | `port is already allocated` for 8069                               | `.\odoo-project stop`, or find the process with `netstat -ano \| findstr 8069`.        |
 | Odoo very slow to start, or killed                                 | Raise Docker memory (see above); check `.\odoo-project doctor`.                        |
 | `python : The term 'python' is not recognized`                     | Reinstall Python with **Add python.exe to PATH** ticked; open a new terminal.          |
-| `pull access denied` on `odoo-project pull`                        | No network, or the image is not published yet. Run `.\odoo-project build` instead.    |
+| `unauthorized` or `denied` on `odoo-project pull`                  | Docker is not logged in to GHCR. Repeat the `docker login ghcr.io` step in `training/SETUP.md`. |
+| `pull` fails for another reason                                    | No network, or the image is not published for this release. Run `.\odoo-project build`. |
 | `'.' is not recognized` when running `./odoo-project`              | In PowerShell use `.\odoo-project` (backslash) or `python odoo-project`.               |

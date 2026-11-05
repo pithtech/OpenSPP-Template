@@ -49,7 +49,9 @@ macOS / Linux:
 
 Then open <http://localhost:8069> and log in with `admin` / `admin`. Stop with `odoo-project stop`.
 
-If `pull` fails (no network, image not published yet) run `odoo-project build` instead; it takes 10 to 25 minutes.
+The image is private. Before the first `pull`, log Docker in to GitHub once with a token that has
+`read:packages` (steps in [training/SETUP.md](training/SETUP.md), step 8). If `pull` still fails, run
+`odoo-project build` instead; it takes 10 to 25 minutes.
 
 ## Daily Workflow
 

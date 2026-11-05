@@ -28,8 +28,8 @@ x-odoo-environment: &odoo-environment
   DB_PORT: "5432"
   DB_USER: odoo
   DB_PASSWORD: odoo
-  DB_NAME: ${ODOO_DB_NAME:-openspp}
-  DB_FILTER: "^${ODOO_DB_NAME:-openspp}$$"
+  DB_NAME: ${ODOO_DB_NAME:-odoo}
+  DB_FILTER: "^${ODOO_DB_NAME:-odoo}$$"
   LIST_DB: "False"
 
   # Admin password

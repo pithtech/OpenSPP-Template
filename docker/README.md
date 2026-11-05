@@ -51,7 +51,7 @@ default when one is empty or malformed.
 
 | Variable                | Default              | Purpose                                  |
 | ----------------------- | -------------------- | ---------------------------------------- |
-| `ODOO_DB_NAME`          | `openspp`            | Database name                            |
+| `ODOO_DB_NAME`          | `odoo`               | Database name                            |
 | `ODOO_INIT_MODULES`     | `spp_starter_sp_mis` | Modules installed on first start         |
 | `ODOO_UPDATE_MODULES`   | empty                | Modules upgraded on every start          |
 | `ODOO_WORKERS`          | `0`                  | Worker processes (0 = threaded, for dev) |

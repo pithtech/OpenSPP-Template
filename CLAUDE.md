@@ -36,9 +36,9 @@ Path-scoped rules load automatically when you edit matching files:
 ```
 Layer 3: DSWD 4Ps EXTENSIONS   (dswd_attendance, dswd_compliance, dswd_reports)
     ↓
-Layer 2: OPENSPP CAPABILITIES  (spp_programs, spp_entitlement_*, spp_change_request_v2, spp_event_data)
+Layer 2: OPENSPP CAPABILITIES  (spp_programs, spp_change_request_v2, spp_event_data, spp_grm)
     ↓
-Layer 1: OPENSPP FOUNDATION    (spp_registry, spp_security, spp_area, spp_vocabulary)
+Layer 1: OPENSPP FOUNDATION    (spp_registry, spp_security, spp_area, spp_vocabulary, spp_base_common)
     ↓
 Layer 0: ODOO CORE + OCA       (base, mail, web; base_user_role, job_worker, fastapi)
 ```

@@ -1,0 +1,1 @@
+Part of the DSWD 4Ps OpenSPP modules. See LICENSE file for full copyright and licensing details.

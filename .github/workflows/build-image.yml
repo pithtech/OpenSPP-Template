@@ -23,7 +23,7 @@ jobs:
     if: github.repository == 'pithtech/OpenSPP-Template'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Read image settings from .env
         id: env

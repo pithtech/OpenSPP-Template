@@ -1,0 +1,314 @@
+name: CI
+
+# Lints and tests dswd_* modules changed by a push or pull request, and smoke-tests
+# the Docker image (install of the SP-MIS starter) when the image inputs change.
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+    inputs:
+      modules:
+        description: "Comma-separated list of modules to test (empty = auto-detect)"
+        required: false
+        default: ""
+      smoke:
+        description: "Run the image smoke test"
+        type: boolean
+        default: false
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Must match docker/odoo.conf.template and the CLI
+  ODOO_ADDONS_PATH: /opt/odoo/odoo/addons,/opt/odoo/odoo/odoo/addons,/mnt/extra-addons/custom,/mnt/extra-addons/openspp,/mnt/extra-addons/server-ux,/mnt/extra-addons/server-tools,/mnt/extra-addons/odoo-job-worker,/mnt/extra-addons/server-backend,/mnt/extra-addons/rest-framework,/mnt/extra-addons/muk-it
+
+jobs:
+  # ============================================================================
+  # Detect which modules need testing and whether the image inputs changed
+  # ============================================================================
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      modules: ${{ steps.detect.outputs.modules }}
+      has_modules: ${{ steps.detect.outputs.has_modules }}
+      image_changed: ${{ steps.detect.outputs.image_changed }}
+      openspp_ref: ${{ steps.env.outputs.openspp_ref }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Read OpenSPP release from .env
+        id: env
+        run: echo "openspp_ref=$(grep '^OPENSPP_REF=' .env | cut -d= -f2)" >> "$GITHUB_OUTPUT"
+
+      - name: Detect changes
+        id: detect
+        run: |
+          set -e
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE_REF="origin/${{ github.base_ref }}"
+            git fetch origin ${{ github.base_ref }} --depth=1
+          else
+            BASE_REF="${{ github.event.before }}"
+            if [ "$BASE_REF" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "$BASE_REF" 2>/dev/null; then
+              BASE_REF="HEAD~1"
+            fi
+          fi
+          changed_files=$(git diff --name-only "$BASE_REF"...HEAD 2>/dev/null || git diff --name-only HEAD~1 2>/dev/null || echo "")
+          echo "Changed files:"; echo "$changed_files"
+
+          if echo "$changed_files" | grep -qE '^(docker/|\.env$|requirements\.txt$|docker-compose\.yml$)' \
+             || [ "${{ github.event.inputs.smoke }}" = "true" ]; then
+            echo "image_changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "image_changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          if [ -n "${{ github.event.inputs.modules }}" ]; then
+            modules=$(echo '${{ github.event.inputs.modules }}' | tr ',' '\n' | jq -R . | jq -sc .)
+          elif [ -z "$changed_files" ]; then
+            modules="[]"
+          elif [ "${{ github.event_name }}" = "pull_request" ]; then
+            modules=$(echo "$changed_files" | python scripts/detect_modules.py --include-critical --max-modules=15)
+          else
+            modules=$(echo "$changed_files" | python scripts/detect_modules.py --max-modules=10)
+          fi
+          echo "Modules to test: $modules"
+          echo "modules=$modules" >> "$GITHUB_OUTPUT"
+          if [ "$modules" = "[]" ]; then
+            echo "has_modules=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_modules=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  # ============================================================================
+  # Build the image once (warms the GHA layer cache for the jobs below)
+  # ============================================================================
+  build:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.has_modules == 'true' || needs.detect-changes.outputs.image_changed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build and cache image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/Dockerfile
+          target: dev
+          build-args: OPENSPP_REF=${{ needs.detect-changes.outputs.openspp_ref }}
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ============================================================================
+  # Run tests for each changed module
+  # ============================================================================
+  test:
+    needs: [detect-changes, build]
+    if: needs.detect-changes.outputs.has_modules == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        module: ${{ fromJson(needs.detect-changes.outputs.modules) }}
+    services:
+      db:
+        image: postgis/postgis:18-3.6-alpine
+        env:
+          POSTGRES_USER: odoo
+          POSTGRES_PASSWORD: odoo
+          POSTGRES_DB: postgres
+        ports:
+          - 5432
+        options: >-
+          --health-cmd "pg_isready -U odoo -d postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build test image (from cache)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/Dockerfile
+          target: dev
+          build-args: OPENSPP_REF=${{ needs.detect-changes.outputs.openspp_ref }}
+          load: true
+          tags: openspp-test:${{ github.sha }}
+          cache-from: type=gha
+
+      - name: Discover service network
+        id: net
+        env:
+          DB_PORT: ${{ job.services.db.ports[5432] }}
+        run: |
+          DB_CONTAINER=$(docker ps --filter "publish=$DB_PORT" --format '{{.ID}}' | head -1)
+          JOB_NETWORK=$(docker inspect "$DB_CONTAINER" --format '{{range $net, $_ := .NetworkSettings.Networks}}{{$net}} {{end}}' | tr ' ' '\n' | grep github_network | head -1)
+          echo "name=$JOB_NETWORK" >> "$GITHUB_OUTPUT"
+
+      - name: Create test database
+        env:
+          DB_PORT: ${{ job.services.db.ports[5432] }}
+        run: PGPASSWORD=odoo psql -h localhost -p "$DB_PORT" -U odoo -d postgres -c "CREATE DATABASE test_${{ matrix.module }};"
+
+      - name: Run tests with coverage
+        id: test
+        run: |
+          set +e
+          docker run --rm \
+            --network ${{ steps.net.outputs.name }} \
+            -e DB_HOST=db -e DB_PORT=5432 -e DB_USER=odoo -e DB_PASSWORD=odoo \
+            -v ${{ github.workspace }}:/mnt/extra-addons/custom:rw \
+            --user $(id -u):$(id -g) \
+            --entrypoint "" \
+            openspp-test:${{ github.sha }} \
+            bash -c "
+              export COVERAGE_FILE=/tmp/.coverage
+              coverage run --source=/mnt/extra-addons/custom/${{ matrix.module }} \
+                /opt/odoo/odoo/odoo-bin \
+                --addons-path=${ODOO_ADDONS_PATH} \
+                -d test_${{ matrix.module }} \
+                --db_host=db --db_port=5432 --db_user=odoo --db_password=odoo \
+                --stop-after-init --no-http --data-dir /tmp/odoo-data \
+                -i ${{ matrix.module }} \
+                --test-tags=/${{ matrix.module }} \
+                --log-level=test 2>&1 | tee /tmp/test_output.log
+              TEST_EXIT=\${PIPESTATUS[0]}
+              coverage xml -o /mnt/extra-addons/custom/coverage-${{ matrix.module }}.xml 2>/dev/null || true
+              COV_EXIT=0
+              if [ \$TEST_EXIT -eq 0 ] || grep -q '0 failed, 0 error' /tmp/test_output.log 2>/dev/null; then
+                coverage report \
+                  --rcfile=/mnt/extra-addons/custom/pyproject.toml \
+                  --include='/mnt/extra-addons/custom/${{ matrix.module }}/*' 2>&1 || COV_EXIT=\$?
+              fi
+              echo \$COV_EXIT > /mnt/extra-addons/custom/.coverage-exit-${{ matrix.module }}
+              exit \$TEST_EXIT
+            " 2>&1 | tee test_output_${{ matrix.module }}.log
+          set -e
+
+          COV_EXIT_CODE=$(cat .coverage-exit-${{ matrix.module }} 2>/dev/null || echo "0")
+          rm -f .coverage-exit-${{ matrix.module }}
+          if [ "$COV_EXIT_CODE" != "0" ]; then
+            echo "coverage_passed=false" >> "$GITHUB_OUTPUT"
+            echo "::error::Coverage below the threshold in pyproject.toml for ${{ matrix.module }}"
+          else
+            echo "coverage_passed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+          RESULT_LINE=$(grep "failed.*error(s).*tests" test_output_${{ matrix.module }}.log | tail -1 || true)
+          echo "Test result: $RESULT_LINE"
+          if [ -z "$RESULT_LINE" ]; then
+            echo "test_passed=false" >> "$GITHUB_OUTPUT"
+            echo "::error::Could not find test results in output for ${{ matrix.module }}"
+          else
+            FAILED=$(echo "$RESULT_LINE" | sed -E 's/.*([0-9]+) failed.*/\1/')
+            ERRORS=$(echo "$RESULT_LINE" | sed -E 's/.*([0-9]+) error.*/\1/')
+            if [ "$FAILED" -gt 0 ] || [ "$ERRORS" -gt 0 ]; then
+              echo "test_passed=false" >> "$GITHUB_OUTPUT"
+              echo "::error::Tests failed for ${{ matrix.module }}: $FAILED failed, $ERRORS errors"
+            else
+              echo "test_passed=true" >> "$GITHUB_OUTPUT"
+            fi
+          fi
+
+      - name: Upload test log and coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-${{ matrix.module }}
+          path: |
+            test_output_${{ matrix.module }}.log
+            coverage-${{ matrix.module }}.xml
+          if-no-files-found: ignore
+
+      - name: Check test result
+        if: steps.test.outputs.test_passed != 'true' || steps.test.outputs.coverage_passed != 'true'
+        run: exit 1
+
+  # ============================================================================
+  # Image smoke test: the SP-MIS starter installs on the built image
+  # ============================================================================
+  smoke:
+    needs: [detect-changes, build]
+    if: needs.detect-changes.outputs.image_changed == 'true'
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: postgis/postgis:18-3.6-alpine
+        env:
+          POSTGRES_USER: odoo
+          POSTGRES_PASSWORD: odoo
+          POSTGRES_DB: postgres
+        ports:
+          - 5432
+        options: >-
+          --health-cmd "pg_isready -U odoo -d postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build image (from cache)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/Dockerfile
+          target: dev
+          build-args: OPENSPP_REF=${{ needs.detect-changes.outputs.openspp_ref }}
+          load: true
+          tags: openspp-test:${{ github.sha }}
+          cache-from: type=gha
+      - name: Discover service network
+        id: net
+        env:
+          DB_PORT: ${{ job.services.db.ports[5432] }}
+        run: |
+          DB_CONTAINER=$(docker ps --filter "publish=$DB_PORT" --format '{{.ID}}' | head -1)
+          echo "name=$(docker inspect "$DB_CONTAINER" --format '{{range $net, $_ := .NetworkSettings.Networks}}{{$net}} {{end}}' | tr ' ' '\n' | grep github_network | head -1)" >> "$GITHUB_OUTPUT"
+      - name: Install the SP-MIS starter
+        run: |
+          docker run --rm --network ${{ steps.net.outputs.name }} \
+            -v ${{ github.workspace }}:/mnt/extra-addons/custom:ro \
+            --entrypoint "" openspp-test:${{ github.sha }} \
+            /opt/odoo/odoo/odoo-bin --addons-path=${ODOO_ADDONS_PATH} \
+              -d smoke --db_host=db --db_port=5432 --db_user=odoo --db_password=odoo \
+              --stop-after-init --no-http --data-dir /tmp/odoo-data \
+              -i spp_starter_sp_mis --log-level=warn 2>&1 | tee smoke.log
+          ! grep -E "CRITICAL|Failed to (load|install)" smoke.log
+      - name: Verify installed state
+        env:
+          DB_PORT: ${{ job.services.db.ports[5432] }}
+        run: |
+          state=$(PGPASSWORD=odoo psql -h localhost -p "$DB_PORT" -U odoo -d smoke -tAc "SELECT state FROM ir_module_module WHERE name='spp_starter_sp_mis'")
+          echo "spp_starter_sp_mis: $state"
+          [ "$state" = "installed" ]
+
+  # ============================================================================
+  # Summary
+  # ============================================================================
+  summary:
+    needs: [detect-changes, test, smoke]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "modules: ${{ needs.detect-changes.outputs.modules }}  tests: ${{ needs.test.result }}  smoke: ${{ needs.smoke.result }}"
+          if [ "${{ needs.test.result }}" = "failure" ] || [ "${{ needs.smoke.result }}" = "failure" ]; then
+            exit 1
+          fi

@@ -215,7 +215,7 @@ ENV ODOO_VERSION="${ODOO_VERSION}" \
     LIST_DB=false \
     UNACCENT=true \
     PROXY_MODE=true \
-    WITHOUT_DEMO=all
+    WITHOUT_DEMO=True
 
 # Install runtime dependencies only (no build tools!)
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \

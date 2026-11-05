@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pre-commit run:*)",
+      "Bash(./odoo-project:*)",
+      "Bash(python odoo-project:*)",
+      "Bash(odoo-project:*)",
+      "Bash(python scripts/lint/odoo_lint.py:*)",
+      "Bash(python scripts/lint/check_odoo19.py:*)",
+      "Bash(python scripts/security_audit.py:*)",
+      "Bash(uv run:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git branch:*)",
+      "Bash(git show:*)",
+      "Bash(git ls-files:*)",
+      "Bash(gh pr:*)",
+      "Bash(gh issue:*)",
+      "Bash(docker compose:*)",
+      "Bash(ls:*)",
+      "Bash(ruff check:*)",
+      "WebSearch"
+    ],
+    "deny": ["Edit(vendor/**)", "Write(vendor/**)"]
+  },
+  "extraKnownMarketplaces": {
+    "openspp-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "OpenSPP/claude-plugins"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "odoo-lsp@openspp-plugins": true
+  }
+}

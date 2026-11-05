@@ -187,6 +187,52 @@ class TestVendor:
         assert cli._vendor_status() == ("stale", "2020.01")
 
 
+class TestFreshStart:
+    def test_database_exists_queries_pg_database(self, cli, monkeypatch):
+        rec = Recorder(returncodes=[0, 0, 0], stdout="1\n")
+        monkeypatch.setattr(cli, "run", rec)
+        assert cli._database_exists("odoo") is True
+        assert any("pg_database" in " ".join(call) for call in rec.calls)
+
+    def test_database_exists_rejects_bad_names(self, cli, monkeypatch):
+        monkeypatch.setattr(cli, "run", Recorder())
+        with pytest.raises(SystemExit):
+            cli._database_exists("odoo; drop database odoo")
+
+    def test_database_missing(self, cli, monkeypatch):
+        rec = Recorder(returncodes=[0, 0, 0], stdout="")
+        monkeypatch.setattr(cli, "run", rec)
+        assert cli._database_exists("odoo") is False
+
+    def test_start_on_missing_database_installs_default_modules_and_waits(self, cli, monkeypatch):
+        monkeypatch.setattr(cli, "_check_image_freshness", lambda *a, **k: True)
+        monkeypatch.setattr(cli, "_database_exists", lambda name: False)
+        rec = Recorder()
+        monkeypatch.setattr(cli, "run", rec)
+        waited = {}
+        monkeypatch.setattr(cli, "_wait_for_odoo_ready", lambda profile, timeout=300: waited.setdefault("ready", True))
+        monkeypatch.setattr(
+            cli,
+            "_wait_for_module_installed",
+            lambda profile, module, timeout=600: (waited.setdefault("module", module), None)[0] and (True, None),
+        )
+        args = SimpleNamespace(demo=None, profile="ui", no_build=False, no_watch=True, wipe=False, yes=True)
+        cli.cmd_start(args)
+        assert waited == {"ready": True, "module": cli.DEFAULT_INIT_MODULES}
+        up_calls = [c for c in rec.calls if "up" in c]
+        assert up_calls, rec.calls
+
+    def test_start_on_existing_database_does_not_wait(self, cli, monkeypatch):
+        monkeypatch.setattr(cli, "_check_image_freshness", lambda *a, **k: True)
+        monkeypatch.setattr(cli, "_database_exists", lambda name: True)
+        rec = Recorder()
+        monkeypatch.setattr(cli, "run", rec)
+        monkeypatch.setattr(cli, "_wait_for_module_installed", lambda *a, **k: pytest.fail("should not wait"))
+        args = SimpleNamespace(demo=None, profile="ui", no_build=False, no_watch=True, wipe=False, yes=True)
+        cli.cmd_start(args)
+        assert any("up" in c for c in rec.calls)
+
+
 class TestModuleDiscovery:
     def test_completer_lists_only_module_dirs(self, cli, monkeypatch, tmp_path):
         (tmp_path / "dswd_attendance").mkdir()

@@ -316,6 +316,38 @@ def _validate_db_name(name: str) -> bool:
     return bool(re.match(r"^[a-zA-Z_]\w*$", name)) and len(name) <= 63
 
 
+def _database_exists(db_name: str) -> bool:
+    """Return True if the database exists on the (started) db service."""
+    if not _validate_db_name(db_name):
+        error(f"Invalid database name '{db_name}'")
+        sys.exit(1)
+    run(docker_compose("up", "-d", "db"), check=False, capture=True)
+    for _ in range(30):
+        ready = run(
+            docker_compose("exec", "-T", "db", "pg_isready", "-U", "odoo", "-d", "postgres"), capture=True, check=False
+        )
+        if ready.returncode == 0:
+            break
+        time.sleep(1)
+    result = run(
+        docker_compose(
+            "exec",
+            "-T",
+            "db",
+            "psql",
+            "-U",
+            "odoo",
+            "-d",
+            "postgres",
+            "-tAc",
+            f"SELECT 1 FROM pg_database WHERE datname = '{db_name}'",  # nosec B608 - validated identifier
+        ),
+        capture=True,
+        check=False,
+    )
+    return result.returncode == 0 and result.stdout.strip() == "1"
+
+
 def _find_running_odoo() -> tuple:
     """Find running Odoo service and profile."""
     # Check both profiles
@@ -789,6 +821,14 @@ def cmd_start(args):
         print("Wiping all data (volumes)...")
         run(docker_compose("down", "-v", profile=profile), check=False)
         is_fresh_start = True
+    elif not DRY_RUN and not _database_exists(os.environ.get("ODOO_DB_NAME", CONFIG.get("default_db", "odoo"))):
+        # First start (or after `stop -v`): the entrypoint will create the database and
+        # install the init modules, which takes several minutes. Wait for it.
+        is_fresh_start = True
+
+    if is_fresh_start and not demo_modules:
+        demo_modules = DEFAULT_INIT_MODULES
+        print(f"Fresh database: installing {demo_modules}")
 
     # Fresh start with demo modules: install them and wait until the registry is loaded,
     # so the first login does not race the installation.

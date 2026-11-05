@@ -198,7 +198,8 @@ export SMTP_PASSWORD="${SMTP_PASSWORD:-}"
 export EMAIL_FROM="${EMAIL_FROM:-}"
 
 # Demo data
-export WITHOUT_DEMO="${WITHOUT_DEMO:-all}"
+# Odoo 19 expects a boolean here ("all" was the Odoo 17/18 spelling)
+export WITHOUT_DEMO="${WITHOUT_DEMO:-True}"
 
 # Internationalization
 export UNACCENT="${UNACCENT:-True}"

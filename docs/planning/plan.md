@@ -1,6 +1,6 @@
 # Implementation Plan: OpenSPP Developer Training Template
 
-> **Status**: draft for review. Annotate inline; I will address every note before implementing.
+> **Status**: implemented 2026-11-06 (steps 1-8 done locally; step 9, the Windows run-through, is pending).
 > **Based on**: `docs/planning/research.md` and Edwin's answers (2026-11-05).
 > **Settled**: base on Template-Project; OpenSPP2 `2026.09`; prefix `dswd_`; no example module yet; drop `init`;
 > drop the nine eSMIS ADRs and the production compose files; vendor checkout for Claude; adapt only
@@ -219,6 +219,15 @@ Content rewrite, same file set:
 ---
 
 ## 8. Steps and commits
+
+Status after implementation (2026-11-06): steps 1-7 committed on `main`; step 8 verified on macOS (build, vendor,
+fresh `start` installing `spp_starter_sp_mis`, `test` on a throwaway `dswd_smoke` module: 1 passed); `pull` can
+only be verified once `build-image.yml` has published the image. Step 9 (Windows) is still to do.
+
+Deviations from the plan: `fix-lint`, `fix-security`, `audit-modules` dropped from the CLI as proposed;
+`integration-patterns.md` and `security-audit-guide.md` dropped with the ADRs; coverage threshold lowered to 85 to
+match the documented target; `start` now also waits on a fresh database without `--wipe`; Claude's lint hook is
+Python; `WITHOUT_DEMO` default changed to the Odoo 19 boolean spelling.
 
 | # | Commit | Verification |
 | --- | --- | --- |

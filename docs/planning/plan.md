@@ -5,28 +5,26 @@
 > **Settled**: base on Template-Project; OpenSPP2 `2026.09`; prefix `dswd_`; no example module yet; drop `init`;
 > drop the nine eSMIS ADRs and the production compose files; vendor checkout for Claude; adapt only
 > `training/SETUP.md`; pin via a single `OPENSPP_REF`.
-> **Open**: participant onboarding flow and image visibility (section 1), two smaller items in section 9.
+> **Open**: image visibility default (section 1), and the items in section 9.
 
 ---
 
-## 1. Participant onboarding flow (decide before step 5)
+## 1. Participant onboarding flow (decided 2026-11-05)
 
-The repo stays **private**. Three ways participants get their own copy:
+**Flow A, verified**: the template repo stays private and is marked as a template. Edwin invites each
+participant as a collaborator with **Read** access. The participant opens the repo, clicks
+"Use this template" → "Create a new repository", and picks their own account as owner. Verified with
+`gonzalesedwin1123`, which created the private repo `OpenSPP-Custom-modules` with
+`template_repository = pithtech/OpenSPP-Template` and a single "Initial commit" (no history carried over).
 
-| Option | How | Pros | Cons |
-| --- | --- | --- | --- |
-| **A. Outside collaborators, "Use this template"** | Edwin invites each participant with read access; they click "Use this template" and pick their personal account as owner. | Zero work for Edwin per participant. | GitHub's REST docs say that for a non-public template the user must own it or be a member of the owning org; the web UI may apply the same rule. **Must be tested** (Edwin can invite `gonzalesedwin1123` as a read collaborator and I run the test from this session). Repos end up outside Edwin's view. |
-| **B. Dedicated training org, participants create in-org** | Edwin creates an org such as `dswd-4ps-training`, moves or mirrors the template there, adds participants as members with base permission "None". They "Use this template" and choose the org as owner. | Participants see only repos they are granted; Edwin sees every participant repo for demos; org membership satisfies the template rule. | One-time org setup; repos live in the org (transferable afterwards). |
-| **C. Edwin creates the repos** | `gh repo create <org>/<participant> --template pithtech/OpenSPP-Template --private`, then add the participant as admin collaborator. | Most reliable; no GitHub-permission surprises in class. | Edwin runs one command per participant (scriptable from a list). |
-
-**Recommendation**: B, with C as the scripted fallback. README onboarding text depends on this choice.
+README and `training/SETUP.md` will describe exactly this flow. Participants never need org membership,
+and Edwin can be added as a collaborator on each participant repo for the demo sessions.
 
 **Image visibility**: the published image is the `dev` target, which contains only Odoo 19, the OCA/muk-it
-addons and OpenSPP. No repo files (docs, `.claude/`, modules) are copied in. Making the **package public**
-while the repo stays private exposes nothing of the template and removes the `docker login ghcr.io`
-plus personal-access-token step for every participant. **Recommendation**: public package. If you prefer it
-private, step 5 adds a token section to the setup guide and the package is linked to the repo so read
-collaborators inherit pull access.
+addons and OpenSPP. No repo files (docs, `.claude/`, modules) are copied in, because participant code is
+volume-mounted. Default for this plan: **public package** on GHCR, so participants pull without a token.
+If Edwin prefers a private package, step 5 adds a token section to the setup guide and the package inherits
+read access from the repo.
 
 ---
 
@@ -241,8 +239,8 @@ Tests are written before the code they cover in steps 2 and 3.
 
 ## 9. Items I am unsure about
 
-1. **Section 1 decision** (onboarding flow and package visibility) changes README and SETUP text; I will
-   draft for option B + public package unless told otherwise.
+1. **Package visibility** (section 1): drafting for a public GHCR package unless told otherwise; the
+   onboarding flow itself is settled.
 2. **Keep `docs/planning/` in the template?** Participants would see the research and plan. I suggest moving
    both to a `.planning/` folder that is listed in `.gitignore`… but then they are not versioned for you.
    Alternative: keep them in `docs/planning/` and accept that participants can read them. Your call.

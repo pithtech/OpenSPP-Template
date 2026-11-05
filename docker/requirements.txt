@@ -1,0 +1,12 @@
+# =============================================================================
+# Extra Python packages for the local image, beyond the OpenSPP release.
+#
+# The Dockerfile installs, in order:
+#   1. Odoo 19 requirements (OCA/OCB)
+#   2. OpenSPP requirements.txt and docker/requirements.txt from the pinned release
+#   3. ../requirements.txt (dswd_* manifest dependencies)
+#   4. this file (overrides and developer extras)
+#
+# Pins here override anything above. Keep it short; most needs belong in
+# ../requirements.txt next to the module that uses them.
+# =============================================================================

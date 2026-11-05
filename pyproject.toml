@@ -33,3 +33,15 @@ exclude_lines = [
     "raise NotImplementedError",
     "if TYPE_CHECKING:",
 ]
+
+# Repo-level tooling (CLI and config tests). Odoo module tests run inside Docker.
+[project]
+name = "openspp-template-tools"
+version = "0.0.0"
+requires-python = ">=3.11"
+
+[dependency-groups]
+dev = ["pytest>=8", "pyyaml>=6"]
+
+[tool.uv]
+package = false

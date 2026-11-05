@@ -1,0 +1,4 @@
+# Python packages required by dswd_* module manifests (external_dependencies).
+# OpenSPP's own requirements are installed from the pinned release inside the image;
+# list here only what your modules add on top. One package per line, e.g.:
+# phonenumbers>=8.13

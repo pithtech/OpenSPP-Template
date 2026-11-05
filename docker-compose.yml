@@ -1,0 +1,172 @@
+# OpenSPP Training Template - Docker Compose
+#
+# One compose file for development, the UI, background jobs, and unit tests.
+#
+# Services:
+#   db        - PostgreSQL 18 + PostGIS (shared by all)
+#   odoo-app  - Odoo + OpenSPP web server on the fixed port 8069 (profile: ui)
+#   odoo-dev  - Same, on a dynamic host port to avoid clashes (profile: dev)
+#   jobworker - Background job runner (job_worker module), runs with ui and dev
+#   test      - One-off unit test runner, driven by `odoo-project test`
+#
+# All Odoo services share one image. Its name comes from ODOO_IMAGE in .env
+# (default openspp-template-dev); `odoo-project pull` tags the published image
+# with that name, and `odoo-project build` builds it from docker/Dockerfile with
+# the OpenSPP release pinned by OPENSPP_REF in .env.
+#
+# Participant modules (dswd_*) are volume-mounted from this directory into
+# /mnt/extra-addons/custom, so the container always runs the code on disk.
+#
+# Usage (prefer the odoo-project CLI, which wraps these):
+#   docker compose --profile ui up -d        # http://localhost:8069 (admin/admin)
+#   docker compose --profile ui down         # stop (same profile as used to start)
+#   docker compose --profile ui down -v      # stop and delete the database
+
+# Environment shared by every Odoo service
+x-odoo-environment: &odoo-environment
+  DB_HOST: db
+  DB_PORT: "5432"
+  DB_USER: odoo
+  DB_PASSWORD: odoo
+  DB_NAME: ${ODOO_DB_NAME:-openspp}
+  DB_FILTER: "^${ODOO_DB_NAME:-openspp}$$"
+  LIST_DB: "False"
+
+  # Admin password
+  ODOO_ADMIN_PASSWD: admin
+
+  # Performance settings (minimal for local dev/testing)
+  ODOO_WORKERS: "0"
+  ODOO_CRON_THREADS: "0"
+
+  # Modules to initialize on first start (override with ODOO_INIT_MODULES=...)
+  ODOO_INIT_MODULES: "${ODOO_INIT_MODULES:-spp_starter_sp_mis}"
+  ODOO_UPDATE_MODULES: "${ODOO_UPDATE_MODULES:-}"
+
+  # Logging
+  LOG_LEVEL: info
+
+  # Disable proxy mode for local
+  PROXY_MODE: "False"
+
+x-odoo-build: &odoo-build
+  context: .
+  dockerfile: docker/Dockerfile
+  target: dev
+  args:
+    OPENSPP_REF: ${OPENSPP_REF}
+
+services:
+  # PostgreSQL + PostGIS - shared by all profiles
+  db:
+    image: postgis/postgis:18-3.6-alpine
+    platform: linux/amd64 # Use Rosetta 2 on Apple Silicon; no effect on Windows/Linux x86-64
+    environment:
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo
+      POSTGRES_DB: odoo
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U odoo -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - openspp
+
+  # Odoo Web Server - fixed port for the classroom
+  odoo-app:
+    image: ${ODOO_IMAGE:-openspp-template-dev}
+    build: *odoo-build
+    profiles:
+      - ui
+    depends_on:
+      db:
+        condition: service_healthy
+    environment: *odoo-environment
+    ports:
+      - "8069:8069" # Fixed host port for consistent access
+    volumes:
+      - .:/mnt/extra-addons/custom:ro,z
+      - odoo_data:/var/lib/odoo
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8069/web/health"]
+      interval: 10s
+      timeout: 10s
+      start_period: 90s
+      retries: 10
+    networks:
+      - openspp
+
+  # Odoo Dev Server - dynamic port to avoid conflicts
+  odoo-dev:
+    image: ${ODOO_IMAGE:-openspp-template-dev}
+    build: *odoo-build
+    profiles:
+      - dev
+    depends_on:
+      db:
+        condition: service_healthy
+    environment: *odoo-environment
+    ports:
+      - "8069" # Dynamic host port - check with `docker compose ps`
+    volumes:
+      - .:/mnt/extra-addons/custom:ro,z
+      - odoo_data:/var/lib/odoo
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8069/web/health"]
+      interval: 10s
+      timeout: 10s
+      start_period: 90s
+      retries: 10
+    networks:
+      - openspp
+
+  # Job Worker - background service for async jobs (imports, batch actions).
+  # The runner discovers databases every 5 minutes; restart it to pick up a
+  # freshly created database immediately.
+  jobworker:
+    image: ${ODOO_IMAGE:-openspp-template-dev}
+    profiles:
+      - ui
+      - dev
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      <<: *odoo-environment
+      QUEUE_JOB_CONCURRENCY: "2"
+    volumes:
+      - .:/mnt/extra-addons/custom:ro,z
+      - odoo_data:/var/lib/odoo
+    entrypoint: ["/entrypoint.sh"]
+    command: ["python", "/mnt/extra-addons/odoo-job-worker/job_worker_runner.py", "-c", "/etc/odoo/odoo.conf"]
+    networks:
+      - openspp
+
+  # Unit Test Runner - one-off container driven by `odoo-project test <module>`
+  test:
+    image: ${ODOO_IMAGE:-openspp-template-dev}
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_USER: odoo
+      DB_PASSWORD: odoo
+      # DB_NAME is set per run by the CLI
+    volumes:
+      - .:/mnt/extra-addons/custom:ro,z
+    networks:
+      - openspp
+    entrypoint: ["echo", "Use `odoo-project test <module>` to run tests"]
+
+volumes:
+  postgres_data:
+  odoo_data:
+
+networks:
+  openspp:
+    driver: bridge

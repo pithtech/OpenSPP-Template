@@ -251,6 +251,7 @@ def _pull_image() -> bool:
         return False
     remote = f"{ODOO_IMAGE_REMOTE}:{OPENSPP_REF}"
     print(f"Pulling {remote} ...")
+    sys.stdout.flush()
     result = run(["docker", "pull", remote], check=False)
     if result.returncode != 0:
         return False

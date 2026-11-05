@@ -195,7 +195,7 @@ run_tests_docker() {
     echo "Running tests (this may take a few minutes)..."
 
     # Build the odoo-bin command
-    local ADDONS_PATH="/opt/odoo/odoo/addons,/opt/odoo/odoo/odoo/addons,/mnt/extra-addons/custom,/mnt/extra-addons/server-ux,/mnt/extra-addons/server-tools,/mnt/extra-addons/queue,/mnt/extra-addons/server-backend,/mnt/extra-addons/rest-framework,/mnt/extra-addons/muk-it"
+    local ADDONS_PATH="/opt/odoo/odoo/addons,/opt/odoo/odoo/odoo/addons,/mnt/extra-addons/custom,/mnt/extra-addons/openspp,/mnt/extra-addons/server-ux,/mnt/extra-addons/server-tools,/mnt/extra-addons/odoo-job-worker,/mnt/extra-addons/server-backend,/mnt/extra-addons/rest-framework,/mnt/extra-addons/muk-it"
 
     if [ "$COVERAGE" = true ]; then
         # Run with coverage wrapping odoo-bin

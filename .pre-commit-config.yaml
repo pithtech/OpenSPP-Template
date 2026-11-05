@@ -105,6 +105,8 @@ repos:
       - id: check-xml
       - id: mixed-line-ending
         args: ["--fix=lf"]
+        # Windows command shims are CRLF by design (see .gitattributes)
+        exclude: \.(cmd|bat)$
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.6.8
     hooks:

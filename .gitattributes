@@ -16,3 +16,7 @@
 *.woff2 binary
 *.ttf binary
 *.eot binary
+
+# Windows command shims must keep CRLF
+*.cmd text eol=crlf
+*.bat text eol=crlf

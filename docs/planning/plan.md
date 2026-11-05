@@ -20,11 +20,10 @@ participant as a collaborator with **Read** access. The participant opens the re
 README and `training/SETUP.md` will describe exactly this flow. Participants never need org membership,
 and Edwin can be added as a collaborator on each participant repo for the demo sessions.
 
-**Image visibility**: the published image is the `dev` target, which contains only Odoo 19, the OCA/muk-it
-addons and OpenSPP. No repo files (docs, `.claude/`, modules) are copied in, because participant code is
-volume-mounted. Default for this plan: **public package** on GHCR, so participants pull without a token.
-If Edwin prefers a private package, step 5 adds a token section to the setup guide and the package inherits
-read access from the repo.
+**Image visibility (decided 2026-11-06)**: Edwin keeps the GHCR package **private**, like the repo. The package
+was pushed by GitHub Actions with `GITHUB_TOKEN`, so it is linked to the repository and inherits its access: read
+collaborators can pull after `docker login ghcr.io` with a classic token that has `read:packages`.
+`training/SETUP.md` step 8 walks participants through creating the token and logging in.
 
 ---
 
@@ -248,8 +247,7 @@ Tests are written before the code they cover in steps 2 and 3.
 
 ## 9. Items I am unsure about
 
-1. **Package visibility** (section 1): drafting for a public GHCR package unless told otherwise; the
-   onboarding flow itself is settled.
+1. ~~Package visibility~~ decided: private (section 1).
 2. **Keep `docs/planning/` in the template?** Participants would see the research and plan. I suggest moving
    both to a `.planning/` folder that is listed in `.gitignore`… but then they are not versioned for you.
    Alternative: keep them in `docs/planning/` and accept that participants can read them. Your call.

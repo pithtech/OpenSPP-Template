@@ -32,7 +32,8 @@ same name.
 ## Getting the image
 
 - **Pull** (fast, classroom default): `odoo-project pull` downloads `ghcr.io/pithtech/openspp-template:<OPENSPP_REF>`
-  and tags it as the local image name.
+  and tags it as the local image name. The package is private and inherits the template repository's access:
+  collaborators log in once with `docker login ghcr.io` using a GitHub token that has `read:packages`.
 - **Build** (10 to 25 minutes, needs a good connection): `odoo-project build`. Needed only when you change
   `requirements.txt`, `docker/requirements.txt`, or the Dockerfile.
 

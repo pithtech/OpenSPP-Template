@@ -133,9 +133,6 @@ CONFIG = load_config()
 PROJECT_ROOT = Path(__file__).parent.resolve()
 os.chdir(PROJECT_ROOT)
 
-# Detect environment
-IS_REMOTE = os.environ.get("CLAUDE_CODE_REMOTE") == "true"
-
 # Global dry-run flag (set by --dry-run)
 DRY_RUN = False
 
@@ -383,7 +380,7 @@ def _find_running_odoo() -> tuple:
 def cmd_test(args):
     """Run tests for a module (isolated from dev instance)."""
     if not args.module:
-        print("Usage: ./odoo-project test <module> [--tags=...] [--local|--docker]")
+        print("Usage: ./odoo-project test <module> [--tags=...]")
         print("\nExamples:")
         print("  ./odoo-project test dswd_attendance")
         print("  ./odoo-project test dswd_attendance --tags=post_install")
@@ -391,16 +388,6 @@ def cmd_test(args):
 
     module = args.module
 
-    # Local mode: delegate to bash script (requires Linux/bash)
-    if args.local or (IS_REMOTE and not args.docker):
-        info("Local mode requires bash — delegating to scripts/test_single_module.sh")
-        script = str(PROJECT_ROOT / "scripts" / "test_single_module.sh")
-        cmd = [script, module, "--local"]
-        if args.tags:
-            cmd.append(f"--test-tags={args.tags}")
-        sys.exit(run(cmd, check=False).returncode)
-
-    # Docker mode: pure Python implementation
     _test_docker(module, tags=args.tags)
 
 
@@ -787,11 +774,6 @@ def _show_recent_logs(profile: str, lines: int = 50):
 
 def cmd_start(args):
     """Start Odoo development server."""
-    if IS_REMOTE:
-        print("Error: 'start' not supported in Claude Code web environment")
-        print("Use './odoo-project test <module>' to run tests instead")
-        sys.exit(1)
-
     env = os.environ.copy()
     demo_modules = None
 
@@ -875,10 +857,6 @@ def cmd_start(args):
 
 def cmd_stop(args):
     """Stop all services."""
-    if IS_REMOTE:
-        print("Nothing to stop in Claude Code web environment")
-        return
-
     # Confirm if removing volumes (destructive)
     if args.volumes and not args.yes:
         if not _confirm("This will DELETE all data (database, filestore). Continue?"):
@@ -902,10 +880,6 @@ def cmd_stop(args):
 
 def cmd_restart(args):
     """Restart Odoo container."""
-    if IS_REMOTE:
-        print("Error: 'restart' not supported in Claude Code web environment")
-        sys.exit(1)
-
     # Auto-detect running profile if not specified
     service, profile = _find_running_odoo()
     if not service:
@@ -921,10 +895,6 @@ def cmd_restart(args):
 
 def cmd_resetdb(args):
     """Reset database with optional demo data."""
-    if IS_REMOTE:
-        print("Error: 'resetdb' not supported in Claude Code web environment")
-        sys.exit(1)
-
     db_name = args.db or "odoo"
     modules = DEFAULT_INIT_MODULES
 
@@ -987,10 +957,6 @@ def cmd_update(args):
     Uses click-odoo-update to auto-detect changed modules based on file checksums.
     This is smarter than plain 'odoo -u' and handles migrations more gracefully.
     """
-    if IS_REMOTE:
-        print("Error: 'update' not supported in Claude Code web environment")
-        sys.exit(1)
-
     db_name = args.db or "odoo"
 
     # Find running Odoo service
@@ -1030,10 +996,6 @@ def cmd_update(args):
 
 def cmd_logs(args):
     """View container logs."""
-    if IS_REMOTE:
-        print("Error: 'logs' not supported in Claude Code web environment")
-        sys.exit(1)
-
     # Find running Odoo to determine profile
     service, profile = _find_running_odoo()
     if not profile:
@@ -1056,10 +1018,6 @@ def cmd_logs(args):
 
 def cmd_shell(args):
     """Open Odoo shell or database shell."""
-    if IS_REMOTE:
-        print("Error: 'shell' not supported in Claude Code web environment")
-        sys.exit(1)
-
     db_name = args.database or "odoo"
 
     if args.db:
@@ -1078,10 +1036,6 @@ def cmd_shell(args):
 
 def cmd_sql(args):
     """Open PostgreSQL shell or run a SQL query."""
-    if IS_REMOTE:
-        print("Error: 'sql' not supported in Claude Code web environment")
-        sys.exit(1)
-
     db_name = args.database or CONFIG.get("default_db", "odoo")
 
     # Ensure db is running
@@ -1154,10 +1108,6 @@ def _open_browser(url: str):
 
 def cmd_url(args):
     """Show the dev server URL."""
-    if IS_REMOTE:
-        print("Error: 'url' not supported in Claude Code web environment")
-        sys.exit(1)
-
     url = _show_url(open_browser=args.open)
     if not url:
         print("Dev server is not running.")
@@ -1188,10 +1138,6 @@ def cmd_lint(args):
 
 def cmd_build(args):
     """Build Docker images."""
-    if IS_REMOTE:
-        print("Error: 'build' not supported in Claude Code web environment")
-        sys.exit(1)
-
     profile = args.profile
     service = "odoo-dev" if profile == "dev" else "odoo-app"
 
@@ -1210,10 +1156,6 @@ def cmd_build(args):
 
 def cmd_pull(_args):
     """Pull the published image for the pinned OpenSPP release (fast alternative to build)."""
-    if IS_REMOTE:
-        print("Error: 'pull' not supported in Claude Code web environment")
-        sys.exit(1)
-
     if _pull_image():
         success(f"Image ready: {ODOO_IMAGE} (OpenSPP {OPENSPP_REF})")
         return
@@ -1289,17 +1231,6 @@ def cmd_vendor(args):
 
 def cmd_status(args):
     """Show status of running services."""
-    if IS_REMOTE:
-        # Show local environment status
-        marker = Path(tempfile.gettempdir()) / ".odoo_project_env_ready"
-        if marker.exists():
-            print("Environment: Claude Code web (ready)")
-            print("Test with: ./odoo-project test <module>")
-        else:
-            print("Environment: Claude Code web (not set up)")
-            print("Run: ./scripts/setup_test_env.sh")
-        return
-
     print("Docker containers:")
     sys.stdout.flush()
     run(docker_compose("ps", "-a"), check=False)
@@ -1684,8 +1615,6 @@ def build_parser():
     if HAS_ARGCOMPLETE:
         module_arg.completer = _module_completer
     p.add_argument("--tags", help="Test tags (e.g., post_install)")
-    p.add_argument("--local", action="store_true", help="Force local mode")
-    p.add_argument("--docker", action="store_true", help="Force Docker mode")
 
     # start
     p = subparsers.add_parser("start", help="Start Odoo dev server")

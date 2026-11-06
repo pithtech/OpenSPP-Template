@@ -18,8 +18,6 @@ How to write, run, and maintain tests for project modules.
 
 The CLI creates a temporary database (`test_<module>_<random>`), installs the module and all dependencies, runs the test suite, then tears it down. It uses `--no-http` so no port binding is needed.
 
-If you are working inside a DevContainer (Claude Code web), run `./scripts/setup_test_env.sh` once per session before testing.
-
 ## Test Structure
 
 ### File location
@@ -28,14 +26,14 @@ If you are working inside a DevContainer (Claude Code web), run `./scripts/setup
 dswd_attendance/
 └── tests/
     ├── __init__.py
-    └── test_stock_move.py
+    └── test_dswd_attendance.py
 ```
 
 The `__init__.py` must import the test module:
 
 ```python
 # tests/__init__.py
-from . import test_stock_move
+from . import test_dswd_attendance
 ```
 
 ### Class and method patterns
@@ -45,34 +43,43 @@ from odoo.exceptions import ValidationError
 from odoo.tests import TransactionCase
 
 
-class TestStockMove(TransactionCase):
+class TestDswdAttendance(TransactionCase):
     """Tests for dswd.attendance model."""
 
     def setUp(self):
         super().setUp()
         # Use tracking_disable to suppress mail side effects
-        self.warehouse = self.env["dswd.school"].with_context(
+        self.school = self.env["dswd.school"].with_context(
             tracking_disable=True
         ).create({
-            "name": "Main Warehouse",
+            "name": "Mabini Elementary School",
+        })
+        self.child = self.env["res.partner"].with_context(
+            tracking_disable=True
+        ).create({
+            "name": "Test Beneficiary",
+            "is_registrant": True,
         })
 
-    def test_quantity_must_be_positive(self):
-        """Stock move quantity must be a positive number."""
+    def test_days_present_cannot_exceed_school_days(self):
+        """A child cannot be present on more days than the school was open."""
         with self.assertRaises(ValidationError):
             self.env["dswd.attendance"].create({
-                "warehouse_id": self.warehouse.id,
-                "quantity": -10,
+                "school_id": self.school.id,
+                "registrant_id": self.child.id,
+                "school_days": 20,
+                "days_present": 25,
             })
 
-    def test_stock_move_linked_to_warehouse(self):
-        """Creating a stock move links it to the warehouse via One2many."""
-        move = self.env["dswd.attendance"].create({
-            "warehouse_id": self.warehouse.id,
-            "quantity": 50,
-            "product_name": "Widget A",
+    def test_attendance_linked_to_school(self):
+        """Creating an attendance record links it to the school via One2many."""
+        record = self.env["dswd.attendance"].create({
+            "school_id": self.school.id,
+            "registrant_id": self.child.id,
+            "school_days": 20,
+            "days_present": 18,
         })
-        self.assertIn(move, self.warehouse.stock_move_ids)
+        self.assertIn(record, self.school.attendance_ids)
 ```
 
 Use `TransactionCase` for all unit tests. Each test method runs in a transaction that is rolled back after the method finishes, giving you a clean slate per test.
@@ -107,15 +114,16 @@ def test_end_date_after_start_date(self):
 Test the output value, not the implementation.
 
 ```python
-def test_total_computed_from_quantity_and_price(self):
-    """Total is calculated as quantity * unit_price."""
-    move = self.env["dswd.attendance"].create({
-        "warehouse_id": self.warehouse.id,
-        "quantity": 10,
-        "unit_price": 25.50,
+def test_attendance_rate_computed_from_days(self):
+    """Attendance rate is days_present / school_days as a percentage."""
+    record = self.env["dswd.attendance"].create({
+        "school_id": self.school.id,
+        "registrant_id": self.child.id,
+        "school_days": 20,
+        "days_present": 17,
     })
-    # 10 * 25.50 = 255.00
-    self.assertAlmostEqual(move.total_value, 255.00, places=2)
+    # 17 / 20 = 85.0 %
+    self.assertAlmostEqual(record.attendance_rate, 85.0, places=2)
 ```
 
 ### State machines
@@ -141,23 +149,27 @@ def test_order_cannot_be_confirmed_twice(self):
 Always test with the appropriate user role, not just admin. Admin bypasses record rules, which gives you false confidence.
 
 ```python
-def test_officer_can_create_stock_move(self):
-    """Officers can create stock move records."""
+def test_officer_can_create_attendance(self):
+    """Officers can create attendance records."""
     officer = self.env.ref("dswd_attendance_demo.demo_officer")
-    move = self.env["dswd.attendance"].with_user(officer).create({
-        "warehouse_id": self.warehouse.id,
-        "quantity": 50,
+    record = self.env["dswd.attendance"].with_user(officer).create({
+        "school_id": self.school.id,
+        "registrant_id": self.child.id,
+        "school_days": 20,
+        "days_present": 18,
     })
-    self.assertTrue(move.id)
+    self.assertTrue(record.id)
 
-def test_viewer_cannot_create_stock_move(self):
+def test_viewer_cannot_create_attendance(self):
     """Viewers have read-only access — create raises AccessError."""
     from odoo.exceptions import AccessError
     viewer = self.env.ref("dswd_attendance_demo.demo_viewer")
     with self.assertRaises(AccessError):
         self.env["dswd.attendance"].with_user(viewer).create({
-            "warehouse_id": self.warehouse.id,
-            "quantity": 50,
+            "school_id": self.school.id,
+            "registrant_id": self.child.id,
+            "school_days": 20,
+            "days_present": 18,
         })
 ```
 
@@ -166,11 +178,11 @@ def test_viewer_cannot_create_stock_move(self):
 If your module ships demo records, write a test that confirms they load correctly.
 
 ```python
-def test_demo_stock_move_records_exist(self):
-    """Demo data creates at least one stock move record."""
-    moves = self.env["dswd.attendance"].search([])
+def test_demo_attendance_records_exist(self):
+    """Demo data creates at least one attendance record."""
+    records = self.env["dswd.attendance"].search([])
     self.assertTrue(
-        moves,
+        records,
         "Demo data should have created at least one dswd.attendance record",
     )
 ```

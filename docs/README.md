@@ -23,7 +23,6 @@ docs/
 | Create a new module                          | [guides/module-development.md](guides/module-development.md)              |
 | Write and run tests                          | [guides/testing-guide.md](guides/testing-guide.md)                         |
 | Use Claude Code effectively                  | [guides/claude-code-for-developers.md](guides/claude-code-for-developers.md) |
-| Run Claude Code in a sandbox                 | [guides/claude-code-sandbox.md](guides/claude-code-sandbox.md)             |
 | Understand the architecture                  | [architecture/vision.md](architecture/vision.md)                           |
 | Read coding principles                       | [principles/](principles/)                                                 |
 | Check or write an ADR                        | [architecture/decisions/](architecture/decisions/)                         |

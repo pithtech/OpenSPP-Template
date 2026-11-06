@@ -121,8 +121,6 @@ Runs a module's tests in a one-off container against a temporary database. Does 
 | Option     | Description                              |
 | ---------- | ---------------------------------------- |
 | `--tags`   | Odoo test tags filter                    |
-| `--local`  | Local mode (Claude Code on the web only) |
-| `--docker` | Force Docker mode                        |
 
 The full Odoo log is saved under your temp directory; the path is printed after each run.
 

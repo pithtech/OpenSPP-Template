@@ -86,9 +86,11 @@ class TestSettings:
         assert "Bash(./odoo-project:*)" in allow
         assert "Bash(python odoo-project:*)" in allow
 
-    def test_openspp_plugin_marketplace_registered(self, settings):
+    def test_openspp_plugin_marketplace_registered_but_nothing_enabled(self, settings):
+        """odoo-lsp needs an Odoo core checkout that the template does not ship, so it stays opt-in."""
         assert settings["extraKnownMarketplaces"]["openspp-plugins"]["source"]["repo"] == "OpenSPP/claude-plugins"
-        assert settings["enabledPlugins"]["odoo-lsp@openspp-plugins"] is True
+        assert not settings.get("enabledPlugins")
+        assert not (ROOT / "odools.toml").exists()
 
 
 class TestHook:

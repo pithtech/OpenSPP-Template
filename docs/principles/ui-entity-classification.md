@@ -9,11 +9,11 @@ Quick reference for choosing UI patterns based on entity type.
 | Class | Examples | Record Count | Update Freq | UI Pattern |
 |-------|----------|--------------|-------------|------------|
 | **Master Data** | Categories, tags, settings, areas | <1k | Rare | Simple 1-2 tab form |
-| **Workflow Entities** | Orders, requests, approvals, transfers | <10k | Regular | 4-5 tab form + kanban |
-| **Registry Entities** | Contacts, products, warehouses | 100k-10M | Moderate | 4-7 tab form, stat buttons |
-| **Transactional** | Stock moves, journal entries, audit logs | 1M-100M | High | Minimal form, import/export |
+| **Workflow Entities** | Change requests, compliance verifications, grievances, entitlements | <10k | Regular | 4-5 tab form + kanban |
+| **Registry Entities** | Registrants, households, schools, health facilities | 100k-10M | Moderate | 4-7 tab form, stat buttons |
+| **Transactional** | Attendance records, event data, audit logs | 1M-100M | High | Minimal form, import/export |
 | **Relationship (Simple)** | Area assignments, tags | Variable | Follows parent | Embedded only, no standalone view |
-| **Relationship (Rich)** | Order line items, group membership | Variable | Moderate | Embedded + searchable list view |
+| **Relationship (Rich)** | Compliance lines, group membership | Variable | Moderate | Embedded + searchable list view |
 
 ---
 
@@ -52,7 +52,7 @@ Does the entity have a state-based workflow?
 
 **Relationship (Simple) vs (Rich)**:
 - **Simple**: Pure join table, no additional attributes beyond foreign keys (e.g., `spp.area`)
-- **Rich**: Has own attributes, state, dates; needs reconciliation and auditing (e.g., `dswd.compliance.line` with scheduled_date, state, product_id)
+- **Rich**: Has own attributes, state, dates; needs reconciliation and auditing (e.g., `dswd.compliance.line` with period_date, state, condition_id)
 
 ---
 
@@ -61,16 +61,16 @@ Does the entity have a state-based workflow?
 | Class | Module | Key Views |
 |-------|--------|-----------|
 | Master Data | `spp_area` | `views/area.xml` |
-| Workflow Entity | `dswd_compliance` (planned) | `views/order_view.xml` |
-| Registry Entity | `spp_vocabulary` | `views/vocabulary_views.xml` |
-| Transactional | `dswd_log` (planned) | `views/log_view.xml` |
+| Workflow Entity | `spp_change_request_v2` | `views/change_request_views.xml` |
+| Registry Entity | `spp_vocabulary` | `views/vocabulary_code_views.xml` |
+| Transactional | `spp_event_data` | `views/event_data_view.xml` |
 
 ---
 
 ## Examples by Class
 
 ### Master Data
-- `dswd.area` - Geographic areas
+- `spp.area` - Geographic areas
 - `spp.vocabulary` - Vocabulary definitions (status codes, categories, types)
 - `res.country` - Countries
 
@@ -79,9 +79,9 @@ Does the entity have a state-based workflow?
 ---
 
 ### Workflow Entities
-- `dswd.compliance` (planned) - Business orders
-- `dswd.request` (planned) - Service requests
-- `dswd.transfer` (planned) - Stock transfers
+- `spp.change.request` - Registry change requests with approval
+- `dswd.compliance` (planned) - Compliance verification per household and period
+- `dswd.grievance` (planned) - Grievances raised by beneficiaries
 
 **Characteristics**: State machine, approval workflows, moderate record count
 
@@ -89,7 +89,7 @@ Does the entity have a state-based workflow?
 
 ### Registry Entities
 - `res.partner` (as contact) - Contact records
-- `product.product` - Product records
+- `dswd.school` (planned) - Schools attended by 4Ps children
 
 **Characteristics**: Large record count, complex relationships, many tabs
 
@@ -112,7 +112,7 @@ Does the entity have a state-based workflow?
 ---
 
 ### Relationship (Rich)
-- `dswd.compliance.line` (planned) - Order line items (has scheduled_date, state, product_id)
+- `dswd.compliance.line` (planned) - One condition checked for one beneficiary in a period (has period_date, state, condition_id)
 - `spp.registry.id` - Entity identifiers (has type, value, system_uri)
 
 **Characteristics**: Join table with attributes, state, dates; needs searchable list for reconciliation and auditing

@@ -16,8 +16,8 @@ User-friendly URLs via Odoo's `path` field on `ir.actions.act_window`.
 | Primary entities | Plural nouns | `individuals`, `groups`, `programs`, `cases` |
 | Filtered views | Suffix with filter | `my-cases`, `pending-change-requests` |
 | Specialized groups | `group-{type}` | `group-households`, `group-departments` |
-| Config items | `{domain}-{item}` | `sale-order-types`, `inventory-categories`, `hr-departments` |
-| Domain entities | Prefix domain | `sale-orders`, `inventory-items` |
+| Config items | `{domain}-{item}` | `attendance-school-types`, `compliance-conditions`, `grievance-categories` |
+| Domain entities | Prefix domain | `attendance-records`, `compliance-verifications` |
 
 ## Implementation
 
@@ -56,14 +56,14 @@ When adding new menu-linked actions, always include:
 ## Quick Reference
 
 ```
-# Sales
-orders, my-orders, sale-order-types, sale-teams
+# Registry (OpenSPP)
+individuals, groups, group-households, change-requests, pending-change-requests
 
-# Inventory
-products, inventory-items, inventory-categories, warehouses
+# Attendance (dswd_attendance)
+attendance-records, my-attendance-records, attendance-schools, attendance-school-types
 
-# HR
-employees, departments, job-positions
+# Compliance (dswd_compliance)
+compliance-verifications, compliance-conditions, compliance-dispositions
 
 # Configuration
 settings, approval-rules, notification-templates

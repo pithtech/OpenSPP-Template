@@ -28,6 +28,9 @@ All models use the `dswd.*` prefix.
 | Many2one | `{model}_id` | `partner_id` |
 | One2many/Many2many | `{model}_ids` | `cycle_ids` |
 | Date | `{event}_date` | `birth_date` |
+| Classifier | `*_type` / `*_role` | `school_type`, `membership_role` |
+
+Avoid the generic `kind` as a field name; say what the classifier is (`*_type`, `*_role`). OpenSPP v2 renamed its own `kind` fields this way.
 
 ## Abbreviations
 

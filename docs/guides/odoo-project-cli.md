@@ -57,7 +57,7 @@ the 10-25 minutes a build takes. The image is private: log Docker in once with a
 ### build (b) — Build the image locally
 
 Needed only when the image is not published, or after you change `requirements.txt`, `docker/requirements.txt`,
-or the Dockerfile. `start` and `test` detect such changes and offer a rebuild.
+or the Dockerfile. `start` and `test` detect such changes and offer to pull the published image again, building locally only if the pull fails.
 
 ```bash
 ./odoo-project build
@@ -208,7 +208,7 @@ default_db = "odoo"
 | Symptom                                   | What to do                                                                      |
 | ----------------------------------------- | ------------------------------------------------------------------------------- |
 | Port 8069 already in use                  | `./odoo-project stop`; `doctor` shows who holds the port                        |
-| "Docker image may be outdated"            | Accept the rebuild, or `./odoo-project pull` if the published image was updated |
+| "Docker image may be outdated"            | Accept the pull (it is quick when the image is already current); if the pull fails, log in to GHCR or run `./odoo-project build` |
 | Module not updating after code changes    | `./odoo-project update`, then `restart` if needed                               |
 | First start seems stuck                   | Installing `spp_starter_sp_mis` takes 1-8 minutes; `logs -f` shows progress     |
 | Tests fail but the UI works               | Tests run on a fresh database; check the log path printed by `test`             |

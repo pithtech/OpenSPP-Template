@@ -234,8 +234,10 @@ Follow-up clean-up (2026-11-06, after review): the Claude Code web path (`CLAUDE
 attendance module; `tests/test_docs.py` checks links, removed paths and wording. Measured on an Apple Silicon Mac
 with the pulled image: a wiped `start` reached the login page in 64 s (122 modules installed in 33 s of registry
 load); peak memory sampled every 5 s was 229 MiB (odoo), 185 MiB (db), 46 MiB (jobworker), 459 MiB combined.
-Found and not yet fixed: `start -y` with no build marker in the OS temp dir (fresh machine, cleaned temp) rebuilds
-the image silently instead of offering `pull`.
+`start -y` with no build marker in the OS temp dir (fresh machine, cleaned temp) used to rebuild the image silently;
+it now pulls the published image first and builds only if the pull fails (`tests/test_cli.py::TestStaleImage`).
+Participant-level `pull` verified on 2026-11-06: a repository created from the template under a collaborator
+account (`gonzalesedwin1123/OpenSPP-Custom-modules`) pulled the private image with a `read:packages` token.
 
 | # | Commit | Verification |
 | --- | --- | --- |
@@ -262,8 +264,8 @@ Tests are written before the code they cover in steps 2 and 3.
    Alternative: keep them in `docs/planning/` and accept that participants can read them. Your call.
 3. ~~Memory and CPU~~ measured (see section 8): the containers peak under 0.5 GB; the 4 GB minimum and 6 GB
    recommendation stay as headroom for Docker Desktop itself and for a local `build`. Docs now say so.
-4. **Whether `spp_starter_sp_mis` is the right default** install for the 4Ps lab, versus `spp_base` for a
-   faster first start. Default can be changed in `.env` later.
+4. ~~Whether `spp_starter_sp_mis` is the right default~~ kept: a wiped first start measured 64 s on a fast machine,
+   so the faster `spp_base` start buys nothing worth the missing modules.
 5. ~~`claude-plugins` odoo-lsp~~ decided: the marketplace stays registered, the plugin is not enabled, because
    `odoo-ls` needs an Odoo core checkout the template does not ship (`odools.toml` pointed at a missing path).
 6. The Dockerfile keeps `--mount=type=cache` BuildKit directives; Docker Desktop on Windows has BuildKit on

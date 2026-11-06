@@ -257,6 +257,21 @@ def _pull_image() -> bool:
     return True
 
 
+def _build_image(service: str, profile: str):
+    """Build the image locally (10-25 min) and record that it matches the current build inputs."""
+    info("Building Docker image...")
+    run(docker_compose("build", service, profile=profile))
+    _mark_image_fresh()
+
+
+def _pull_or_build(service: str, profile: str):
+    """Pull the published image; build locally only when the pull fails."""
+    if _pull_image():
+        return
+    warn("Pull failed (not logged in to GHCR, image not published, or no network). Building locally instead...")
+    _build_image(service, profile)
+
+
 def _check_image_freshness(profile: str = "dev", auto_rebuild: bool = False) -> bool:
     """Make sure a current Docker image exists. Returns True if fresh."""
     service = "odoo-dev" if profile == "dev" else "odoo-app"
@@ -264,35 +279,27 @@ def _check_image_freshness(profile: str = "dev", auto_rebuild: bool = False) -> 
     if not _image_exists():
         info(f"Docker image '{ODOO_IMAGE}' not found.")
         if auto_rebuild or _confirm("Pull the published image? (No = build locally, 10-25 min)", default=True):
-            if _pull_image():
-                return True
-            warn("Pull failed (image not published or no network). Building locally instead...")
-        info("Building Docker image...")
-        run(docker_compose("build", service, profile=profile))
-        _mark_image_fresh()
+            _pull_or_build(service, profile)
+        else:
+            _build_image(service, profile)
         return True
 
     # Check if build inputs changed
     if _marker_file(profile).exists():
         return True  # Image is fresh
 
-    # Image might be stale
+    # Image might be stale: the published image is refreshed for the same inputs, so pull before building
     warn("Docker image may be outdated (Dockerfile or requirements changed)")
 
     if auto_rebuild:
-        info("Rebuilding Docker image...")
-        run(docker_compose("build", service, profile=profile))
-        _mark_image_fresh()
+        _pull_or_build(service, profile)
         return True
 
     if sys.stdin.isatty():
-        if _confirm("Rebuild Docker image?", default=True):
-            info("Rebuilding Docker image...")
-            run(docker_compose("build", service, profile=profile))
-            _mark_image_fresh()
+        if _confirm("Pull the published image? (No = keep the current one; `build` rebuilds it)", default=True):
+            _pull_or_build(service, profile)
             return True
-        else:
-            warn("Continuing with potentially stale image")
+        warn("Continuing with potentially stale image")
 
     return False
 

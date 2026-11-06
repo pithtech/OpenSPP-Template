@@ -135,13 +135,12 @@ KIND_ALLOWED = {"in_kind"}
 
 
 class NamingChecker:
-    """Checks Odoo naming conventions with auto-fix support."""
+    """Checks Odoo naming conventions."""
 
     def __init__(self, root_dir: str = None, config: LintConfig = None):
         self.root_dir = Path(root_dir) if root_dir else Path.cwd()
         self.config = config or LintConfig.load()
         self.violations: list[Violation] = []
-        self.fixes_applied: list[tuple[str, int, str, str]] = []  # (file, line, old, new)
 
         # Load prefix settings from config
         self.module_prefix = self.config.module_prefix  # e.g., "myapp" for myapp_*
@@ -197,7 +196,7 @@ class NamingChecker:
 
         return violations
 
-    def check_python_file(self, file_path: str, fix: bool = False) -> list[Violation]:
+    def check_python_file(self, file_path: str) -> list[Violation]:
         """Check naming conventions in a Python file."""
         violations = []
 
@@ -207,7 +206,6 @@ class NamingChecker:
         try:
             with open(file_path, encoding="utf-8") as f:
                 content = f.read()
-                original_content = content
             tree = ast.parse(content, filename=file_path)
         except SyntaxError as e:
             _logger.warning("Syntax error in %s: %s", file_path, e)
@@ -222,18 +220,7 @@ class NamingChecker:
         # Check model classes
         for node in ast.walk(tree):
             if isinstance(node, ast.ClassDef):
-                class_violations = self._check_model_class(file_path, node, content)
-                violations.extend(class_violations)
-
-                # Apply fixes if requested
-                if fix:
-                    content = self._apply_fixes(content, class_violations)
-
-        # Write fixed content if changes were made
-        if fix and content != original_content:
-            with open(file_path, "w", encoding="utf-8") as f:
-                f.write(content)
-            _logger.info("Fixed %s", file_path)
+                violations.extend(self._check_model_class(file_path, node, content))
 
         return violations
 
@@ -468,24 +455,15 @@ class NamingChecker:
             message=(f"Field '{field_name}' uses generic 'kind'; prefer '*_type' or '*_role' naming in V2"),
             rule_id="naming.kind_term",
             severity=severity,
-            suggestion="Rename to the corresponding *_type or *_role field (see kind-to-type-renaming.md)",
-            doc_link="docs/principles/kind-to-type-renaming.md",
+            suggestion="Rename to the corresponding *_type or *_role field",
+            doc_link="docs/principles/naming-conventions.md#fields",
         )
 
     def _check_comodel_name(self, file_path: str, node: ast.Assign, line: int) -> list[Violation]:
         """Check for deprecated comodel_name patterns (placeholder for future checks)."""
         return []
 
-    def _apply_fixes(self, content: str, violations: list[Violation]) -> str:
-        """Apply auto-fixes to content (placeholder for future implementation)."""
-        # TODO: Implement actual fixes using AST transformation
-        # For now, just log what would be fixed
-        for v in violations:
-            if v.suggestion:
-                _logger.debug("Would fix: %s -> %s", v.message, v.suggestion)
-        return content
-
-    def check_files(self, file_paths: list[str], fix: bool = False) -> int:
+    def check_files(self, file_paths: list[str]) -> int:
         """Check naming conventions in the given files."""
         for file_path in file_paths:
             if not os.path.exists(file_path):
@@ -495,7 +473,7 @@ class NamingChecker:
             if not file_path.endswith(".py"):
                 continue
 
-            violations = self.check_python_file(file_path, fix=fix)
+            violations = self.check_python_file(file_path)
             self.violations.extend(violations)
 
         return len(self.violations)
@@ -522,11 +500,6 @@ def main():
         "--root-dir",
         default=None,
         help="Root directory for module checks",
-    )
-    parser.add_argument(
-        "--fix",
-        action="store_true",
-        help="Apply auto-fixes when available (currently none for naming)",
     )
     parser.add_argument(
         "-v",
@@ -558,7 +531,7 @@ def main():
 
     # Check Python files
     if args.files:
-        checker.check_files(args.files, fix=args.fix)
+        checker.check_files(args.files)
 
     # Filter by severity if specified
     if args.severity != "all":

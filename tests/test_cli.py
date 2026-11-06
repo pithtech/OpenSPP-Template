@@ -274,3 +274,42 @@ class TestNoRemoteMode:
     def test_helper_scripts_are_gone(self):
         assert not (ROOT / "scripts" / "setup_test_env.sh").exists()
         assert not (ROOT / "scripts" / "test_single_module.sh").exists()
+
+
+class TestStaleImage:
+    """Image present but build inputs changed: pull before falling back to a local build."""
+
+    def _stale(self, cli, monkeypatch, tmp_path):
+        monkeypatch.setattr(cli, "_image_exists", lambda: True)
+        monkeypatch.setattr(cli.tempfile, "gettempdir", lambda: str(tmp_path))  # no marker
+
+    def test_stale_image_with_yes_pulls_instead_of_building(self, cli, monkeypatch, tmp_path):
+        self._stale(cli, monkeypatch, tmp_path)
+        pulled = []
+        monkeypatch.setattr(cli, "_pull_image", lambda: pulled.append(True) or True)
+        rec = Recorder()
+        monkeypatch.setattr(cli, "run", rec)
+        assert cli._check_image_freshness("dev", auto_rebuild=True) is True
+        assert pulled == [True]
+        assert not any("build" in call for call in rec.calls)
+
+    def test_stale_image_builds_only_when_pull_fails(self, cli, monkeypatch, tmp_path):
+        self._stale(cli, monkeypatch, tmp_path)
+        monkeypatch.setattr(cli, "_pull_image", lambda: False)
+        rec = Recorder()
+        monkeypatch.setattr(cli, "run", rec)
+        assert cli._check_image_freshness("dev", auto_rebuild=True) is True
+        assert any(call[:3] == ["docker", "compose", "--profile"] and "build" in call for call in rec.calls)
+        assert list(tmp_path.glob(".odoo-project-build-*"))  # marked fresh after the build
+
+    def test_stale_image_interactive_offers_pull(self, cli, monkeypatch, tmp_path):
+        self._stale(cli, monkeypatch, tmp_path)
+        monkeypatch.setattr(cli.sys.stdin, "isatty", lambda: True)
+        prompts = []
+        monkeypatch.setattr(cli, "_confirm", lambda prompt, default=False: prompts.append(prompt) or True)
+        monkeypatch.setattr(cli, "_pull_image", lambda: True)
+        rec = Recorder()
+        monkeypatch.setattr(cli, "run", rec)
+        assert cli._check_image_freshness("dev", auto_rebuild=False) is True
+        assert prompts and "pull" in prompts[0].lower()
+        assert not any("build" in call for call in rec.calls)

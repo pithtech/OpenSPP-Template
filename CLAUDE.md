@@ -116,6 +116,14 @@ Layer 0: ODOO CORE + OCA       (base, mail, web; base_user_role, job_worker, fas
   `spp.approval.review` records; `approval_state='approved'` requires all reviews approved
 - When creating test data for approval flows, create the full approval chain
 
+### GitHub Account
+
+- Everything in this repository happens under the `pithtech` account. Local commits and SSH pushes already use it
+  (`~/.gitconfig-projects`, the `pithtech` SSH host), but the `gh` CLI acts as whichever account is active, and a PR
+  merged through `gh` gets a merge commit authored by that account. Run `gh` here as
+  `GH_TOKEN="$(gh auth token --user pithtech)" gh ...` (or `gh auth switch --user pithtech` first), and check
+  `gh api user --jq .login` before creating or merging a PR.
+
 After every correction or PR, propose updates to this Known Pitfalls section.
 
 ## Running Locally

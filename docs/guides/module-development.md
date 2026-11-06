@@ -23,17 +23,17 @@ dswd_attendance/
 │   ├── __init__.py
 │   └── dswd_attendance.py
 ├── views/
-│   └── stock_move_views.xml
+│   └── dswd_attendance_views.xml
 ├── security/
 │   ├── ir.model.access.csv
 │   └── security_groups.xml       # Only if defining new groups
 ├── data/
-│   └── stock_move_data.xml       # Reference/config data
+│   └── dswd_attendance_data.xml  # Reference/config data
 ├── demo/
-│   └── stock_move_demo.xml       # Demo records
+│   └── dswd_attendance_demo.xml  # Demo records
 ├── tests/
 │   ├── __init__.py
-│   └── test_stock_move.py
+│   └── test_dswd_attendance.py
 └── readme/
     └── DESCRIPTION.md
 ```
@@ -44,26 +44,26 @@ Every subdirectory that contains Python files needs an `__init__.py`. Every dire
 
 ```python
 {
-    "name": "Inventory Extensions",
+    "name": "4Ps School Attendance",
     "version": "19.0.1.0.0",
     "category": "DSWD 4Ps/{Domain}",
-    "summary": "Custom stock move tracking for warehouse operations",
+    "summary": "School attendance records for 4Ps child beneficiaries",
     "author": "Your Organization",
     "website": "https://example.com",
     "license": "LGPL-3",
     "development_status": "Alpha",
     "maintainers": [],
     "depends": [
+        "spp_registry",
         "spp_vocabulary",
-        "stock",
     ],
     "external_dependencies": {"python": ["somelib"]},  # only when needed
     "data": [
         "security/ir.model.access.csv",
-        "views/stock_move_views.xml",
+        "views/dswd_attendance_views.xml",
     ],
     "demo": [
-        "demo/stock_move_demo.xml",
+        "demo/dswd_attendance_demo.xml",
     ],
     "application": False,
     "auto_install": False,
@@ -162,10 +162,10 @@ Configuration items belong under the shared app-level Configuration menu, not ne
 ```xml
 <!-- dswd_school/views/menus.xml -->
 <odoo>
-    <menuitem id="menu_dswd_configuration_locations"
-              name="Warehouse Locations"
+    <menuitem id="menu_dswd_configuration_schools"
+              name="Schools"
               parent="spp_vocabulary.menu_spp_vocabulary_configuration"
-              action="action_warehouse_location"
+              action="action_dswd_school"
               sequence="20"/>
 </odoo>
 ```
@@ -183,35 +183,42 @@ The required order is: write a failing test, run it (watch it fail), implement t
 ### Step 1: Write the failing test
 
 ```python
-# dswd_attendance/tests/test_stock_move.py
+# dswd_attendance/tests/test_dswd_attendance.py
 from odoo.exceptions import ValidationError
 from odoo.tests import TransactionCase
 
 
-class TestStockMove(TransactionCase):
+class TestDswdAttendance(TransactionCase):
 
     def setUp(self):
         super().setUp()
-        self.warehouse = self.env["dswd.school"].create({
-            "name": "Main Warehouse",
+        self.school = self.env["dswd.school"].create({
+            "name": "Mabini Elementary School",
+        })
+        self.child = self.env["res.partner"].create({
+            "name": "Test Beneficiary",
+            "is_registrant": True,
         })
 
-    def test_quantity_must_be_positive(self):
-        """Stock move quantity must be a positive number."""
+    def test_days_present_cannot_exceed_school_days(self):
+        """A child cannot be present on more days than the school was open."""
         with self.assertRaises(ValidationError):
             self.env["dswd.attendance"].create({
-                "warehouse_id": self.warehouse.id,
-                "quantity": -10,
+                "school_id": self.school.id,
+                "registrant_id": self.child.id,
+                "school_days": 20,
+                "days_present": 25,
             })
 
-    def test_stock_move_linked_to_warehouse(self):
-        """Creating a stock move links it to the warehouse."""
-        move = self.env["dswd.attendance"].create({
-            "warehouse_id": self.warehouse.id,
-            "quantity": 50,
-            "product_name": "Widget A",
+    def test_attendance_linked_to_school(self):
+        """Creating an attendance record links it to the school."""
+        record = self.env["dswd.attendance"].create({
+            "school_id": self.school.id,
+            "registrant_id": self.child.id,
+            "school_days": 20,
+            "days_present": 18,
         })
-        self.assertIn(move, self.warehouse.stock_move_ids)
+        self.assertIn(record, self.school.attendance_ids)
 ```
 
 ### Step 2: Run the test — confirm it fails
@@ -234,24 +241,30 @@ from odoo.exceptions import ValidationError
 _logger = logging.getLogger(__name__)
 
 
-class PrefixStockMove(models.Model):
+class DswdAttendance(models.Model):
     _name = "dswd.attendance"
-    _description = "Stock Move"
+    _description = "School Attendance"
 
-    warehouse_id = fields.Many2one(
+    school_id = fields.Many2one(
         "dswd.school",
-        string="Warehouse",
+        string="School",
         required=True,
         ondelete="cascade",
     )
-    quantity = fields.Integer(string="Quantity")
-    product_name = fields.Char(string="Product Name")
+    registrant_id = fields.Many2one(
+        "res.partner",
+        string="Child",
+        required=True,
+        domain=[("is_registrant", "=", True)],
+    )
+    school_days = fields.Integer(string="School Days")
+    days_present = fields.Integer(string="Days Present")
 
-    @api.constrains("quantity")
-    def _check_quantity(self):
+    @api.constrains("days_present", "school_days")
+    def _check_days_present(self):
         for record in self:
-            if record.quantity is not False and record.quantity < 0:
-                raise ValidationError(_("Quantity must be a positive value."))
+            if record.days_present < 0 or record.days_present > record.school_days:
+                raise ValidationError(_("Days present must be between 0 and the number of school days."))
 ```
 
 ### Step 4: Add the ACL file
@@ -284,19 +297,19 @@ Every module should include documentation at four levels: module-level (`DESCRIP
 **Model classes** must always set `_description` to a human-readable name:
 
 ```python
-class PrefixStockMove(models.Model):
+class DswdAttendance(models.Model):
     _name = "dswd.attendance"
-    _description = "Stock Move"
+    _description = "School Attendance"
 ```
 
 Add a **class-level docstring** when the model's purpose is not obvious from `_name` and `_description`:
 
 ```python
-class PrefixOrderDisposition(models.Model):
+class DswdComplianceDisposition(models.Model):
     _name = "dswd.compliance.disposition"
-    _description = "Order Disposition"
-    """Tracks how an order was resolved (fulfilled, cancelled, returned, partial).
-    Used by reporting modules to determine order completion metrics."""
+    _description = "Compliance Disposition"
+    """Tracks how a compliance case was resolved (complied, waived, sanctioned, pending).
+    Used by reporting modules to compute compliance rates per cycle."""
 ```
 
 **Method docstrings** are required on:
@@ -335,7 +348,7 @@ tax_id_number = fields.Char(
 ### XML: Views and Data
 
 - Use `<!-- Section: Name -->` comments to separate logical groups in view files (header, tabs, chatter).
-- Comment groups of records in data XML files (e.g., `<!-- Default warehouse location types -->`).
+- Comment groups of records in data XML files (e.g., `<!-- Default school types -->`).
 - Comment non-obvious `attrs`, `domain`, or `context` expressions that encode business rules.
 - Do not comment self-evident XML — `<!-- Partner name field -->` above `<field name="name"/>` is noise.
 
@@ -375,21 +388,21 @@ Required sections: overview paragraph, Key Capabilities, Key Models, Configurati
 ```markdown
 ## Overview
 
-Inventory Extensions adds custom stock move tracking for warehouse operations
-and links each move to the originating warehouse record.
+School Attendance records the monthly school attendance of 4Ps child beneficiaries
+and links each record to the child's registrant profile and school.
 
 ## Key Capabilities
 
-- Record inbound and outbound stock moves per warehouse
-- Flag out-of-range quantities for review
+- Record days present per child, school, and month
+- Flag attendance below the 85% condition for review
 
 ## Key Models
 
-- `dswd.attendance` — one stock move record per warehouse operation
+- `dswd.attendance` — one attendance record per child, school, and month
 
 ## UI Location
 
-DSWD 4Ps > Inventory > Warehouses > [warehouse] > Stock Moves tab
+DSWD 4Ps > Compliance > School Attendance
 
 ## Security
 
@@ -398,8 +411,8 @@ DSWD 4Ps > Inventory > Warehouses > [warehouse] > Stock Moves tab
 
 ## Dependencies
 
+- `spp_registry` — registrants (the children) and their households
 - `spp_vocabulary` — vocabulary infrastructure
-- `stock` — Odoo stock module
 ```
 
 No marketing language ("robust", "seamless", "comprehensive"). Every claim must match the actual code.

@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Issues reported by the QA team or the community
+about: Something in a dswd_* module, the odoo-project CLI, or the Docker setup does not work
 title: ""
 labels: bug
 assignees: ""
@@ -8,14 +8,17 @@ assignees: ""
 
 **Describe the bug**
 
-**To Reproduce**
+**To reproduce**
+
+Commands you ran (for example `./odoo-project test dswd_attendance`) and what happened.
 
 **Expected behavior**
 
-**Screenshots**
+**Environment**
+
+- OS: [Windows 11 / macOS / Linux]
+- Output of `./odoo-project doctor`:
+
+**Screenshots or logs**
 
 **Additional context**
-
-
-
-🔔 Note: This ticket should address common considerations without including country-specific content. Please ensure all references are generic and applicable across various contexts.

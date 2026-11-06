@@ -262,7 +262,7 @@ workflow.
 
 ### Install via npm (all platforms)
 
-Claude Code requires **Node.js 18+**. Check if you have it:
+Claude Code requires **Node.js 20+**. Check if you have it:
 
 ```bash
 node --version
@@ -392,7 +392,7 @@ Open a terminal and run each of these. All should succeed:
 docker --version           # Docker version 24.x or later
 docker compose version     # Docker Compose version v2.x
 git --version              # git version 2.x
-python3 --version          # Python 3.10+
+python3 --version          # Python 3.11+
 pre-commit --version       # pre-commit 3.x or later
 claude --version           # Claude Code (any version)
 ```

@@ -53,7 +53,8 @@ Docker Desktop includes Docker Engine, Docker Compose, and a GUI for managing co
 
    Then restart and launch Docker Desktop again.
 
-7. **Give Docker enough memory.** OpenSPP needs at least 4 GB; 6 GB or more is comfortable. Create or edit
+7. **Give Docker enough memory.** A running OpenSPP uses about 0.5 GB across its three containers, but Docker Desktop
+   itself and a local image build need more: give it at least 4 GB; 6 GB or more is comfortable. Create or edit
    `%UserProfile%\.wslconfig` with:
 
    ```ini
@@ -471,12 +472,13 @@ Do this before the session; the downloads are large.
    pre-commit install
    ```
 
-   `doctor` must show no red crosses. `pull` downloads about 2.3 GB. If it fails with `unauthorized` or `denied`, repeat
-   the `docker login ghcr.io` step above; if it fails for another reason, run `odoo-project build` instead (slower, 10
-   to 25 minutes).
+   `doctor` must show no red crosses. `pull` downloads about 650 MB (2.3 GB on disk once extracted). If it fails with
+   `unauthorized` or `denied`, repeat the `docker login ghcr.io` step above; if it fails for another reason, run
+   `odoo-project build` instead (slower, 10 to 25 minutes).
 
 5. Optional but recommended: `odoo-project start`, wait for "Odoo available at http://localhost:8069", log in with
-   `admin` / `admin`, then `odoo-project stop`. The first start installs OpenSPP and takes a few minutes.
+   `admin` / `admin`, then `odoo-project stop`. The first start installs OpenSPP: about a minute on a fast machine, up
+   to eight on a laptop.
 
 ---
 

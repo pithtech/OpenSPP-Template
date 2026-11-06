@@ -228,6 +228,15 @@ Deviations from the plan: `fix-lint`, `fix-security`, `audit-modules` dropped fr
 match the documented target; `start` now also waits on a fresh database without `--wipe`; Claude's lint hook is
 Python; `WITHOUT_DEMO` default changed to the Odoo 19 boolean spelling.
 
+Follow-up clean-up (2026-11-06, after review): the Claude Code web path (`CLAUDE_CODE_REMOTE`, `test --local`,
+`scripts/setup_test_env.sh`, `scripts/test_single_module.sh`), `.devcontainer/`, `claude-code-sandbox.md` and
+`odools.toml` were dropped; odoo-lsp is registered but not enabled; the guides' worked example is a 4Ps school
+attendance module; `tests/test_docs.py` checks links, removed paths and wording. Measured on an Apple Silicon Mac
+with the pulled image: a wiped `start` reached the login page in 64 s (122 modules installed in 33 s of registry
+load); peak memory sampled every 5 s was 229 MiB (odoo), 185 MiB (db), 46 MiB (jobworker), 459 MiB combined.
+Found and not yet fixed: `start -y` with no build marker in the OS temp dir (fresh machine, cleaned temp) rebuilds
+the image silently instead of offering `pull`.
+
 | # | Commit | Verification |
 | --- | --- | --- |
 | 1 | `chore: bootstrap template from Template-Project configs` (lint configs, licence files, `.gitattributes`, `.gitignore` + `vendor/`, `.env`, `pyproject.toml`, `.editorconfig`, `tools/`, `.devcontainer/`) | `pre-commit run -a` clean |
@@ -251,11 +260,11 @@ Tests are written before the code they cover in steps 2 and 3.
 2. **Keep `docs/planning/` in the template?** Participants would see the research and plan. I suggest moving
    both to a `.planning/` folder that is listed in `.gitignore`… but then they are not versioned for you.
    Alternative: keep them in `docs/planning/` and accept that participants can read them. Your call.
-3. **Memory and CPU**: `spp_starter_sp_mis` on a 4 GB Docker Desktop allocation is tight; `doctor` will warn
-   below 4 GB and SETUP will recommend 6 GB. I will measure during step 8 and adjust the numbers.
+3. ~~Memory and CPU~~ measured (see section 8): the containers peak under 0.5 GB; the 4 GB minimum and 6 GB
+   recommendation stay as headroom for Docker Desktop itself and for a local `build`. Docs now say so.
 4. **Whether `spp_starter_sp_mis` is the right default** install for the 4Ps lab, versus `spp_base` for a
    faster first start. Default can be changed in `.env` later.
-5. **`claude-plugins` odoo-lsp** needs the `odoo-ls` binary; if it prompts participants with install
-   questions on first run I will leave it listed but disabled.
+5. ~~`claude-plugins` odoo-lsp~~ decided: the marketplace stays registered, the plugin is not enabled, because
+   `odoo-ls` needs an Odoo core checkout the template does not ship (`odools.toml` pointed at a missing path).
 6. The Dockerfile keeps `--mount=type=cache` BuildKit directives; Docker Desktop on Windows has BuildKit on
    by default, so this should be fine, but it is one more thing to confirm in step 9.

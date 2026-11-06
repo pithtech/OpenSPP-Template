@@ -8,7 +8,8 @@ Examples below use the macOS/Linux spelling `./odoo-project`.
 
 Run `./odoo-project doctor` to verify your environment:
 
-- **Docker Desktop** with Compose v2 (required), at least 4 GB memory, WSL 2 backend on Windows
+- **Docker Desktop** with Compose v2 (required), at least 4 GB memory (a running OpenSPP uses about 0.5 GB; the
+  rest is headroom for Docker itself and for `build`), WSL 2 backend on Windows
 - **Python 3.11+** (required; the CLI itself)
 - **Git** (required)
 - **pre-commit** and **Node.js** (used by `lint` and the git hooks)
@@ -121,8 +122,6 @@ Runs a module's tests in a one-off container against a temporary database. Does 
 | Option     | Description                              |
 | ---------- | ---------------------------------------- |
 | `--tags`   | Odoo test tags filter                    |
-| `--local`  | Local mode (Claude Code on the web only) |
-| `--docker` | Force Docker mode                        |
 
 The full Odoo log is saved under your temp directory; the path is printed after each run.
 
@@ -211,7 +210,7 @@ default_db = "odoo"
 | Port 8069 already in use                  | `./odoo-project stop`; `doctor` shows who holds the port                        |
 | "Docker image may be outdated"            | Accept the rebuild, or `./odoo-project pull` if the published image was updated |
 | Module not updating after code changes    | `./odoo-project update`, then `restart` if needed                               |
-| First start seems stuck                   | Installing `spp_starter_sp_mis` takes 3-8 minutes; `logs -f` shows progress     |
+| First start seems stuck                   | Installing `spp_starter_sp_mis` takes 1-8 minutes; `logs -f` shows progress     |
 | Tests fail but the UI works               | Tests run on a fresh database; check the log path printed by `test`             |
 | Database connection errors                | `doctor`, then `status`, then `logs db`                                         |
 | Windows-specific problems                 | See [windows-setup.md](windows-setup.md)                                        |

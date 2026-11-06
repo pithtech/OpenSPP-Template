@@ -254,3 +254,23 @@ class TestWindowsShim:
     def test_cmd_shim_is_committed_with_crlf(self):
         text = (ROOT / ".gitattributes").read_text()
         assert re.search(r"^\*\.cmd text eol=crlf$", text, re.M)
+
+
+class TestNoRemoteMode:
+    """The Claude Code web path (CLAUDE_CODE_REMOTE, --local) is not part of the template."""
+
+    def test_cli_has_no_remote_branches(self):
+        text = CLI_PATH.read_text()
+        assert "CLAUDE_CODE_REMOTE" not in text
+        assert "IS_REMOTE" not in text
+        assert "setup_test_env" not in text and "test_single_module" not in text
+
+    def test_test_command_has_no_local_or_docker_flags(self, cli):
+        parser = cli.build_parser()
+        test_parser = parser._subparsers._group_actions[0].choices["test"]
+        options = {opt for action in test_parser._actions for opt in action.option_strings}
+        assert "--local" not in options and "--docker" not in options
+
+    def test_helper_scripts_are_gone(self):
+        assert not (ROOT / "scripts" / "setup_test_env.sh").exists()
+        assert not (ROOT / "scripts" / "test_single_module.sh").exists()

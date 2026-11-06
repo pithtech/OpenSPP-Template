@@ -5,7 +5,8 @@
 Do not open a public issue for security problems.
 
 - **In your own `dswd_*` modules**: fix on a branch, add a test that proves the fix, and merge through review.
-- **In this template** (CLI, Docker image, workflows): email the maintainer listed in `CONTRIBUTORS.md`.
+- **In this template** (CLI, Docker image, workflows): tell the maintainer listed in `CONTRIBUTORS.md` directly (your
+  instructor during the training). Do not open an issue.
 - **In OpenSPP itself**: follow OpenSPP's policy at <https://github.com/OpenSPP/OpenSPP2/security>.
 
 ## Supported Versions

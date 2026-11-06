@@ -35,7 +35,7 @@ Windows (PowerShell):
 .\odoo-project doctor      # check Docker, Python, memory, WSL 2
 .\odoo-project pull        # download the OpenSPP image (minutes)
 .\odoo-project vendor      # download the OpenSPP source for reading
-.\odoo-project start       # first start installs OpenSPP: 3-8 minutes
+.\odoo-project start       # first start installs OpenSPP: 1-8 minutes
 ```
 
 macOS / Linux:

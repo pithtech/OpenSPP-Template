@@ -1,8 +1,0 @@
-[[config]]
-name = "default"
-odoo_path = "../external/ocb"
-addons_paths = [
-    "../external/ocb/addons",
-    ".",
-]
-python_path = "python3"

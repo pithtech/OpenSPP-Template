@@ -1,19 +1,21 @@
 ---
 name: Feature request
-about: Suggest a feature to be included in the sprint
+about: Propose a feature for a dswd_* module in this repository
 title: ""
-labels: ""
+labels: enhancement
 assignees: ""
 ---
 
-**Business Requirement**
+**What should the module do?**
 
-**Additional Information**
+Describe the feature from the point of view of the 4Ps staff who will use it.
+
+**Which module and OpenSPP capability does it extend?**
+
+For example: `dswd_attendance`, extending `spp_programs` program membership.
+
+**Additional information**
 
 - **Priority:** [High/Medium/Low]
-- **Dependencies:** [Other tasks, modules, etc.]
-- **Attachments:** [Screenshots, diagrams, etc.]
-
-
-🔔 Note: This ticket should address common considerations without including country-specific content. Please ensure all references are generic and applicable across various contexts.
-
+- **Dependencies:** [Other modules, data, or decisions this needs]
+- **Attachments:** [Screenshots, diagrams, sample data]

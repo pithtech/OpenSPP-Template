@@ -73,6 +73,8 @@ Team-wide permissions for project scripts are in `.claude/settings.json`. These 
 
 ## OpenSPP Plugin
 
-`.claude/settings.json` registers the `OpenSPP/claude-plugins` marketplace and enables `odoo-lsp`, which gives
-Claude Odoo-aware code navigation (model and field lookups across the addons path). Claude Code asks once to
-install it; accept, or say no and it stays off without affecting anything else.
+`.claude/settings.json` registers the `OpenSPP/claude-plugins` marketplace, which offers `odoo-lsp`: Odoo-aware
+code navigation (model and field lookups) through the `odoo-ls` language server. It is not enabled by default
+because the language server needs an Odoo core checkout on your machine, which this template does not ship. If
+you have one, run `/plugin install odoo-lsp@openspp-plugins` inside Claude Code and point its `odools.toml`
+config at your Odoo path.

@@ -31,8 +31,5 @@
         "repo": "OpenSPP/claude-plugins"
       }
     }
-  },
-  "enabledPlugins": {
-    "odoo-lsp@openspp-plugins": true
   }
 }

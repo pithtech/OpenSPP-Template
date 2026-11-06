@@ -9,8 +9,9 @@ OpenSPP runs in Linux containers. Docker Desktop on Windows needs the **WSL 2 ba
 
 1. Install Docker Desktop and accept **"Use WSL 2 instead of Hyper-V"** during setup.
 2. If prompted, run `wsl --install` in an administrator PowerShell and restart.
-3. In Docker Desktop **Settings > Resources**, give Docker at least **6 GB** of memory (4 GB is the minimum;
-   OpenSPP installs slowly and may fail below that). On the WSL 2 backend this is set in `%UserProfile%\.wslconfig`:
+3. In Docker Desktop **Settings > Resources**, give Docker at least **6 GB** of memory (4 GB is the minimum). A
+   running OpenSPP uses about 0.5 GB; the rest is headroom for Docker itself and for a local `build`. On the WSL 2
+   backend this is set in `%UserProfile%\.wslconfig`:
 
    ```ini
    [wsl2]

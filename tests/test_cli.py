@@ -313,3 +313,43 @@ class TestStaleImage:
         assert cli._check_image_freshness("dev", auto_rebuild=False) is True
         assert prompts and "pull" in prompts[0].lower()
         assert not any("build" in call for call in rec.calls)
+
+
+class TestInstall:
+    """`install` adds a new module to the running database; `update` cannot."""
+
+    ADDED = {"install"}
+
+    def test_install_is_registered(self, cli):
+        assert self.ADDED <= set(cli.COMMANDS)
+        assert self.ADDED <= {name for name, _ in cli.MAIN_COMMANDS}
+        assert cli.ALIASES.get("i") == "install"
+        parser = cli.build_parser()
+        subcommands = set(parser._subparsers._group_actions[0].choices)
+        assert self.ADDED <= subcommands
+
+    def test_install_runs_odoo_init_in_the_running_container_then_restarts(self, cli, monkeypatch):
+        monkeypatch.setattr(cli, "_find_running_odoo", lambda: ("odoo-app", "ui"))
+        rec = Recorder()
+        monkeypatch.setattr(cli, "run", rec)
+        monkeypatch.setattr(cli, "_show_url", lambda: None)
+        cli.cmd_install(SimpleNamespace(modules=["dswd_wellbeing", "dswd_other"], db="odoo"))
+        exec_calls = [c for c in rec.calls if "exec" in c]
+        assert len(exec_calls) == 1, rec.calls
+        cmd = exec_calls[0]
+        odoo_args = cmd[cmd.index("odoo") + 1 :]
+        assert odoo_args[odoo_args.index("-d") + 1] == "odoo"
+        assert odoo_args[odoo_args.index("-i") + 1] == "dswd_wellbeing,dswd_other"
+        assert "--stop-after-init" in odoo_args and "--no-http" in odoo_args
+        restart_calls = [c for c in rec.calls if "restart" in c]
+        assert restart_calls and rec.calls.index(restart_calls[0]) > rec.calls.index(cmd)
+
+    def test_install_without_running_container_exits_with_start_hint(self, cli, monkeypatch, capsys):
+        monkeypatch.setattr(cli, "_find_running_odoo", lambda: (None, None))
+        rec = Recorder()
+        monkeypatch.setattr(cli, "run", rec)
+        with pytest.raises(SystemExit) as exc:
+            cli.cmd_install(SimpleNamespace(modules=["dswd_wellbeing"], db="odoo"))
+        assert exc.value.code == 1
+        assert "start" in capsys.readouterr().out
+        assert not rec.calls

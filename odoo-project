@@ -1001,6 +1001,48 @@ def cmd_update(args):
         print("Odoo available at: http://localhost:8069")
 
 
+def cmd_install(args):
+    """Install new modules into the running Odoo database.
+
+    `update` (click-odoo-update) only upgrades modules that are already
+    installed. This runs `odoo -i` inside the running container, which reads
+    the rendered /etc/odoo/odoo.conf for the addons path and database
+    credentials, then restarts the service so the registry picks up the
+    new modules.
+    """
+    db_name = args.db or "odoo"
+    modules = ",".join(args.modules)
+
+    service, profile = _find_running_odoo()
+    if not service:
+        print("Error: No Odoo container running. Start with './odoo-project start' first.")
+        sys.exit(1)
+
+    print(f"Installing {modules} into database '{db_name}'...")
+    run(
+        docker_compose(
+            "exec",
+            service,
+            "odoo",
+            "-d",
+            db_name,
+            "-i",
+            modules,
+            "--stop-after-init",
+            "--no-http",
+            profile=profile,
+        )
+    )
+
+    print("Install complete. Restarting Odoo...")
+    run(docker_compose("restart", service, profile=profile))
+
+    if profile == "dev":
+        _show_url()
+    else:
+        print("Odoo available at: http://localhost:8069")
+
+
 def cmd_logs(args):
     """View container logs."""
     # Find running Odoo to determine profile
@@ -1253,6 +1295,7 @@ def cmd_help(_args):
     print("  restart, r         Restart Odoo container")
     print("  resetdb            Reset database (use with start to initialize)")
     print("  update, u <module> Update (upgrade) modules in running Odoo")
+    print("  install, i <mod>   Install new modules into the running database")
     print("  build, b           Build the Docker image locally (slow)")
     print("  pull               Pull the published Docker image (fast)")
     print("  vendor             Download OpenSPP source to vendor/openspp (read-only)")
@@ -1285,6 +1328,7 @@ def cmd_help(_args):
     print("  ./odoo-project resetdb --demo=base start # Reset DB and start with base demo")
     print("  ./odoo-project r                         # Restart Odoo container")
     print("  ./odoo-project u                         # Upgrade changed modules")
+    print("  ./odoo-project i dswd_wellbeing          # Install a new module")
     print("  ./odoo-project l -f                      # Follow Odoo logs")
     print("  ./odoo-project url --open                # Open in browser")
     print("")
@@ -1548,6 +1592,8 @@ COMMANDS = {
     "resetdb": cmd_resetdb,
     "update": cmd_update,
     "u": cmd_update,
+    "install": cmd_install,
+    "i": cmd_install,
     "build": cmd_build,
     "b": cmd_build,
     "logs": cmd_logs,
@@ -1575,6 +1621,7 @@ ALIASES = {
     "s": "start",
     "r": "restart",
     "u": "update",
+    "i": "install",
     "b": "build",
     "l": "logs",
     "sh": "shell",
@@ -1589,6 +1636,7 @@ MAIN_COMMANDS = [
     ("restart", "Restart Odoo container"),
     ("resetdb", "Reset database"),
     ("update", "Update modules"),
+    ("install", "Install new modules"),
     ("build", "Build the Docker image locally"),
     ("pull", "Pull the published Docker image"),
     ("vendor", "Download OpenSPP source (read-only)"),
@@ -1662,6 +1710,13 @@ def build_parser():
     # update
     p = subparsers.add_parser("update", help="Update changed modules (auto-detects via checksums)")
     p.add_argument("modules", nargs="*", help="(ignored) click-odoo-update auto-detects changes")
+    p.add_argument("--db", default=CONFIG.get("default_db", "odoo"), help="Database name (default: odoo)")
+
+    # install
+    p = subparsers.add_parser("install", help="Install new modules into the running database")
+    modules_arg = p.add_argument("modules", nargs="+", help="Module(s) to install")
+    if HAS_ARGCOMPLETE:
+        modules_arg.completer = _module_completer
     p.add_argument("--db", default=CONFIG.get("default_db", "odoo"), help="Database name (default: odoo)")
 
     # build

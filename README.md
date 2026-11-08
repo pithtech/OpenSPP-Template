@@ -58,6 +58,7 @@ The image is private. Before the first `pull`, log Docker in to GitHub once with
 ```bash
 ./odoo-project start                 # start (fast once installed)
 # ... edit dswd_* modules ...
+./odoo-project install dswd_wellbeing # install a new module into the running instance
 ./odoo-project update                # upgrade changed modules in the running instance
 ./odoo-project test dswd_attendance  # run one module's tests on a clean database
 ./odoo-project lint                  # ruff, ruff-format, prettier on changed files
@@ -124,6 +125,7 @@ Change `OPENSPP_REF` in `.env`, then `odoo-project pull` (or `build`), `odoo-pro
 | Area                       | Location                                                                     |
 | -------------------------- | ---------------------------------------------------------------------------- |
 | Pre-training setup         | [training/SETUP.md](training/SETUP.md)                                       |
+| 4Ps program reference      | [training/4ps-program-reference.md](training/4ps-program-reference.md)       |
 | Windows notes              | [docs/guides/windows-setup.md](docs/guides/windows-setup.md)                 |
 | CLI reference              | [docs/guides/odoo-project-cli.md](docs/guides/odoo-project-cli.md)           |
 | Extending OpenSPP          | [docs/guides/extending-openspp.md](docs/guides/extending-openspp.md)         |

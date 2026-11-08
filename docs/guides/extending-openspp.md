@@ -96,6 +96,9 @@ method with `super()` and keep your addition small.
 - Find the upstream view id in `vendor/openspp/<module>/views/` and the named groups inside it.
 - Target named elements only. Positional XPath breaks on the next OpenSPP release.
 - One inherited view per upstream view per module.
+- `spp_registry.view_individuals_form` serves both individuals and households. Individual sections are named
+  `demographics_section`, `identity`, and so on; household sections are prefixed `group_` (`group_profile`,
+  `group_tags_section`, `group_identity`). A household field goes after a `group_*` anchor.
 
 ## Step 4: Security
 
@@ -144,6 +147,9 @@ class TestHouseholdNumber(RegistryCommon):
 
 `RegistryCommon` provides `self.group` (a household), `self.individual_a`, and `self.individual_b`. Run with
 `./odoo-project test dswd_registry_ph`. Tests must also run as an officer user, not only as admin.
+
+To see the module in the running instance, install it once with `./odoo-project install dswd_registry_ph`; after that,
+`./odoo-project update` picks up changed files (`update` never installs a new module).
 
 ## Step 6: Background Work
 

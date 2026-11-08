@@ -161,9 +161,11 @@ OPENSPP_TARBALL_URL = "https://github.com/OpenSPP/OpenSPP2/archive/refs/tags/{re
 
 # Read-only OpenSPP source checkout, for reading and searching (gitignored)
 VENDOR_DIR = PROJECT_ROOT / "upstream" / "openspp"
-# A top-level "vendor" folder in the mounted repo root hijacks Bootstrap's SCSS
-# import "vendor/rfs" (Odoo resolves it against any addons root that has a
-# "vendor" dir), so the checkout must not live under that name.
+# The repo root is mounted as an addons root. Odoo's SCSS importer resolves a
+# relative @import "<dir>/..." against any addons root that has a "<dir>"
+# folder, so these top-level names break every stylesheet build. Same list as
+# scripts/lint/check_root_dirs.py.
+RESERVED_ROOT_DIRS = ("forms", "helpers", "mixins", "utilities", "vendor")
 
 # Demo profiles available (modules installed on a fresh database)
 DEMO_PROFILES = {
@@ -325,7 +327,13 @@ def _validate_db_name(name: str) -> bool:
 
 
 def _database_exists(db_name: str) -> bool:
-    """Return True if the database exists on the (started) db service."""
+    """Return True if the database exists AND Odoo has initialized it.
+
+    The compose db container creates the database itself (POSTGRES_DB), so its
+    presence in pg_database says nothing. A fresh volume counts as "no database"
+    until the module table exists, otherwise `start` would return before the
+    first install and a following `install` would race it.
+    """
     if not _validate_db_name(db_name):
         error(f"Invalid database name '{db_name}'")
         sys.exit(1)
@@ -346,9 +354,9 @@ def _database_exists(db_name: str) -> bool:
             "-U",
             "odoo",
             "-d",
-            "postgres",
+            db_name,
             "-tAc",
-            f"SELECT 1 FROM pg_database WHERE datname = '{db_name}'",  # nosec B608 - validated identifier
+            "SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'ir_module_module'",
         ),
         capture=True,
         check=False,
@@ -796,7 +804,8 @@ def cmd_start(args):
     # Determine profile: dev (dynamic port) vs ui (fixed 8069)
     profile = args.profile
 
-    _warn_stale_vendor_dir()
+    if _report_reserved_root_dirs():
+        sys.exit(1)
 
     # Check if Docker image needs rebuilding (unless --no-build)
     if not getattr(args, "no_build", False):
@@ -1022,6 +1031,12 @@ def cmd_install(args):
     if not service:
         print("Error: No Odoo container running. Start with './odoo-project start' first.")
         sys.exit(1)
+    if not _database_exists(db_name):
+        print(
+            f"Error: database '{db_name}' is still initializing (the first start installs the base modules). "
+            "Wait for './odoo-project start' to finish, then run install again."
+        )
+        sys.exit(1)
 
     print(f"Installing {modules} into database '{db_name}'...")
     run(
@@ -1042,6 +1057,44 @@ def cmd_install(args):
     print("Install complete. Restarting Odoo...")
     run(docker_compose("restart", service, profile=profile))
 
+    if profile == "dev":
+        _show_url()
+    else:
+        print("Odoo available at: http://localhost:8069")
+
+
+def cmd_resetassets(args):
+    """Delete the stored asset bundles so Odoo recompiles them on the next page load.
+
+    Odoo keeps a compiled bundle as long as its version hash matches, and the hash
+    comes from the source files, not from whether the compile succeeded. After a
+    broken stylesheet build (for example a reserved top-level folder that has since
+    been moved) the error stub stays in the database until it is deleted.
+    """
+    db_name = args.db or "odoo"
+    service, profile = _find_running_odoo()
+    if not service:
+        print("Error: No Odoo container running. Start with './odoo-project start' first.")
+        sys.exit(1)
+
+    print(f"Deleting stored asset bundles in database '{db_name}'...")
+    run(
+        docker_compose(
+            "exec",
+            "-T",
+            "db",
+            "psql",
+            "-U",
+            "odoo",
+            "-d",
+            db_name,
+            "-c",
+            "DELETE FROM ir_attachment WHERE url LIKE '/web/assets/%'",
+            profile=profile,
+        )
+    )
+    print("Restarting Odoo so the bundles are rebuilt on the next page load...")
+    run(docker_compose("restart", service, profile=profile))
     if profile == "dev":
         _show_url()
     else:
@@ -1230,23 +1283,21 @@ def _download_file(url: str, dest: Path):
     urllib.request.urlretrieve(url, dest)  # nosec B310 - fixed https URL built from the pinned tag
 
 
-def _stale_vendor_dir():
-    """Return the old vendor/ checkout folder if it still exists, else None.
-
-    Its presence breaks every stylesheet build inside the container.
-    """
-    stale = PROJECT_ROOT / "vendor"
-    return stale if stale.is_dir() else None
+def _reserved_root_dirs() -> list:
+    """Top-level folders whose names hijack Odoo's SCSS imports (see RESERVED_ROOT_DIRS)."""
+    return sorted(name for name in RESERVED_ROOT_DIRS if (PROJECT_ROOT / name).is_dir())
 
 
-def _warn_stale_vendor_dir():
-    stale = _stale_vendor_dir()
-    if stale:
-        warn(
-            f"Stale checkout folder {stale.name}/ found at the repo root: Odoo stylesheet builds fail while it "
-            "exists. Move it to upstream/ (mv vendor upstream) or delete it, then run ./odoo-project vendor."
+def _report_reserved_root_dirs() -> list:
+    """Explain the problem for every reserved top-level folder found; return the list."""
+    found = _reserved_root_dirs()
+    if found:
+        error(
+            f"Top-level folder(s) {', '.join(found)} break Odoo stylesheet builds: Odoo resolves Bootstrap's SCSS "
+            f"imports against any addons root holding a folder named {', '.join(RESERVED_ROOT_DIRS)}. "
+            "Rename or move them (a stale OpenSPP checkout: mv vendor upstream), then run ./odoo-project resetassets."
         )
-    return stale
+    return found
 
 
 def _vendor_status() -> tuple:
@@ -1320,6 +1371,7 @@ def cmd_help(_args):
     print("  resetdb            Reset database (use with start to initialize)")
     print("  update, u <module> Update (upgrade) modules in running Odoo")
     print("  install, i <mod>   Install new modules into the running database")
+    print("  resetassets        Delete stored asset bundles so styling is rebuilt")
     print("  build, b           Build the Docker image locally (slow)")
     print("  pull               Pull the published Docker image (fast)")
     print("  vendor             Download OpenSPP source to upstream/openspp (read-only)")
@@ -1497,7 +1549,8 @@ def cmd_doctor(_args):
         success(f"Docker image: {ODOO_IMAGE} present")
     else:
         warn(f"Docker image: {ODOO_IMAGE} not found (run: ./odoo-project pull)")
-    _warn_stale_vendor_dir()
+    if _report_reserved_root_dirs():
+        all_ok = False
     vendor_state, vendor_ref = _vendor_status()
     if vendor_state == "ok":
         success(f"OpenSPP source: upstream/openspp at {vendor_ref}")
@@ -1621,6 +1674,7 @@ COMMANDS = {
     "u": cmd_update,
     "install": cmd_install,
     "i": cmd_install,
+    "resetassets": cmd_resetassets,
     "build": cmd_build,
     "b": cmd_build,
     "logs": cmd_logs,
@@ -1664,6 +1718,7 @@ MAIN_COMMANDS = [
     ("resetdb", "Reset database"),
     ("update", "Update modules"),
     ("install", "Install new modules"),
+    ("resetassets", "Rebuild the web assets (styling)"),
     ("build", "Build the Docker image locally"),
     ("pull", "Pull the published Docker image"),
     ("vendor", "Download OpenSPP source (read-only)"),
@@ -1744,6 +1799,10 @@ def build_parser():
     modules_arg = p.add_argument("modules", nargs="+", help="Module(s) to install")
     if HAS_ARGCOMPLETE:
         modules_arg.completer = _module_completer
+    p.add_argument("--db", default=CONFIG.get("default_db", "odoo"), help="Database name (default: odoo)")
+
+    # resetassets
+    p = subparsers.add_parser("resetassets", help="Delete stored asset bundles so styling is rebuilt")
     p.add_argument("--db", default=CONFIG.get("default_db", "odoo"), help="Database name (default: odoo)")
 
     # build

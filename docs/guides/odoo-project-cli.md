@@ -74,10 +74,12 @@ the models, views, groups, and tests you are extending.
 ./odoo-project vendor --force         # re-download (after changing OPENSPP_REF)
 ```
 
-The folder is `upstream/openspp`, not `vendor/`: the repo root is mounted into the container as an addons root, and a
-top-level `vendor` directory makes Odoo's stylesheet build resolve Bootstrap's `vendor/rfs` import against it, so every
-page loses its styling. If you have an old `vendor/` from an earlier version of this template, move it
-(`mv vendor upstream`) or delete it; `doctor` warns while it exists.
+The folder is `upstream/openspp`, not `vendor/`: the repo root is mounted into the container as an addons root, and
+Odoo's stylesheet build resolves Bootstrap's relative SCSS imports against any addons root that holds a folder with
+one of these names: `forms`, `helpers`, `mixins`, `utilities`, `vendor`. Such a top-level folder makes every page
+lose its styling. `doctor` reports them, `start` refuses to run, and a pre-commit hook blocks them. If you have an
+old `vendor/` from an earlier version of this template, move it (`mv vendor upstream`) or delete it, then run
+`./odoo-project resetassets`.
 
 ### start (s) — Start OpenSPP
 
@@ -148,6 +150,16 @@ to Apps > Update Apps List > Install in the UI.
 ```bash
 ./odoo-project install dswd_wellbeing
 ./odoo-project install dswd_wellbeing dswd_id_types   # several at once
+```
+
+### resetassets — Rebuild the styling
+
+Odoo keeps a compiled asset bundle as long as its version hash matches, and that hash comes from the source files,
+not from whether the compile succeeded. After a broken stylesheet build (pages shown unstyled, with "A css error
+occured" at the bottom), fix the cause, then delete the stored bundles and restart:
+
+```bash
+./odoo-project resetassets
 ```
 
 ### resetdb — Drop and recreate the database
@@ -228,6 +240,7 @@ default_db = "odoo"
 | "Docker image may be outdated"            | Accept the pull (it is quick when the image is already current); if the pull fails, log in to GHCR or run `./odoo-project build` |
 | Module not updating after code changes    | `./odoo-project update`, then `restart` if needed                               |
 | New module not found or not installed     | `./odoo-project install <module>`; `update` does not install new modules        |
+| Pages unstyled, "A css error occured" | `doctor` names the top-level folder to move; then `./odoo-project resetassets` |
 | First start seems stuck                   | Installing `spp_starter_sp_mis` takes 1-8 minutes; `logs -f` shows progress     |
 | Tests fail but the UI works               | Tests run on a fresh database; check the log path printed by `test`             |
 | Database connection errors                | `doctor`, then `status`, then `logs db`                                         |

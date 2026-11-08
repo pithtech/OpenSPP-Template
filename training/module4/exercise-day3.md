@@ -3,7 +3,15 @@
 Pick the tier that matches your setup. Finish one tier before starting the next. Ask your pair first, then your row,
 then the trainer.
 
-Before you start, on a working laptop:
+Before you start, on a working laptop, run the pre-flight. Every line must pass before you touch the exercise; if one
+fails, go to the helpers' table.
+
+1. `./odoo-project doctor` shows no error and no warning.
+2. `./odoo-project start` prints the URL and you can log in.
+3. The page is styled (blue sidebar, no red "css error" banner). If not: `./odoo-project resetassets`.
+4. `./odoo-project test dswd_wellbeing` reports 5 passed.
+
+Then:
 
 ```bash
 git checkout m4-step-5            # the finished module from Module 4

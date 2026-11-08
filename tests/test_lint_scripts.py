@@ -45,3 +45,27 @@ class TestNamingChecker:
         source = (LINT_DIR / "check_naming.py").read_text(encoding="utf-8")
         assert "_apply_fixes" not in source
         assert "TODO" not in source
+
+
+class TestRootDirChecker:
+    """A top-level folder named like an Odoo SCSS import root breaks every stylesheet build."""
+
+    def _run(self, root):
+        return subprocess.run(
+            [sys.executable, str(LINT_DIR / "check_root_dirs.py"), "--root", str(root)],
+            capture_output=True,
+            text=True,
+        )
+
+    def test_clean_root_passes(self, tmp_path):
+        (tmp_path / "dswd_wellbeing").mkdir()
+        result = self._run(tmp_path)
+        assert result.returncode == 0, result.stdout + result.stderr
+
+    def test_reserved_folder_fails_and_is_named(self, tmp_path):
+        (tmp_path / "helpers").mkdir()
+        (tmp_path / "vendor").mkdir()
+        result = self._run(tmp_path)
+        assert result.returncode == 1
+        assert "helpers" in result.stdout and "vendor" in result.stdout
+        assert "upstream" in result.stdout  # the way out for a stale checkout

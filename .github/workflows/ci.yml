@@ -68,7 +68,7 @@ jobs:
           changed_files=$(git diff --name-only "$BASE_REF"...HEAD 2>/dev/null || git diff --name-only HEAD~1 2>/dev/null || echo "")
           echo "Changed files:"; echo "$changed_files"
 
-          if echo "$changed_files" | grep -qE '^(docker/|\.env$|requirements\.txt$|docker-compose\.yml$)' \
+          if echo "$changed_files" | grep -qE '^(docker/|\.env$|requirements\.txt$|docker-compose\.yml$|odoo-project$|\.github/workflows/ci\.yml$)' \
              || [ "${{ github.event.inputs.smoke }}" = "true" ]; then
             echo "image_changed=true" >> "$GITHUB_OUTPUT"
           else
@@ -298,6 +298,25 @@ jobs:
           state=$(PGPASSWORD=odoo psql -h localhost -p "$DB_PORT" -U odoo -d smoke -tAc "SELECT state FROM ir_module_module WHERE name='spp_starter_sp_mis'")
           echo "spp_starter_sp_mis: $state"
           [ "$state" = "installed" ]
+      - name: Participant flow through the CLI (vendor, start, install, styled page)
+        run: |
+          python3 -m pip install -q pyyaml argcomplete
+          IMG=$(grep -E '^ODOO_IMAGE=' .env | cut -d= -f2-)
+          docker tag openspp-test:${{ github.sha }} "${IMG:-openspp-template-dev}"
+          ./odoo-project vendor
+          ./odoo-project doctor || true
+          ./odoo-project start --profile ui -y --no-build --no-watch
+          ./odoo-project install dswd_wellbeing
+          sleep 20
+          page=$(curl -sf http://localhost:8069/web/login)
+          echo "$page" | grep -q 'web.assets_frontend'
+          if echo "$page" | grep -qi 'css error'; then echo "::error::login page carries the CSS error banner"; exit 1; fi
+          css=$(echo "$page" | grep -o '/web/assets/[^"]*\.css' | head -1)
+          curl -sf "http://localhost:8069$css" | head -c 400 | grep -q '@charset' || { echo "::error::stylesheet bundle is not real CSS"; exit 1; }
+          if docker compose --profile ui logs odoo-app | grep -i 'assetsbundle.*Error'; then echo "::error::asset bundle error in the Odoo log"; exit 1; fi
+      - name: Stop the stack
+        if: always()
+        run: ./odoo-project stop -y || true
 
   # ============================================================================
   # Summary

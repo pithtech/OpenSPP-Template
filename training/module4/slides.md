@@ -56,14 +56,16 @@ Since EO 120 (July 2026) the level decides whether a household stays past seven 
 
 ## Where this lives in production
 
-The production 4Ps registry module ships **26 vocabularies** the same way:
+The production 4Ps registry module ships **27 vocabularies** the same way:
 
 - `urn:dswd:4ps:client-status` (32 statuses in 9 categories)
 - `urn:dswd:4ps:set-group` (`1A` to `12V`)
-- `urn:dswd:4ps:ip-group` (about 2,000 codes)
+- `urn:dswd:4ps:ip-group` (394 codes)
 - `urn:dswd:4ps:well-being-level` (the one we build)
 
-Household fields are `Many2one` to `spp.vocabulary.code`, exactly like ours.
+Client status and the other household fields are `Many2one` to `spp.vocabulary.code`, exactly like ours.
+
+In production the well-being level itself is computed by the SWDI module (Module 5, card 16).
 
 Module 5 this afternoon shows them. Module 4 builds the smallest one.
 
@@ -336,8 +338,7 @@ Drill time: three real excerpts, in pairs, 12 minutes.
 **Today**: manifest, data, model, view, security, tests. Inherit, prefix, point at a vocabulary. Read errors bottom up.
 Run the tests.
 
-**Module 5 (this afternoon)**: new models and menus, groups and record rules, hierarchical vocabularies (the 32
-statuses), programs and cycles, change requests, the production module map.
+**Module 5 (this afternoon)**: the production 4Ps modules, read through today's parts.
 
 **Module 6 (Day 3)**: your hands on the keyboard.
 

@@ -30,7 +30,7 @@ Edwin Gonzales, OpenSPP
 4. Recognise the production traps and say why "simplifying" them is dangerous.
 5. Find any module in the catalogue and read its card.
 
-A discussion of modules, not a tutorial. The screens are the NL training team's.
+A discussion of modules: we read the code, at the file each point is about.
 
 ---
 
@@ -56,7 +56,7 @@ Tests 3.13/4.10 · ORM 3.15 · Jobs 3.17 · Reports 3.18 · Vocabularies 4.4 · 
 
 I read a symptom. Your pair holds up the card for the file you would **open first**.
 
-Warm-up: "The list of reasons for a grantee change is missing 'deceased'."
+Warm-up: "The list of reasons for a grantee change needs 'working abroad'."
 
 ---
 
@@ -536,10 +536,11 @@ Twelve minutes, then report-back.
 
 ## Not today
 
-The modules on no card are in the catalogue index: registry tools (`registry_import`, `export`, `ecr`, `hazard`,
-`account_creation`), operations (`theme`, `attachment_hardening`, `post_sql_repair`, `pg_partition`), dashboards
-(`swdi_dashboard`, `cms_nas`) and 17 sample-data, demo and test modules.
+The modules on no card are in the catalogue index, for the post-training sessions:
 
-They are for the post-training sessions.
+- Registry tools: `registry_import`, `export`, `ecr`, `hazard`, `account_creation`
+- Operations: `theme`, `attachment_hardening`, `post_sql_repair`, `pg_partition`
+- Dashboards: `swdi_dashboard`, `cms_nas`
+- 17 sample-data, demo and test modules
 
 Keep the catalogue.

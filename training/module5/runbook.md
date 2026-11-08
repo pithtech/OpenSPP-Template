@@ -4,8 +4,8 @@ Day 2, 1:00 to 5:00. Trainer copy. Objectives and rationale are in
 [docs/planning/module5-training-design.md](../../docs/planning/module5-training-design.md); this page is what to do and
 say. Card numbers refer to [module-cards.md](module-cards.md).
 
-**This is a discussion of modules, not a tutorial.** Nothing is clicked in a running system; the NL training team covers
-the screens. The screen shows the deck or the production code in an editor, at the file a point is about.
+**This is a discussion of modules.** Nothing is clicked in a running system. The screen shows the deck or the production
+code in an editor, at the file a point is about.
 
 **Cut-offs are hard.** Drop order if late: integration to 5 minutes (poster and card 20 only); checkpoint 2; payroll to
 12 minutes (card 13 only); casework to 15 minutes (cards 16 and 18). **Never dropped**: the map, foundation, change
@@ -32,8 +32,9 @@ requests, the triage and the closing.
    box is a part this module uses in a way you must know."
 3. The category cards: "M, V, D, S, W, J, A, T. I read a symptom; your pair holds up the card for the file you would
    open first, not the file the fix ends in."
-4. Warm-up: "A user says: the list of reasons for a grantee change is missing 'deceased'." Count to three. Answer: D, a
-   vocabulary data file. "Module 4, block 2."
+4. Warm-up: "A user says: the list of reasons for a grantee change needs 'working abroad'." Count to three. Answer: D, a
+   vocabulary data file, `dswd_4ps_registry/data/vocabulary_grantee_change_reasons.xml`. "Module 4, block 2. And the
+   file is `noupdate`: on production, a new code also needs a migration."
 
 ## Block 2, 1:10 to 1:25: the map (card 1)
 

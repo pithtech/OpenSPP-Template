@@ -24,7 +24,7 @@ dropped.
 2. Say: "Survival, Subsistence, Self-Sufficient: the SWDI levels. Since EO 120 the level decides whether a household
    stays in the program past seven years. By noon you will know every file it took to put that dropdown there, and how
    to find out why it is missing when it is."
-3. One slide: where this lives in production (`dswd_4ps_registry`, 26 vocabularies, same pattern).
+3. One slide: where this lives in production (`dswd_4ps_registry`, 27 vocabularies, same pattern).
 
 ## Block 2, 10:05 to 10:15: module anatomy (paper)
 
@@ -121,8 +121,8 @@ relation) and where `help=` shows up.
 ## Block 10, 11:50 to 12:00: recap and handoff
 
 1. Objectives slide: read the five, ask for a thumbs up on each.
-2. What moves to Module 5: new models and menus, groups and record rules, hierarchical vocabularies, programs and
-   cycles, change requests, the production module map.
+2. What moves to Module 5: the production modules read through this morning's parts: the module map, the registry and
+   its hierarchical vocabularies, roles and approvals, change requests, compliance, payroll, casework, APIs.
 3. Hand out [exercise-day3.md](exercise-day3.md). "Your repository already has the finished module; before Module 6:
    `./odoo-project start` and `install dswd_wellbeing`. If your laptop does not run Docker, Tier 1 needs only the folder
    and your eyes."

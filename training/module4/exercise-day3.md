@@ -11,10 +11,10 @@ fails, go to the helpers' table.
 3. The page is styled (blue sidebar, no red "css error" banner). If not: `./odoo-project resetassets`.
 4. `./odoo-project test dswd_wellbeing` reports 5 passed.
 
-Then:
+Your repository was created from the template, so it already contains the finished `dswd_wellbeing` from Module 4 (a
+template copy has no history and no tags; the `m4-step-N` tags exist only in the trainer's checkout). Then:
 
 ```bash
-git checkout m4-step-5            # the finished module from Module 4
 ./odoo-project start              # or: ./odoo-project start --profile dev
 ./odoo-project install dswd_wellbeing
 ```

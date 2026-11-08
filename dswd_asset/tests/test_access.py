@@ -1,4 +1,5 @@
 # Part of the DSWD 4Ps OpenSPP training template. See LICENSE file for full copyright and licensing details.
+from odoo import Command
 from odoo.exceptions import AccessError
 from odoo.tests import TransactionCase, tagged
 
@@ -20,7 +21,7 @@ class TestDswdAssetAccess(TransactionCase):
                 "name": login,
                 "login": login,
                 "email": f"{login}@example.test",
-                "group_ids": [(6, 0, [self.env.ref(group_xmlid).id])],
+                "group_ids": [Command.set([self.env.ref(group_xmlid).id])],
             }
         )
 

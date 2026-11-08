@@ -32,13 +32,14 @@ dswd_wellbeing/
 
 ## 4. The loop
 
-| You changed                                                             | Run                                                           | Then                    |
-| ----------------------------------------------------------------------- | ------------------------------------------------------------- | ----------------------- |
-| Nothing yet, new module                                                 | `./odoo-project install dswd_wellbeing`                       | Apps shows it installed |
-| A Python method body, an existing view                                  | nothing (dev profile reloads)                                 | refresh the browser     |
-| `__manifest__.py`, `data/`, `security/`, a new field, a new view record | `./odoo-project update`                                       | refresh                 |
-| A record in a `noupdate="1"` data file                                  | delete the record, then `update`; or `stop -v -y` and `start` |                         |
-| A test                                                                  | `./odoo-project test dswd_wellbeing`                          | read the summary line   |
+| You changed                                                             | Run                                                                             | Then                    |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ----------------------- |
+| Nothing yet, new module                                                 | `./odoo-project install dswd_wellbeing`                                         | Apps shows it installed |
+| A Python method body                                                    | `./odoo-project restart`; nothing with `start --profile dev` (it reloads)       | refresh the browser     |
+| An existing view's XML                                                  | `./odoo-project update`; nothing with `start --profile dev` (it reads the file) | refresh the browser     |
+| `__manifest__.py`, `data/`, `security/`, a new field, a new view record | `./odoo-project update`                                                         | refresh                 |
+| A record in a `noupdate="1"` data file                                  | delete the record, then `update`; or `stop -v -y` and `start`                   |                         |
+| A test                                                                  | `./odoo-project test dswd_wellbeing`                                            | read the summary line   |
 
 Logs: `./odoo-project logs`. Three lines to recognise: `Loading module dswd_wellbeing`, `odoo.tools.convert.ParseError`,
 `cannot be located in parent view`.

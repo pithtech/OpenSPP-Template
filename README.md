@@ -107,6 +107,7 @@ See [docs/guides/claude-code-for-developers.md](docs/guides/claude-code-for-deve
 ├── docker-compose.yml               # db, odoo-app, odoo-dev, jobworker, test
 ├── upstream/openspp/                  # OpenSPP source, read-only, gitignored (odoo-project vendor)
 ├── dswd_*/                          # Your modules
+├── dswd_asset/                      # Training module (Module 3): an IT asset register from scratch
 ├── dswd_wellbeing/                  # Training module (Module 4): well-being level on households
 ├── docs/                            # Guides, principles, architecture, ADRs
 ├── scripts/                         # Lint, compliance, and test helpers used by the CLI and CI
@@ -128,6 +129,7 @@ Change `OPENSPP_REF` in `.env`, then `odoo-project pull` (or `build`), `odoo-pro
 | -------------------------- | ---------------------------------------------------------------------------- |
 | Pre-training setup         | [training/SETUP.md](training/SETUP.md)                                       |
 | 4Ps program reference      | [training/4ps-program-reference.md](training/4ps-program-reference.md)       |
+| Module 3 training materials | [training/module3/](training/module3/)                                      |
 | Module 4 training materials | [training/module4/](training/module4/)                                      |
 | Windows notes              | [docs/guides/windows-setup.md](docs/guides/windows-setup.md)                 |
 | CLI reference              | [docs/guides/odoo-project-cli.md](docs/guides/odoo-project-cli.md)           |

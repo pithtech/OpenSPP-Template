@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- How the table is drawn as rows -->
+    <record id="view_dswd_asset_list" model="ir.ui.view">
+        <field name="name">dswd.asset.list</field>
+        <field name="model">dswd.asset</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name" />
+                <field name="model_name" />
+                <field name="asset_type" />
+                <field name="custodian_id" widget="many2one_avatar_user" />
+                <field name="purchase_date" optional="show" />
+                <field name="is_under_warranty" />
+            </list>
+        </field>
+    </record>
+
+    <!-- How one record is drawn -->
+    <record id="view_dswd_asset_form" model="ir.ui.view">
+        <field name="name">dswd.asset.form</field>
+        <field name="model">dswd.asset</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Asset tag, e.g. LT-0001" /></h1>
+                    </div>
+                    <group name="group_main">
+                        <group name="group_identity" string="Identity">
+                            <field name="model_name" />
+                            <field name="asset_type" />
+                            <field name="custodian_id" widget="many2one_avatar_user" />
+                        </group>
+                        <group name="group_lifecycle" string="Lifecycle">
+                            <field name="purchase_date" />
+                            <field name="warranty_end_date" />
+                            <field name="is_under_warranty" />
+                            <field name="is_in_use" />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- What the search box and the filters offer -->
+    <record id="view_dswd_asset_search" model="ir.ui.view">
+        <field name="name">dswd.asset.search</field>
+        <field name="model">dswd.asset</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="model_name" />
+                <field name="custodian_id" />
+                <filter name="filter_in_use" string="In use" domain="[('is_in_use', '=', True)]" />
+                <group>
+                    <filter name="group_by_type" string="Type" context="{'group_by': 'asset_type'}" />
+                    <filter name="group_by_custodian" string="Custodian" context="{'group_by': 'custodian_id'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- What a menu opens: the model with its views -->
+    <record id="action_dswd_asset" model="ir.actions.act_window">
+        <field name="name">IT Assets</field>
+        <field name="res_model">dswd.asset</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_filter_in_use': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Register the first asset</p>
+            <p>Start with the laptop in front of you: its tag, make and model, and who looks after it.</p>
+        </field>
+    </record>
+</odoo>

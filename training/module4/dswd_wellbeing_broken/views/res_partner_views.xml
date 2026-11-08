@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!--
+        One form serves individuals and households in spp_registry. The
+        household pages are named group_*; the new section goes after the
+        tags on the household Profile page.
+    -->
+    <record id="view_res_partner_form_wellbeing" model="ir.ui.view">
+        <field name="name">res.partner.form.dswd.wellbeing</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="spp_registry.view_individuals_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='group_tag_section']" position="after">
+                <group name="dswd_4ps_section" string="4Ps">
+                    <field name="dswd_well_being_level_id" options="{'no_create': True, 'no_open': True}" />
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

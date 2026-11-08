@@ -21,4 +21,5 @@ Then:
    - `refactor(scope): description` - Code refactoring
    - `test(scope): description` - Tests
 4. Use HEREDOC format for the commit message
-5. Run `git status` after commit to verify success
+5. No Claude attribution: no `Co-Authored-By` trailer, no "Generated with Claude Code" line
+6. Run `git status` after commit to verify success

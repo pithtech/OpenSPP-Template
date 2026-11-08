@@ -26,4 +26,5 @@ Then:
      - [ ] How to verify the changes work
      ```
 
-3. Return the PR URL when done
+3. No Claude attribution in the title or body: no "Generated with Claude Code" footer, no mention of Claude
+4. Return the PR URL when done

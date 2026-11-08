@@ -19,16 +19,22 @@ The OpenSPP release is pinned once, in .env (OPENSPP_REF).
 Works in both Docker mode (local dev) and local mode (Claude Code web).
 """
 
+import sys
+
+# tomllib (below) needs Python 3.11; say so instead of failing with an import traceback.
+if sys.version_info < (3, 11):  # noqa: UP036 - runs before the 3.11-only import below
+    sys.exit("odoo-project needs Python 3.11 or newer (found %d.%d)" % sys.version_info[:2])
+
 import json
 import os
 import re
 import shutil
 import subprocess
-import sys
 import tarfile
 import tempfile
 import time
 import tomllib
+import urllib.error
 import urllib.request
 from pathlib import Path
 
@@ -68,6 +74,14 @@ if sys.platform == "win32":
         # ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004
         kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 0x0007)
     except Exception:
+        pass
+
+# Output redirected to a file on Windows (`doctor > doctor.txt`) uses cp1252, which has
+# no ✓ or ℹ: replace what cannot be encoded instead of crashing.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(errors="replace")
+    except (AttributeError, ValueError):
         pass
 
 # Check if output supports colors
@@ -121,7 +135,9 @@ def load_config() -> dict:
             with open(CONFIG_PATH, "rb") as f:
                 user_config = tomllib.load(f)
                 config.update(user_config)
-        except (tomllib.TOMLDecodeError, OSError) as e:
+        except (ValueError, OSError) as e:
+            # ValueError covers TOMLDecodeError and UnicodeDecodeError (a UTF-16 file
+            # written by `echo ... >` in Windows PowerShell 5.1).
             warn(f"Could not load config from {CONFIG_PATH}: {e}")
     return config
 
@@ -184,6 +200,9 @@ def run(cmd: str | list, check: bool = True, capture: bool = False, **kwargs) ->
     if capture:
         kwargs["capture_output"] = True
         kwargs["text"] = True
+        # Docker and Odoo write UTF-8; Windows would otherwise decode with cp1252 and can crash.
+        kwargs["encoding"] = "utf-8"
+        kwargs["errors"] = "replace"
 
     # Dry-run mode: print command instead of executing
     if DRY_RUN:
@@ -268,23 +287,24 @@ def _pull_image() -> bool:
 
 def _explain_pull_failure(message: str):
     """Say why the pull failed in terms the setup guide uses, and what to do."""
+    build = ".\\odoo-project build" if sys.platform == "win32" else "./odoo-project build"
     text = message.lower()
     if "no matching manifest" in text:
         wanted = re.search(r"for (linux/[a-z0-9/]+)", text)
         platform = wanted.group(1) if wanted else "this machine's architecture"
         error(
-            f"The published image exists only for linux/amd64 (Windows and Intel machines); this machine is "
+            f"The published image exists only for linux/amd64 (x86-64: Intel or AMD); this machine is "
             f"{platform} (Apple Silicon or another ARM processor), so there is nothing to pull."
         )
-        info("Build the image locally instead (10 to 25 minutes): ./odoo-project build")
+        info(f"Build the image locally instead (10 to 25 minutes): {build}")
         return
     if "unauthorized" in text or "denied" in text:
         info("The image is private: run `docker login ghcr.io` with a GitHub token that has read:packages")
-        info("(see training/SETUP.md step 8). Otherwise build it locally with: ./odoo-project build")
+        info(f"(see training/SETUP.md step 8). Otherwise build it locally with: {build}")
         return
     if message.strip():
         info("Docker said: " + message.strip().splitlines()[-1])
-    info("Check the network and `docker login ghcr.io`, or build the image locally with: ./odoo-project build")
+    info(f"Check the network and `docker login ghcr.io`, or build the image locally with: {build}")
 
 
 def _build_image(service: str, profile: str):
@@ -389,6 +409,28 @@ def _database_exists(db_name: str) -> bool:
     return result.returncode == 0 and result.stdout.strip() == "1"
 
 
+def _parse_compose_ps(stdout: str) -> list:
+    """Parse `docker compose ps --format json`: one object per line, or one JSON array (older Compose)."""
+    text = (stdout or "").strip()
+    if text.startswith("["):
+        try:
+            parsed = json.loads(text)
+        except json.JSONDecodeError:
+            return []
+        return [c for c in parsed if isinstance(c, dict)]
+    containers = []
+    for line in text.split("\n"):
+        if not line:
+            continue
+        try:
+            container = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(container, dict):
+            containers.append(container)
+    return containers
+
+
 def _find_running_odoo() -> tuple:
     """Find running Odoo service and profile."""
     # Check both profiles
@@ -401,16 +443,9 @@ def _find_running_odoo() -> tuple:
         if result.returncode != 0:
             continue
 
-        # Parse JSON output (one object per line)
-        for line in result.stdout.strip().split("\n"):
-            if not line:
-                continue
-            try:
-                container = json.loads(line)
-                if container.get("Service") == service_name and container.get("State") == "running":
-                    return service_name, profile
-            except json.JSONDecodeError:
-                continue
+        for container in _parse_compose_ps(result.stdout):
+            if container.get("Service") == service_name and container.get("State") == "running":
+                return service_name, profile
 
     return None, None
 
@@ -571,7 +606,7 @@ def _test_docker(module: str, tags: str | None = None):
 
         # Save log
         log_content = (test_result.stdout or "") + (test_result.stderr or "")
-        log_file.write_text(log_content)
+        log_file.write_text(log_content, encoding="utf-8")
 
     finally:
         # Always drop the temp database
@@ -598,7 +633,7 @@ def _test_docker(module: str, tags: str | None = None):
 
 def _display_test_results(log_file: Path):
     """Parse Odoo test log and display a summary."""
-    log_content = log_file.read_text() if log_file.exists() else ""
+    log_content = log_file.read_text(encoding="utf-8", errors="replace") if log_file.exists() else ""
 
     print("")
     print("========== TEST RESULTS ==========")
@@ -1209,24 +1244,18 @@ def _show_url(open_browser: bool = False) -> str | None:
     if result.returncode != 0:
         return None
 
-    try:
-        for line in result.stdout.strip().split("\n"):
-            if not line:
-                continue
-            container = json.loads(line)
-            if container.get("Service") == "odoo-dev":
-                for publisher in container.get("Publishers", []):
-                    if publisher.get("TargetPort") == 8069:
-                        port = publisher.get("PublishedPort")
-                        if port:
-                            url = f"http://localhost:{port}"
-                            print(f"Odoo URL: {url}")
-                            print("Credentials: admin / admin")
-                            if open_browser:
-                                _open_browser(url)
-                            return url
-    except (json.JSONDecodeError, KeyError):
-        pass
+    for container in _parse_compose_ps(result.stdout):
+        if container.get("Service") == "odoo-dev":
+            for publisher in container.get("Publishers") or []:
+                if publisher.get("TargetPort") == 8069:
+                    port = publisher.get("PublishedPort")
+                    if port:
+                        url = f"http://localhost:{port}"
+                        print(f"Odoo URL: {url}")
+                        print("Credentials: admin / admin")
+                        if open_browser:
+                            _open_browser(url)
+                        return url
 
     return None
 
@@ -1290,6 +1319,11 @@ def cmd_pull(_args):
     """Pull the published image for the pinned OpenSPP release (fast alternative to build)."""
     if _pull_image():
         success(f"Image ready: {ODOO_IMAGE} (OpenSPP {OPENSPP_REF})")
+        # The database image comes from Docker Hub; fetch it now, visibly, rather than silently on the first start.
+        print("Pulling the database image ...")
+        sys.stdout.flush()
+        if run(docker_compose("pull", "db"), check=False).returncode != 0:
+            warn("Could not pull the database image; `start` will try again")
         return
 
     error(f"Could not pull {ODOO_IMAGE_REMOTE}:{OPENSPP_REF}")
@@ -1356,7 +1390,12 @@ def cmd_vendor(args):
     with tempfile.TemporaryDirectory(dir=VENDOR_DIR.parent) as tmp:
         tmp_dir = Path(tmp)
         tarball = tmp_dir / "openspp.tar.gz"
-        _download_file(url, tarball)
+        try:
+            _download_file(url, tarball)
+        except (urllib.error.URLError, OSError) as e:
+            error(f"Could not download {url}: {e}")
+            info("Check the network. Behind a proxy, set HTTPS_PROXY (for example http://proxy.example:8080).")
+            sys.exit(1)
 
         extract_dir = tmp_dir / "extract"
         extract_dir.mkdir()
@@ -1504,7 +1543,13 @@ def cmd_doctor(_args):
     if result.returncode == 0:
         success("Docker daemon: running")
         os_type, kernel, mem_total = (result.stdout.strip().split("|") + ["", "", ""])[:3]
-        if sys.platform == "win32":
+        if os_type and os_type != "linux":
+            error(
+                f"Docker is in {os_type} containers mode: right-click the Docker Desktop tray icon and choose "
+                "'Switch to Linux containers'"
+            )
+            all_ok = False
+        elif sys.platform == "win32":
             if "WSL" in kernel or "microsoft" in kernel.lower():
                 success("Docker backend: WSL 2")
             else:
@@ -1545,7 +1590,7 @@ def cmd_doctor(_args):
         result = run(["git", "--version"], capture=True, check=False)
         success(f"Git: {result.stdout.strip()}")
     else:
-        warn("Git: not found (optional)")
+        warn("Git: not found (needed to clone and commit; see training/SETUP.md step 2)")
 
     # Check pre-commit
     precommit_path = shutil.which("pre-commit")
@@ -1553,13 +1598,13 @@ def cmd_doctor(_args):
         result = run(["pre-commit", "--version"], capture=True, check=False)
         success(f"pre-commit: {result.stdout.strip()}")
     else:
-        warn("pre-commit: not found (optional, for linting)")
+        warn("pre-commit: not found (needed for commit hooks and lint; see training/SETUP.md step 4)")
 
     # Check argcomplete
     if HAS_ARGCOMPLETE:
         success("argcomplete: installed (tab completion available)")
     else:
-        warn("argcomplete: not installed (optional, for tab completion)")
+        info("argcomplete: not installed (optional, for tab completion)")
         info("  Install with: pip install argcomplete")
 
     # OpenSPP release, image, and source checkout
@@ -1591,8 +1636,8 @@ def cmd_doctor(_args):
         success(f"Config file: {CONFIG_PATH}")
     else:
         info(f"Config file: {CONFIG_PATH} (not found, using defaults)")
-        info("  Create one with your preferences:")
-        info("    echo 'default_demo = \"base\"' > ~/.odoo-project.toml")
+        info("  Create one with your preferences in a text editor, saved as UTF-8, containing:")
+        info('    default_demo = "base"')
 
     # Check port availability (8069)
     print("")
@@ -1675,7 +1720,7 @@ def cmd_audit_security(args):
     if args.report:
         cmd.append("--report")
     if args.json:
-        cmd.append("--json")
+        cmd.extend(["--format", "json"])
 
     sys.exit(run(cmd, check=False).returncode)
 

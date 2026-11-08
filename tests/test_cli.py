@@ -465,3 +465,187 @@ class TestResetAssets:
         assert exc.value.code == 1
         assert "start" in capsys.readouterr().out
         assert not rec.calls
+
+
+class TestConfigFile:
+    """~/.odoo-project.toml is loaded at import time, so a bad file must never stop the CLI."""
+
+    def test_utf16_config_warns_and_uses_defaults(self, cli, monkeypatch, tmp_path, capsys):
+        """Windows PowerShell 5.1 `echo ... > file` writes UTF-16 with a BOM."""
+        config = tmp_path / ".odoo-project.toml"
+        config.write_text('default_demo = "base"\n', encoding="utf-16")
+        monkeypatch.setattr(cli, "CONFIG_PATH", config)
+        assert cli.load_config() == cli.DEFAULT_CONFIG
+        assert "Could not load config" in capsys.readouterr().out
+
+    def test_valid_config_is_loaded(self, cli, monkeypatch, tmp_path):
+        config = tmp_path / ".odoo-project.toml"
+        config.write_text('default_demo = "base"\n', encoding="utf-8")
+        monkeypatch.setattr(cli, "CONFIG_PATH", config)
+        assert cli.load_config()["default_demo"] == "base"
+
+
+class TestDoctor:
+    @pytest.fixture
+    def doctor(self, cli, monkeypatch, tmp_path, capsys):
+        """Run doctor with every subprocess answered by a Recorder; return the printed text."""
+
+        def _run(stdout="", has_argcomplete=True):
+            monkeypatch.setattr(cli, "run", Recorder(stdout=stdout))
+            monkeypatch.setattr(cli, "CONFIG_PATH", tmp_path / "missing.toml")
+            monkeypatch.setattr(cli, "HAS_ARGCOMPLETE", has_argcomplete)
+            cli.cmd_doctor(None)
+            captured = capsys.readouterr()
+            return captured.out + captured.err
+
+        return _run
+
+    def test_config_hint_does_not_use_a_shell_redirect(self, doctor):
+        """A redirect in Windows PowerShell 5.1 writes UTF-16, which TOML cannot read."""
+        text = doctor()
+        assert "> ~/.odoo-project.toml" not in text
+        assert "UTF-8" in text
+
+    def test_missing_argcomplete_is_not_a_warning(self, doctor):
+        text = doctor(has_argcomplete=False)
+        assert "⚠ argcomplete" not in text
+        assert "argcomplete" in text
+
+    def test_windows_containers_mode_is_an_error(self, cli, doctor, monkeypatch):
+        text = doctor(stdout="windows|10.0 20348|8589934592")
+        assert "Linux containers" in text
+
+    def test_linux_containers_mode_is_not_flagged(self, doctor):
+        text = doctor(stdout="linux|6.6.87.2-microsoft-standard-WSL2|8589934592")
+        assert "Linux containers" not in text
+
+
+class TestComposePs:
+    """`docker compose ps --format json` prints one object per line (Compose 2.21+) or one array (older)."""
+
+    APP = {"Service": "odoo-app", "State": "running"}
+    DEV = {
+        "Service": "odoo-dev",
+        "State": "running",
+        "Publishers": [{"TargetPort": 8069, "PublishedPort": 55001}],
+    }
+
+    def test_parses_one_object_per_line(self, cli):
+        import json
+
+        stdout = json.dumps(self.APP) + "\n" + json.dumps(self.DEV) + "\n"
+        assert cli._parse_compose_ps(stdout) == [self.APP, self.DEV]
+
+    def test_parses_a_json_array(self, cli):
+        import json
+
+        assert cli._parse_compose_ps(json.dumps([self.APP, self.DEV])) == [self.APP, self.DEV]
+
+    def test_ignores_garbage_and_empty_output(self, cli):
+        assert cli._parse_compose_ps("") == []
+        assert cli._parse_compose_ps("not json\n") == []
+
+    def test_find_running_odoo_accepts_an_array(self, cli, monkeypatch):
+        import json
+
+        monkeypatch.setattr(cli, "run", Recorder(stdout=json.dumps([self.APP])))
+        assert cli._find_running_odoo() == ("odoo-app", "ui")
+
+    def test_show_url_dev_profile_accepts_an_array(self, cli, monkeypatch, capsys):
+        import json
+
+        monkeypatch.setattr(cli, "_find_running_odoo", lambda: ("odoo-dev", "dev"))
+        monkeypatch.setattr(cli, "run", Recorder(stdout=json.dumps([self.DEV])))
+        assert cli._show_url() == "http://localhost:55001"
+
+
+class TestRunEncoding:
+    def test_captured_output_is_decoded_as_utf8_with_replacement(self, cli, monkeypatch):
+        """Windows would otherwise decode Docker's UTF-8 output with cp1252 and can crash."""
+        seen = {}
+
+        def fake_run(cmd, check=True, **kwargs):
+            seen.update(kwargs)
+            return SimpleNamespace(returncode=0, stdout="", stderr="")
+
+        monkeypatch.setattr(cli.subprocess, "run", fake_run)
+        cli.run(["docker", "info"], capture=True, check=False)
+        assert seen["encoding"] == "utf-8"
+        assert seen["errors"] == "replace"
+
+    def test_test_log_is_read_as_utf8(self, cli, tmp_path, capsys):
+        log = tmp_path / "test.log"
+        log.write_bytes("INFO odoo: café → 0 failed, 0 error(s) of 3 tests\n".encode())
+        cli._display_test_results(log)
+        assert "TEST RESULTS" in capsys.readouterr().out
+
+
+class TestPythonVersionGuard:
+    def test_old_python_gets_a_message_before_tomllib_is_imported(self):
+        source = CLI_PATH.read_text(encoding="utf-8")
+        assert "sys.version_info < (3, 11)" in source
+        assert source.index("sys.version_info < (3, 11)") < source.index("import tomllib")
+
+
+class TestPullAlsoFetchesDatabase:
+    def test_pull_fetches_the_database_image_with_visible_output(self, cli, monkeypatch, tmp_path):
+        rec = Recorder()
+        monkeypatch.setattr(cli, "run", rec)
+        monkeypatch.setattr(cli.tempfile, "gettempdir", lambda: str(tmp_path))
+        cli.cmd_pull(SimpleNamespace())
+        assert ["docker", "compose", "pull", "db"] in rec.calls
+
+    def test_windows_build_hint_uses_backslash(self, cli, monkeypatch, capsys):
+        monkeypatch.setattr(cli.sys, "platform", "win32")
+        cli._explain_pull_failure("no matching manifest for linux/arm64/v8")
+        captured = capsys.readouterr()
+        assert ".\\odoo-project build" in captured.out + captured.err
+
+
+class TestVendorNetworkError:
+    def test_download_failure_exits_with_a_proxy_hint(self, cli, monkeypatch, tmp_path, capsys):
+        import urllib.error
+
+        monkeypatch.setattr(cli, "PROJECT_ROOT", tmp_path)
+        monkeypatch.setattr(cli, "VENDOR_DIR", tmp_path / "upstream" / "openspp")
+
+        def fail(url, dest):
+            raise urllib.error.URLError("timed out")
+
+        monkeypatch.setattr(cli, "_download_file", fail)
+        with pytest.raises(SystemExit) as exc:
+            cli.cmd_vendor(SimpleNamespace(force=False))
+        assert exc.value.code == 1
+        captured = capsys.readouterr()
+        text = captured.out + captured.err
+        assert "Could not download" in text and "HTTPS_PROXY" in text
+
+
+class TestAuditSecurity:
+    def test_json_flag_maps_to_the_script_format_option(self, cli, monkeypatch):
+        rec = Recorder()
+        monkeypatch.setattr(cli, "run", rec)
+        with pytest.raises(SystemExit):
+            cli.cmd_audit_security(SimpleNamespace(modules=["dswd_asset", "dswd_wellbeing"], report=False, json=True))
+        cmd = rec.calls[0]
+        assert "--json" not in cmd
+        assert cmd[cmd.index("--format") + 1] == "json"
+        assert "dswd_asset" in cmd and "dswd_wellbeing" in cmd
+
+
+class TestRedirectedOutput:
+    def test_output_to_a_non_utf8_stream_does_not_crash(self, tmp_path):
+        """`doctor > doctor.txt` on Windows writes with cp1252, which has no ✓ or ℹ."""
+        import os
+        import subprocess
+        import sys
+
+        env = dict(os.environ, PYTHONIOENCODING="ascii")
+        result = subprocess.run(
+            [sys.executable, str(CLI_PATH), "-n", "stop"],
+            capture_output=True,
+            env=env,
+            cwd=tmp_path,
+        )
+        assert b"UnicodeEncodeError" not in result.stderr, result.stderr.decode(errors="replace")
+        assert result.returncode == 0

@@ -474,7 +474,9 @@ Do this before the session; the downloads are large.
 
    `doctor` must show no red crosses. `pull` downloads about 650 MB (2.3 GB on disk once extracted). If it fails with
    `unauthorized` or `denied`, repeat the `docker login ghcr.io` step above; if it fails for another reason, run
-   `odoo-project build` instead (slower, 10 to 25 minutes).
+   `odoo-project build` instead (slower, 10 to 25 minutes). On an Apple Silicon Mac, `pull` fails with
+   `no matching manifest for linux/arm64`: the published image is for Windows and Intel machines, so run
+   `odoo-project build` there.
 
 5. Optional but recommended: `odoo-project start`, wait for "Odoo available at http://localhost:8069", log in with
    `admin` / `admin`, then `odoo-project stop`. The first start installs OpenSPP: about a minute on a fast machine, up

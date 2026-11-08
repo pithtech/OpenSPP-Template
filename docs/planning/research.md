@@ -134,8 +134,8 @@ volume-mounting a local OpenSPP checkout (same bind-mount problem).
 
 ### 6.3 Readable OpenSPP source for Claude and participants
 Claude Code cannot extend what it cannot read, and the image's copy is not on the host. **Recommendation**: add
-`odoo-project vendor` (name open) that downloads the same `2026.09` tarball into a gitignored `vendor/openspp/`
-folder, and reference it from `CLAUDE.md` ("upstream source is in `vendor/openspp/`, read-only"). The tarball
+`odoo-project vendor` (name open) that downloads the same `2026.09` tarball into a gitignored `upstream/openspp/`
+folder, and reference it from `CLAUDE.md` ("upstream source is in `upstream/openspp/`, read-only"). The tarball
 is ~30 MB; no git history. The image and the vendor folder share the one `OPENSPP_REF` constant.
 
 ### 6.4 Default modules and demo profiles
@@ -168,7 +168,7 @@ training.
 ## 7. Open questions for Edwin
 
 1. **Prebuilt image on GHCR** (§6.2): do you want this repo's CI to publish `ghcr.io/pithtech/openspp-template:2026.09` so participants only pull? It needs the package set to public, or participants logged in to GHCR.
-2. **Vendor checkout** (§6.3): agree to a gitignored `vendor/openspp/` fetched by the CLI, so Claude can read upstream source?
+2. **Vendor checkout** (§6.3): agree to a gitignored `upstream/openspp/` fetched by the CLI, so Claude can read upstream source?
 3. **Example module** (§6.5): `res.partner` registrant extension as sketched, or something closer to the 4Ps domain (for example attendance compliance, grade level) from the v1 4Ps repo?
 4. **Prefix convention** (§6.1): confirm "organisation prefix, never `spp_`" as the taught rule.
 5. **Scope of docs**: drop the 10 ADRs and the production compose files as proposed?

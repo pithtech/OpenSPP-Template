@@ -39,6 +39,6 @@ docs/
 ## Upstream Documentation
 
 - OpenSPP documentation: <https://docs.openspp.org>
-- OpenSPP source (pinned release, read-only): `vendor/openspp/` after `./odoo-project vendor`
-- OpenSPP developer conventions: `vendor/openspp/AGENTS.md`
+- OpenSPP source (pinned release, read-only): `upstream/openspp/` after `./odoo-project vendor`
+- OpenSPP developer conventions: `upstream/openspp/AGENTS.md`
 - Odoo 19 developer documentation: <https://www.odoo.com/documentation/19.0/developer.html>

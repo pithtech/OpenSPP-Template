@@ -23,7 +23,7 @@ How Claude Code is configured for this project and how to get the most out of it
 
 - **`docs/principles/`** — Deep-dive principle files. Claude reads these when it needs detail beyond what the rules provide.
 - **`docs/architecture/`** — Architecture vision and ADRs.
-- **`vendor/openspp/`** — The OpenSPP source for the pinned release. Claude reads the module it extends before writing code; it is denied edit access to this folder by `.claude/settings.json`.
+- **`upstream/openspp/`** — The OpenSPP source for the pinned release. Claude reads the module it extends before writing code; it is denied edit access to this folder by `.claude/settings.json`.
 
 ## Recommended Workflow
 

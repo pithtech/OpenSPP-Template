@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+-->
+<odoo>
+    <!-- ========================================== -->
+    <!-- EXTEND SPP.AREA FORM VIEW                  -->
+    <!-- Add population and household count fields -->
+    <!-- ========================================== -->
+    <record id="view_spp_area_form_gis_report" model="ir.ui.view">
+        <field name="name">spp.area.form.gis.report</field>
+        <field name="model">spp.area</field>
+        <field name="inherit_id" ref="spp_area.view_spparea_form" />
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <!-- Add Reference Data section after the main info group -->
+            <xpath expr="//group[@name='main_info']" position="after">
+                <separator string="Reference Data for GIS Reports" />
+                <div class="text-muted small mb-2">
+                    These fields are populated from external sources such as national census data or official estimates.
+                    They are used for normalization in GIS reports (e.g., per-capita or per-household calculations).
+                </div>
+                <group name="gis_reference_data" col="2">
+                    <group name="population_group">
+                        <field name="population" readonly="1" />
+                        <field name="population_date" readonly="1" />
+                        <field name="population_source" readonly="1" />
+                    </group>
+                    <group name="household_group">
+                        <field name="household_count" readonly="1" />
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

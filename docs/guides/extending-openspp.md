@@ -4,17 +4,17 @@ How to add 4Ps behaviour to OpenSPP without touching OpenSPP. Read this before y
 
 ## The One Rule
 
-**Never modify OpenSPP.** It runs from the Docker image and sits read-only in `vendor/openspp/`. Everything you
+**Never modify OpenSPP.** It runs from the Docker image and sits read-only in `upstream/openspp/`. Everything you
 need is reachable through Odoo's extension mechanisms: `_inherit`, inherited views, hooks, security groups, data
 files, and configuration. If upstream has a bug, work around it in your module and send OpenSPP a pull request.
 
 ## Step 1: Find What You Are Extending
 
 ```bash
-./odoo-project vendor                  # once; fetches vendor/openspp at the pinned release
-grep -rn "_name = \"spp.program\"" vendor/openspp/*/models/
-grep -rln "is_registrant" vendor/openspp/spp_registry/models/
-ls vendor/openspp/spp_programs/{models,views,security,tests}
+./odoo-project vendor                  # once; fetches upstream/openspp at the pinned release
+grep -rn "_name = \"spp.program\"" upstream/openspp/*/models/
+grep -rln "is_registrant" upstream/openspp/spp_registry/models/
+ls upstream/openspp/spp_programs/{models,views,security,tests}
 ```
 
 Read, in this order: the module's `readme/DESCRIPTION.md`, the model file, its `security/` folder, the view you
@@ -93,7 +93,7 @@ method with `super()` and keep your addition small.
 </odoo>
 ```
 
-- Find the upstream view id in `vendor/openspp/<module>/views/` and the named groups inside it.
+- Find the upstream view id in `upstream/openspp/<module>/views/` and the named groups inside it.
 - Target named elements only. Positional XPath breaks on the next OpenSPP release.
 - One inherited view per upstream view per module.
 - `spp_registry.view_individuals_form` serves both individuals and households. Individual sections are named
@@ -128,7 +128,7 @@ Put your groups under OpenSPP's categories and link your manager group into the 
 
 Then `ir.model.access.csv` for every new model (first row `base.group_system`, full CRUD), and record rules where
 officers must see only their area. See `docs/principles/access-rights.md` and
-`vendor/openspp/spp_registry/security/` for a complete example.
+`upstream/openspp/spp_registry/security/` for a complete example.
 
 ## Step 5: Tests
 
@@ -163,7 +163,7 @@ The `jobworker` compose service executes jobs; watch them under **Settings > Tec
 
 ## What Not To Do
 
-- Edit files under `vendor/openspp/` or copy upstream models into your module
+- Edit files under `upstream/openspp/` or copy upstream models into your module
 - Name modules or models `spp_*` / `spp.*`
 - Depend on `spp_starter_sp_mis` (depend on the specific module you extend)
 - Expose database ids in APIs, exports, or QR codes; use `spp.registry.id`
@@ -173,5 +173,5 @@ The `jobworker` compose service executes jobs; watch them under **Settings > Tec
 ## Further Reading
 
 - OpenSPP documentation: <https://docs.openspp.org>
-- `vendor/openspp/AGENTS.md` for upstream conventions and pitfalls
+- `upstream/openspp/AGENTS.md` for upstream conventions and pitfalls
 - `docs/principles/module-architecture.md`, `docs/principles/access-rights.md`, `docs/principles/api-design.md`

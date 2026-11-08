@@ -203,6 +203,6 @@ another module, use the fully qualified form: `{module}.{xml_id}`
 ---
 
 **Authoritative Sources:**
-- [OpenSPP security module](../../vendor/openspp/spp_security/readme/DESCRIPTION.md) - Categories, admin group, extension pattern (after `./odoo-project vendor`)
+- [OpenSPP security module](../../upstream/openspp/spp_security/readme/DESCRIPTION.md) - Categories, admin group, extension pattern (after `./odoo-project vendor`)
 
 **See also:** [Access Rights](access-rights.md), [Module Architecture](module-architecture.md)

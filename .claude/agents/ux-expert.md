@@ -13,7 +13,7 @@ extensible user interfaces.
 ## Context
 
 This is a DSWD 4Ps extension project on OpenSPP (Odoo 19). Modules use `dswd_*` naming and extend upstream `spp_*`
-modules whose read-only source is in `vendor/openspp/`. You provide guidance on form layouts, view design, and user
+modules whose read-only source is in `upstream/openspp/`. You provide guidance on form layouts, view design, and user
 experience patterns.
 
 ## Core UI Principles (@docs/principles/ui-design.md)

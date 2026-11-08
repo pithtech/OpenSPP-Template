@@ -1,0 +1,1023 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils: https://docutils.sourceforge.io/" />
+<title>OpenSPP API V2 - Change Request</title>
+<style type="text/css">
+
+/*
+:Author: David Goodger (goodger@python.org)
+:Id: $Id: html4css1.css 9511 2024-01-13 09:50:07Z milde $
+:Copyright: This stylesheet has been placed in the public domain.
+
+Default cascading style sheet for the HTML output of Docutils.
+Despite the name, some widely supported CSS2 features are used.
+
+See https://docutils.sourceforge.io/docs/howto/html-stylesheets.html for how to
+customize this style sheet.
+*/
+
+/* used to remove borders from tables and images */
+.borderless, table.borderless td, table.borderless th {
+  border: 0 }
+
+table.borderless td, table.borderless th {
+  /* Override padding for "table.docutils td" with "! important".
+     The right padding separates the table cells. */
+  padding: 0 0.5em 0 0 ! important }
+
+.first {
+  /* Override more specific margin styles with "! important". */
+  margin-top: 0 ! important }
+
+.last, .with-subtitle {
+  margin-bottom: 0 ! important }
+
+.hidden {
+  display: none }
+
+.subscript {
+  vertical-align: sub;
+  font-size: smaller }
+
+.superscript {
+  vertical-align: super;
+  font-size: smaller }
+
+a.toc-backref {
+  text-decoration: none ;
+  color: black }
+
+blockquote.epigraph {
+  margin: 2em 5em ; }
+
+dl.docutils dd {
+  margin-bottom: 0.5em }
+
+object[type="image/svg+xml"], object[type="application/x-shockwave-flash"] {
+  overflow: hidden;
+}
+
+/* Uncomment (and remove this text!) to get bold-faced definition list terms
+dl.docutils dt {
+  font-weight: bold }
+*/
+
+div.abstract {
+  margin: 2em 5em }
+
+div.abstract p.topic-title {
+  font-weight: bold ;
+  text-align: center }
+
+div.admonition, div.attention, div.caution, div.danger, div.error,
+div.hint, div.important, div.note, div.tip, div.warning {
+  margin: 2em ;
+  border: medium outset ;
+  padding: 1em }
+
+div.admonition p.admonition-title, div.hint p.admonition-title,
+div.important p.admonition-title, div.note p.admonition-title,
+div.tip p.admonition-title {
+  font-weight: bold ;
+  font-family: sans-serif }
+
+div.attention p.admonition-title, div.caution p.admonition-title,
+div.danger p.admonition-title, div.error p.admonition-title,
+div.warning p.admonition-title, .code .error {
+  color: red ;
+  font-weight: bold ;
+  font-family: sans-serif }
+
+/* Uncomment (and remove this text!) to get reduced vertical space in
+   compound paragraphs.
+div.compound .compound-first, div.compound .compound-middle {
+  margin-bottom: 0.5em }
+
+div.compound .compound-last, div.compound .compound-middle {
+  margin-top: 0.5em }
+*/
+
+div.dedication {
+  margin: 2em 5em ;
+  text-align: center ;
+  font-style: italic }
+
+div.dedication p.topic-title {
+  font-weight: bold ;
+  font-style: normal }
+
+div.figure {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+div.footer, div.header {
+  clear: both;
+  font-size: smaller }
+
+div.line-block {
+  display: block ;
+  margin-top: 1em ;
+  margin-bottom: 1em }
+
+div.line-block div.line-block {
+  margin-top: 0 ;
+  margin-bottom: 0 ;
+  margin-left: 1.5em }
+
+div.sidebar {
+  margin: 0 0 0.5em 1em ;
+  border: medium outset ;
+  padding: 1em ;
+  background-color: #ffffee ;
+  width: 40% ;
+  float: right ;
+  clear: right }
+
+div.sidebar p.rubric {
+  font-family: sans-serif ;
+  font-size: medium }
+
+div.system-messages {
+  margin: 5em }
+
+div.system-messages h1 {
+  color: red }
+
+div.system-message {
+  border: medium outset ;
+  padding: 1em }
+
+div.system-message p.system-message-title {
+  color: red ;
+  font-weight: bold }
+
+div.topic {
+  margin: 2em }
+
+h1.section-subtitle, h2.section-subtitle, h3.section-subtitle,
+h4.section-subtitle, h5.section-subtitle, h6.section-subtitle {
+  margin-top: 0.4em }
+
+h1.title {
+  text-align: center }
+
+h2.subtitle {
+  text-align: center }
+
+hr.docutils {
+  width: 75% }
+
+img.align-left, .figure.align-left, object.align-left, table.align-left {
+  clear: left ;
+  float: left ;
+  margin-right: 1em }
+
+img.align-right, .figure.align-right, object.align-right, table.align-right {
+  clear: right ;
+  float: right ;
+  margin-left: 1em }
+
+img.align-center, .figure.align-center, object.align-center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+table.align-center {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.align-left {
+  text-align: left }
+
+.align-center {
+  clear: both ;
+  text-align: center }
+
+.align-right {
+  text-align: right }
+
+/* reset inner alignment in figures */
+div.align-right {
+  text-align: inherit }
+
+/* div.align-center * { */
+/*   text-align: left } */
+
+.align-top    {
+  vertical-align: top }
+
+.align-middle {
+  vertical-align: middle }
+
+.align-bottom {
+  vertical-align: bottom }
+
+ol.simple, ul.simple {
+  margin-bottom: 1em }
+
+ol.arabic {
+  list-style: decimal }
+
+ol.loweralpha {
+  list-style: lower-alpha }
+
+ol.upperalpha {
+  list-style: upper-alpha }
+
+ol.lowerroman {
+  list-style: lower-roman }
+
+ol.upperroman {
+  list-style: upper-roman }
+
+p.attribution {
+  text-align: right ;
+  margin-left: 50% }
+
+p.caption {
+  font-style: italic }
+
+p.credits {
+  font-style: italic ;
+  font-size: smaller }
+
+p.label {
+  white-space: nowrap }
+
+p.rubric {
+  font-weight: bold ;
+  font-size: larger ;
+  color: maroon ;
+  text-align: center }
+
+p.sidebar-title {
+  font-family: sans-serif ;
+  font-weight: bold ;
+  font-size: larger }
+
+p.sidebar-subtitle {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+p.topic-title {
+  font-weight: bold }
+
+pre.address {
+  margin-bottom: 0 ;
+  margin-top: 0 ;
+  font: inherit }
+
+pre.literal-block, pre.doctest-block, pre.math, pre.code {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+pre.code .ln { color: gray; } /* line numbers */
+pre.code, code { background-color: #eeeeee }
+pre.code .comment, code .comment { color: #5C6576 }
+pre.code .keyword, code .keyword { color: #3B0D06; font-weight: bold }
+pre.code .literal.string, code .literal.string { color: #0C5404 }
+pre.code .name.builtin, code .name.builtin { color: #352B84 }
+pre.code .deleted, code .deleted { background-color: #DEB0A1}
+pre.code .inserted, code .inserted { background-color: #A3D289}
+
+span.classifier {
+  font-family: sans-serif ;
+  font-style: oblique }
+
+span.classifier-delimiter {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+span.interpreted {
+  font-family: sans-serif }
+
+span.option {
+  white-space: nowrap }
+
+span.pre {
+  white-space: pre }
+
+span.problematic, pre.problematic {
+  color: red }
+
+span.section-subtitle {
+  /* font-size relative to parent (h1..h6 element) */
+  font-size: 80% }
+
+table.citation {
+  border-left: solid 1px gray;
+  margin-left: 1px }
+
+table.docinfo {
+  margin: 2em 4em }
+
+table.docutils {
+  margin-top: 0.5em ;
+  margin-bottom: 0.5em }
+
+table.footnote {
+  border-left: solid 1px black;
+  margin-left: 1px }
+
+table.docutils td, table.docutils th,
+table.docinfo td, table.docinfo th {
+  padding-left: 0.5em ;
+  padding-right: 0.5em ;
+  vertical-align: top }
+
+table.docutils th.field-name, table.docinfo th.docinfo-name {
+  font-weight: bold ;
+  text-align: left ;
+  white-space: nowrap ;
+  padding-left: 0 }
+
+/* "booktabs" style (no vertical lines) */
+table.docutils.booktabs {
+  border: 0px;
+  border-top: 2px solid;
+  border-bottom: 2px solid;
+  border-collapse: collapse;
+}
+table.docutils.booktabs * {
+  border: 0px;
+}
+table.docutils.booktabs th {
+  border-bottom: thin solid;
+  text-align: left;
+}
+
+h1 tt.docutils, h2 tt.docutils, h3 tt.docutils,
+h4 tt.docutils, h5 tt.docutils, h6 tt.docutils {
+  font-size: 100% }
+
+ul.auto-toc {
+  list-style-type: none }
+
+</style>
+</head>
+<body>
+<div class="document" id="openspp-api-v2-change-request">
+<h1 class="title">OpenSPP API V2 - Change Request</h1>
+
+<!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! This file is generated by oca-gen-addon-readme !!
+!! changes will be overwritten.                   !!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! source digest: sha256:f0eb351ebbac7d2cbba534cfbfd7974c8d249260515826a8ee9341f64eb16d4f
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
+<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Production/Stable" src="https://img.shields.io/badge/maturity-Production%2FStable-green.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"><img alt="License: LGPL-3" src="https://img.shields.io/badge/license-LGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_api_v2_change_request"><img alt="OpenSPP/OpenSPP2" src="https://img.shields.io/badge/github-OpenSPP%2FOpenSPP2-lightgray.png?logo=github" /></a></p>
+<p>Exposes REST API endpoints for managing change requests through the
+OpenSPP API V2 framework. Allows external systems to create change
+requests, submit them for approval, and apply approved changes to
+registrants via OAuth 2.0 authenticated API calls. Uses CR reference
+numbers (CR/2024/00001) instead of database IDs for all operations.
+Auto-installs when both <tt class="docutils literal">spp_api_v2</tt> and <tt class="docutils literal">spp_change_request_v2</tt> are
+present.</p>
+<div class="section" id="key-capabilities">
+<h1>Key Capabilities</h1>
+<ul class="simple">
+<li>Create change requests in draft status with registrant and detail data</li>
+<li>Read individual change requests by reference or search with filters
+(registrant, type, status, dates)</li>
+<li>Update detail data on draft change requests with optimistic locking
+via If-Match/ETag headers</li>
+<li>Submit draft requests for approval workflow</li>
+<li>Approve, reject, or request revision on pending requests (requires
+approval scope)</li>
+<li>Apply approved change requests to registrant records</li>
+<li>Reset rejected/revision requests to draft for resubmission</li>
+<li>Discover available CR types and retrieve JSON Schema for type-specific
+detail fields</li>
+<li>Paginated search results with next/prev navigation URLs</li>
+</ul>
+</div>
+<div class="section" id="key-models">
+<h1>Key Models</h1>
+<p>This module extends existing models and does not define new ones.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="42%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Model</th>
+<th class="head">Usage</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><tt class="docutils literal">fastapi.endpoint</tt></td>
+<td>Extended to register ChangeRequest
+router with API V2</td>
+</tr>
+<tr><td><tt class="docutils literal">spp.api.client.scope</tt></td>
+<td>Extended to add <tt class="docutils literal">change_request</tt> as
+a resource selection</td>
+</tr>
+<tr><td><tt class="docutils literal">spp.change.request</tt></td>
+<td>CRUD operations via REST API</td>
+</tr>
+<tr><td><tt class="docutils literal">spp.change.request.type</tt></td>
+<td>Looked up by code; provides type
+metadata and field schemas</td>
+</tr>
+<tr><td><tt class="docutils literal">spp.registry.id</tt></td>
+<td>Used to resolve registrant identifiers
+(system|value)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="configuration">
+<h1>Configuration</h1>
+<p>This module automatically extends the existing API V2 endpoint when
+installed. No additional configuration is required.</p>
+<p>To configure OAuth 2.0 clients with appropriate scopes:</p>
+<ol class="arabic simple">
+<li>Navigate to <strong>Settings &gt; Technical &gt; FastAPI &gt; Endpoints</strong> (provided
+by <tt class="docutils literal">spp_api_v2</tt>)</li>
+<li>Configure OAuth 2.0 clients with appropriate scopes:<ul>
+<li><tt class="docutils literal">change_request:read</tt> - Read and search change requests, list CR
+types</li>
+<li><tt class="docutils literal">change_request:create</tt> - Create new change requests</li>
+<li><tt class="docutils literal">change_request:update</tt> - Update, submit, and reset requests</li>
+<li><tt class="docutils literal">change_request:approve</tt> - Approve, reject, or request revision</li>
+<li><tt class="docutils literal">change_request:apply</tt> - Apply approved changes to registrants</li>
+</ul>
+</li>
+</ol>
+</div>
+<div class="section" id="api-endpoints">
+<h1>API Endpoints</h1>
+<ul class="simple">
+<li><tt class="docutils literal">POST /ChangeRequest</tt> - Create new change request</li>
+<li><tt class="docutils literal">GET <span class="pre">/ChangeRequest/{reference}</span></tt> - Read by reference</li>
+<li><tt class="docutils literal">GET /ChangeRequest</tt> - Search with filters and pagination</li>
+<li><tt class="docutils literal">PUT <span class="pre">/ChangeRequest/{reference}</span></tt> - Update detail data</li>
+<li><tt class="docutils literal">POST <span class="pre">/ChangeRequest/{reference}/$submit</span></tt> - Submit for approval</li>
+<li><tt class="docutils literal">POST <span class="pre">/ChangeRequest/{reference}/$approve</span></tt> - Approve request</li>
+<li><tt class="docutils literal">POST <span class="pre">/ChangeRequest/{reference}/$reject</span></tt> - Reject request</li>
+<li><tt class="docutils literal">POST <span class="pre">/ChangeRequest/{reference}/$request-revision</span></tt> - Request
+revision</li>
+<li><tt class="docutils literal">POST <span class="pre">/ChangeRequest/{reference}/$apply</span></tt> - Apply to registrant</li>
+<li><tt class="docutils literal">POST <span class="pre">/ChangeRequest/{reference}/$reset</span></tt> - Reset to draft</li>
+<li><tt class="docutils literal">GET <span class="pre">/ChangeRequest/$types</span></tt> - List available CR types</li>
+<li><tt class="docutils literal">GET <span class="pre">/ChangeRequest/$types/{code}</span></tt> - Get JSON Schema for a CR type’s
+detail fields</li>
+</ul>
+</div>
+<div class="section" id="security">
+<h1>Security</h1>
+<p>No model access rules — this module extends existing models only. Access
+is controlled via OAuth 2.0 scopes on the <tt class="docutils literal">change_request</tt> resource.
+Each endpoint checks <tt class="docutils literal">has_scope(resource, action)</tt> and returns 403
+Forbidden if the client lacks the required scope. Users must
+authenticate via the <tt class="docutils literal">spp_api_v2</tt> OAuth 2.0 provider.</p>
+</div>
+<div class="section" id="extension-points">
+<h1>Extension Points</h1>
+<ul class="simple">
+<li>Inherit <tt class="docutils literal">ChangeRequestService</tt> to customize serialization,
+validation, or business logic</li>
+<li>Override router endpoint functions to add custom validation or side
+effects</li>
+<li>Extend the API schema by inheriting the Pydantic models in
+<tt class="docutils literal">schemas/change_request.py</tt></li>
+</ul>
+</div>
+<div class="section" id="ui-location">
+<h1>UI Location</h1>
+<p>No standalone menu — API-only module. The ChangeRequest router is
+automatically registered with the API V2 endpoint when this module is
+installed.</p>
+</div>
+<div class="section" id="dependencies">
+<h1>Dependencies</h1>
+<p><tt class="docutils literal">spp_api_v2</tt>, <tt class="docutils literal">spp_change_request_v2</tt></p>
+<p><strong>Table of contents</strong></p>
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#usage" id="toc-entry-1">Usage</a></li>
+</ul>
+</div>
+<div class="section" id="usage">
+<h2><a class="toc-backref" href="#toc-entry-1">Usage</a></h2>
+</div>
+</div>
+<div class="section" id="prerequisites">
+<h1>Prerequisites</h1>
+<p>Before testing the Change Request API, ensure you have:</p>
+<ol class="arabic simple">
+<li>A running OpenSPP instance with <tt class="docutils literal">spp_api_v2_change_request</tt>
+installed</li>
+<li>An API client configured with <tt class="docutils literal">change_request:all</tt> scope (or
+individual scopes per endpoint)</li>
+<li>At least one registrant with an external identifier (e.g., via
+<tt class="docutils literal">spp.registry.id</tt>)</li>
+<li>At least one active Change Request type (e.g., <tt class="docutils literal">edit_individual</tt>)</li>
+</ol>
+<p><strong>Setting up an API client</strong></p>
+<p>Navigate to <strong>Settings &gt; Technical &gt; FastAPI &gt; Endpoints</strong>, open the
+OpenSPP API V2 endpoint, and create an API client under the <strong>Clients</strong>
+tab. Configure scopes for the <tt class="docutils literal">change_request</tt> resource. Use
+<tt class="docutils literal">All Actions</tt> for testing, or assign granular scopes:</p>
+<ul class="simple">
+<li><tt class="docutils literal">Read</tt> — list types, read and search change requests</li>
+<li><tt class="docutils literal">Create</tt> — create new change requests</li>
+<li><tt class="docutils literal">Update</tt> — update detail data, submit for approval, reset to draft</li>
+<li>Approve and Apply actions require the <tt class="docutils literal">All Actions</tt> scope</li>
+</ul>
+<p><strong>Obtaining an access token</strong></p>
+<p>All endpoints (except <tt class="docutils literal">$types</tt> listing) require a Bearer token. Obtain
+one via the OAuth 2.0 Client Credentials flow:</p>
+<pre class="code bash literal-block">
+<span class="c1"># Replace with your client_id and client_secret
+</span>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8069/api/v2/spp/oauth/token<span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-d<span class="w"> </span><span class="s1">'{
+    &quot;client_id&quot;: &quot;your_client_id&quot;,
+    &quot;client_secret&quot;: &quot;your_client_secret&quot;,
+    &quot;grant_type&quot;: &quot;client_credentials&quot;
+  }'</span>
+</pre>
+<p>Response:</p>
+<pre class="code json literal-block">
+<span class="p">{</span><span class="w">
+  </span><span class="nt">&quot;access_token&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eyJhbGci...&quot;</span><span class="p">,</span><span class="w">
+  </span><span class="nt">&quot;token_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Bearer&quot;</span><span class="p">,</span><span class="w">
+  </span><span class="nt">&quot;expires_in&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">86400</span><span class="p">,</span><span class="w">
+  </span><span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;change_request:all&quot;</span><span class="w">
+</span><span class="p">}</span>
+</pre>
+<p>Set the token for subsequent requests:</p>
+<pre class="code bash literal-block">
+<span class="nv">TOKEN</span><span class="o">=</span><span class="s2">&quot;eyJhbGci...&quot;</span>
+</pre>
+</div>
+<div class="section" id="api-endpoints-1">
+<h1>API Endpoints</h1>
+<p><strong>1. List Change Request Types</strong></p>
+<p>Discover available CR types and their target registrant types.</p>
+<pre class="code bash literal-block">
+curl<span class="w"> </span>-s<span class="w"> </span>http://localhost:8069/api/v2/spp/ChangeRequest/<span class="se">\$</span>types<span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
+</pre>
+<p>Response:</p>
+<pre class="code json literal-block">
+<span class="p">[</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="nt">&quot;code&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;edit_individual&quot;</span><span class="p">,</span><span class="w">
+    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Edit Individual&quot;</span><span class="p">,</span><span class="w">
+    </span><span class="nt">&quot;targetType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;individual&quot;</span><span class="p">,</span><span class="w">
+    </span><span class="nt">&quot;requiresApplicant&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="nt">&quot;code&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;add_member&quot;</span><span class="p">,</span><span class="w">
+    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Add Member&quot;</span><span class="p">,</span><span class="w">
+    </span><span class="nt">&quot;targetType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;group&quot;</span><span class="p">,</span><span class="w">
+    </span><span class="nt">&quot;requiresApplicant&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">]</span>
+</pre>
+<p><strong>2. Get Type Field Schema</strong></p>
+<p>Retrieve the JSON Schema for a CR type’s detail fields. Use this to
+discover which fields are available, their types, and valid values for
+vocabulary fields.</p>
+<pre class="code bash literal-block">
+curl<span class="w"> </span>-s<span class="w"> </span>http://localhost:8069/api/v2/spp/ChangeRequest/<span class="se">\$</span>types/edit_individual<span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
+</pre>
+<p>Response (abbreviated):</p>
+<pre class="code json literal-block">
+<span class="p">{</span><span class="w">
+  </span><span class="nt">&quot;typeInfo&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">&quot;code&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;edit_individual&quot;</span><span class="p">,</span><span class="w">
+    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Edit Individual&quot;</span><span class="p">,</span><span class="w">
+    </span><span class="nt">&quot;targetType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;individual&quot;</span><span class="p">,</span><span class="w">
+    </span><span class="nt">&quot;requiresApplicant&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nt">&quot;detailSchema&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">&quot;$schema&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://json-schema.org/draft/2020-12/schema&quot;</span><span class="p">,</span><span class="w">
+    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span><span class="w">
+    </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Edit Individual Detail&quot;</span><span class="p">,</span><span class="w">
+    </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">&quot;given_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span><span class="w">
+        </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Given Name&quot;</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="nt">&quot;family_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span><span class="w">
+        </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Family Name&quot;</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="nt">&quot;birthdate&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span><span class="w">
+        </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;date&quot;</span><span class="p">,</span><span class="w">
+        </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Date of Birth&quot;</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="nt">&quot;gender_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span><span class="w">
+        </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Gender&quot;</span><span class="p">,</span><span class="w">
+        </span><span class="nt">&quot;x-field-type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;vocabulary&quot;</span><span class="p">,</span><span class="w">
+        </span><span class="nt">&quot;x-vocabulary-uri&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;urn:iso:std:iso:5218&quot;</span><span class="p">,</span><span class="w">
+        </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nt">&quot;system&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;const&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;urn:iso:std:iso:5218&quot;</span><span class="w"> </span><span class="p">},</span><span class="w">
+          </span><span class="nt">&quot;code&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">&quot;oneOf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+              </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;const&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Male&quot;</span><span class="w"> </span><span class="p">},</span><span class="w">
+              </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;const&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Female&quot;</span><span class="w"> </span><span class="p">}</span><span class="w">
+            </span><span class="p">]</span><span class="w">
+          </span><span class="p">}</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="nt">&quot;phone&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span><span class="w">
+        </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Phone Number&quot;</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="nt">&quot;email&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span><span class="w">
+        </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Email&quot;</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nt">&quot;availableDocuments&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+  </span><span class="nt">&quot;requiredDocuments&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+</span><span class="p">}</span>
+</pre>
+<p><strong>3. Create a Change Request</strong></p>
+<p>Create a new CR in <tt class="docutils literal">draft</tt> status. The <tt class="docutils literal">registrant</tt> field uses the
+external identifier format <tt class="docutils literal">system|value</tt> (not database IDs).</p>
+<pre class="code bash literal-block">
+curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8069/api/v2/spp/ChangeRequest<span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-d<span class="w"> </span><span class="s1">'{
+    &quot;type&quot;: &quot;ChangeRequest&quot;,
+    &quot;requestType&quot;: { &quot;code&quot;: &quot;edit_individual&quot; },
+    &quot;registrant&quot;: {
+      &quot;system&quot;: &quot;urn:openspp:vocab:id-type&quot;,
+      &quot;value&quot;: &quot;PH-123456789&quot;
+    },
+    &quot;detail&quot;: {
+      &quot;given_name&quot;: &quot;Maria Elena&quot;,
+      &quot;family_name&quot;: &quot;Santos&quot;,
+      &quot;phone&quot;: &quot;+639171234567&quot;
+    },
+    &quot;description&quot;: &quot;Name correction request&quot;
+  }'</span>
+</pre>
+<p>Response (<tt class="docutils literal">201 Created</tt>):</p>
+<pre class="code json literal-block">
+<span class="p">{</span><span class="w">
+  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ChangeRequest&quot;</span><span class="p">,</span><span class="w">
+  </span><span class="nt">&quot;reference&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CR/2026/00001&quot;</span><span class="p">,</span><span class="w">
+  </span><span class="nt">&quot;requestType&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;code&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;edit_individual&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Edit Individual&quot;</span><span class="w"> </span><span class="p">},</span><span class="w">
+  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;draft&quot;</span><span class="p">,</span><span class="w">
+  </span><span class="nt">&quot;registrant&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">&quot;system&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;urn:openspp:vocab:id-type&quot;</span><span class="p">,</span><span class="w">
+    </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;PH-123456789&quot;</span><span class="p">,</span><span class="w">
+    </span><span class="nt">&quot;display&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SANTOS, MARIA&quot;</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nt">&quot;detail&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">&quot;given_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Maria Elena&quot;</span><span class="p">,</span><span class="w">
+    </span><span class="nt">&quot;family_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Santos&quot;</span><span class="p">,</span><span class="w">
+    </span><span class="nt">&quot;phone&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;+639171234567&quot;</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nt">&quot;isApplied&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+  </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Name correction request&quot;</span><span class="p">,</span><span class="w">
+  </span><span class="nt">&quot;meta&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">&quot;versionId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1710000000000000&quot;</span><span class="p">,</span><span class="w">
+    </span><span class="nt">&quot;lastUpdated&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-03-16T01:00:00.000000&quot;</span><span class="p">,</span><span class="w">
+    </span><span class="nt">&quot;source&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;urn:openspp:api-client:your_client_id&quot;</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span>
+</pre>
+<p>The response includes a <tt class="docutils literal">Location</tt> header:
+<tt class="docutils literal">/api/v2/spp/ChangeRequest/CR/2026/00001</tt>.</p>
+<p><strong>Create with vocabulary fields</strong></p>
+<p>Use the <tt class="docutils literal">system</tt>/<tt class="docutils literal">code</tt> format for vocabulary-typed fields (e.g.,
+<tt class="docutils literal">gender_id</tt>):</p>
+<pre class="code bash literal-block">
+curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8069/api/v2/spp/ChangeRequest<span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-d<span class="w"> </span><span class="s1">'{
+    &quot;type&quot;: &quot;ChangeRequest&quot;,
+    &quot;requestType&quot;: { &quot;code&quot;: &quot;edit_individual&quot; },
+    &quot;registrant&quot;: {
+      &quot;system&quot;: &quot;urn:openspp:vocab:id-type&quot;,
+      &quot;value&quot;: &quot;PH-123456789&quot;
+    },
+    &quot;detail&quot;: {
+      &quot;given_name&quot;: &quot;Maria&quot;,
+      &quot;gender_id&quot;: {
+        &quot;system&quot;: &quot;urn:iso:std:iso:5218&quot;,
+        &quot;code&quot;: &quot;2&quot;
+      },
+      &quot;birthdate&quot;: &quot;1990-05-15&quot;
+    }
+  }'</span>
+</pre>
+<p><strong>4. Read a Change Request</strong></p>
+<p>Read a CR by its reference number. The reference has three path segments
+(e.g., <tt class="docutils literal">CR/2026/00001</tt>).</p>
+<pre class="code bash literal-block">
+curl<span class="w"> </span>-s<span class="w"> </span>http://localhost:8069/api/v2/spp/ChangeRequest/CR/2026/00001<span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
+</pre>
+<p>The response includes an <tt class="docutils literal">ETag</tt> header with the <tt class="docutils literal">versionId</tt>, which
+can be used for optimistic locking on updates.</p>
+<p><strong>5. Search Change Requests</strong></p>
+<p>Search with filters and pagination. All filter parameters are optional.</p>
+<pre class="code bash literal-block">
+<span class="c1"># Search by registrant
+</span>curl<span class="w"> </span>-s<span class="w"> </span><span class="s1">'http://localhost:8069/api/v2/spp/ChangeRequest?registrant=urn:openspp:vocab:id-type|PH-123456789'</span><span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w">
+
+</span><span class="c1"># Search by type and status with pagination
+</span>curl<span class="w"> </span>-s<span class="w"> </span><span class="s1">'http://localhost:8069/api/v2/spp/ChangeRequest?requestType=edit_individual&amp;status=draft&amp;_count=10&amp;_offset=0'</span><span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w">
+
+</span><span class="c1"># Search by date range
+</span>curl<span class="w"> </span>-s<span class="w"> </span><span class="s1">'http://localhost:8069/api/v2/spp/ChangeRequest?createdAfter=2026-01-01&amp;createdBefore=2026-12-31'</span><span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
+</pre>
+<p>Response:</p>
+<pre class="code json literal-block">
+<span class="p">{</span><span class="w">
+  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ChangeRequest&quot;</span><span class="p">,</span><span class="w">
+      </span><span class="nt">&quot;reference&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CR/2026/00001&quot;</span><span class="p">,</span><span class="w">
+      </span><span class="nt">&quot;requestType&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;code&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;edit_individual&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Edit Individual&quot;</span><span class="w"> </span><span class="p">},</span><span class="w">
+      </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;draft&quot;</span><span class="p">,</span><span class="w">
+      </span><span class="nt">&quot;registrant&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">&quot;system&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;urn:openspp:vocab:id-type&quot;</span><span class="p">,</span><span class="w">
+        </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;PH-123456789&quot;</span><span class="p">,</span><span class="w">
+        </span><span class="nt">&quot;display&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SANTOS, MARIA&quot;</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="nt">&quot;isApplied&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+      </span><span class="nt">&quot;meta&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;versionId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1710000000000000&quot;</span><span class="w"> </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="nt">&quot;meta&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+    </span><span class="nt">&quot;count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+    </span><span class="nt">&quot;offset&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nt">&quot;links&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">&quot;self&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/api/v2/spp/ChangeRequest?_count=10&amp;_offset=0&quot;</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span>
+</pre>
+<p>The <tt class="docutils literal">links</tt> object includes <tt class="docutils literal">next</tt> and <tt class="docutils literal">prev</tt> URLs when more pages
+are available.</p>
+<p><strong>6. Update Change Request Detail</strong></p>
+<p>Update detail fields on a <tt class="docutils literal">draft</tt> CR. Only fields present in the
+request body are updated; omitted fields are left unchanged.</p>
+<pre class="code bash literal-block">
+curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>PUT<span class="w"> </span>http://localhost:8069/api/v2/spp/ChangeRequest/CR/2026/00001<span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-d<span class="w"> </span><span class="s1">'{
+    &quot;detail&quot;: {
+      &quot;given_name&quot;: &quot;Maria Elena&quot;,
+      &quot;phone&quot;: &quot;+639171234568&quot;
+    }
+  }'</span>
+</pre>
+<p><strong>Optimistic locking with If-Match</strong></p>
+<p>Use the <tt class="docutils literal">ETag</tt> value from a previous read to prevent concurrent
+modification conflicts:</p>
+<pre class="code bash literal-block">
+curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>PUT<span class="w"> </span>http://localhost:8069/api/v2/spp/ChangeRequest/CR/2026/00001<span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-H<span class="w"> </span><span class="s1">'If-Match: &quot;1710000000000000&quot;'</span><span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-d<span class="w"> </span><span class="s1">'{
+    &quot;detail&quot;: { &quot;email&quot;: &quot;maria&#64;example.com&quot; }
+  }'</span>
+</pre>
+<p>Returns <tt class="docutils literal">409 Conflict</tt> if the resource was modified since the <tt class="docutils literal">ETag</tt>
+was obtained.</p>
+<p><strong>7. Submit for Approval</strong></p>
+<p>Submit a <tt class="docutils literal">draft</tt> CR for the approval workflow.</p>
+<pre class="code bash literal-block">
+curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8069/api/v2/spp/ChangeRequest/CR/2026/00001/<span class="se">\$</span>submit<span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
+</pre>
+<p>The CR status changes to <tt class="docutils literal">pending</tt> (or <tt class="docutils literal">approved</tt> if auto-approval
+is configured).</p>
+<p><strong>8. Approve a Change Request</strong></p>
+<p>Approve a <tt class="docutils literal">pending</tt> CR. An optional comment can be provided.</p>
+<pre class="code bash literal-block">
+curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8069/api/v2/spp/ChangeRequest/CR/2026/00001/<span class="se">\$</span>approve<span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-d<span class="w"> </span><span class="s1">'{ &quot;comment&quot;: &quot;Verified with supporting documents&quot; }'</span>
+</pre>
+<p><strong>9. Reject a Change Request</strong></p>
+<p>Reject a <tt class="docutils literal">pending</tt> CR. A reason is required.</p>
+<pre class="code bash literal-block">
+curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8069/api/v2/spp/ChangeRequest/CR/2026/00001/<span class="se">\$</span>reject<span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-d<span class="w"> </span><span class="s1">'{ &quot;reason&quot;: &quot;Supporting documents are incomplete&quot; }'</span>
+</pre>
+<p>The CR status changes to <tt class="docutils literal">rejected</tt>. The reason is stored in
+<tt class="docutils literal">rejectionReason</tt>.</p>
+<p><strong>10. Request Revision</strong></p>
+<p>Request changes on a <tt class="docutils literal">pending</tt> CR before it can be approved. Notes are
+required.</p>
+<pre class="code bash literal-block">
+curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8069/api/v2/spp/ChangeRequest/CR/2026/00001/<span class="se">\$</span>request-revision<span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-d<span class="w"> </span><span class="s1">'{ &quot;notes&quot;: &quot;Please provide a valid phone number&quot; }'</span>
+</pre>
+<p>The CR status changes to <tt class="docutils literal">revision</tt>. The notes are stored in
+<tt class="docutils literal">revisionNotes</tt>.</p>
+<p><strong>11. Apply an Approved Change Request</strong></p>
+<p>Apply an <tt class="docutils literal">approved</tt> CR to update the registrant’s record.</p>
+<pre class="code bash literal-block">
+curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8069/api/v2/spp/ChangeRequest/CR/2026/00001/<span class="se">\$</span>apply<span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
+</pre>
+<p>On success, <tt class="docutils literal">isApplied</tt> becomes <tt class="docutils literal">true</tt> and <tt class="docutils literal">appliedDate</tt> is set.
+If application fails, <tt class="docutils literal">applyError</tt> contains the error message.</p>
+<p><strong>12. Reset to Draft</strong></p>
+<p>Reset a <tt class="docutils literal">rejected</tt> or <tt class="docutils literal">revision</tt> CR back to <tt class="docutils literal">draft</tt> for
+resubmission.</p>
+<pre class="code bash literal-block">
+curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8069/api/v2/spp/ChangeRequest/CR/2026/00001/<span class="se">\$</span>reset<span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
+</pre>
+<p>After resetting, you can update the detail data and re-submit.</p>
+</div>
+<div class="section" id="error-responses">
+<h1>Error Responses</h1>
+<table border="1" class="docutils">
+<colgroup>
+<col width="9%" />
+<col width="31%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Status</th>
+<th class="head">Meaning</th>
+<th class="head">Example Cause</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>401</td>
+<td>Unauthorized</td>
+<td>Missing or expired Bearer token</td>
+</tr>
+<tr><td>403</td>
+<td>Forbidden</td>
+<td>Client lacks the required scope</td>
+</tr>
+<tr><td>404</td>
+<td>Not Found</td>
+<td>CR reference does not exist</td>
+</tr>
+<tr><td>409</td>
+<td>Conflict</td>
+<td>Version mismatch, wrong state for action</td>
+</tr>
+<tr><td>422</td>
+<td>Unprocessable Entity</td>
+<td>Invalid type code, unknown detail fields</td>
+</tr>
+<tr><td>500</td>
+<td>Internal Server Error</td>
+<td>Unexpected server-side failure</td>
+</tr>
+</tbody>
+</table>
+<p>Error response body:</p>
+<pre class="code json literal-block">
+<span class="p">{</span><span class="w"> </span><span class="nt">&quot;detail&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Change request not found: CR/9999/99999&quot;</span><span class="w"> </span><span class="p">}</span>
+</pre>
+</div>
+<div class="section" id="full-lifecycle-example">
+<h1>Full Lifecycle Example</h1>
+<p>A complete workflow from creation to application:</p>
+<pre class="code bash literal-block">
+<span class="c1"># 1. Get token
+</span><span class="nv">TOKEN</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8069/api/v2/spp/oauth/token<span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-d<span class="w"> </span><span class="s1">'{&quot;client_id&quot;:&quot;your_id&quot;,&quot;client_secret&quot;:&quot;your_secret&quot;,&quot;grant_type&quot;:&quot;client_credentials&quot;}'</span><span class="w"> </span><span class="se">\
+</span><span class="w">  </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import json,sys; print(json.load(sys.stdin)['access_token'])&quot;</span><span class="k">)</span><span class="w">
+
+</span><span class="c1"># 2. Discover available fields for the edit_individual type
+</span>curl<span class="w"> </span>-s<span class="w"> </span>http://localhost:8069/api/v2/spp/ChangeRequest/<span class="se">\$</span>types/edit_individual<span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>json.tool<span class="w">
+
+</span><span class="c1"># 3. Create a change request
+</span><span class="nv">REF</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8069/api/v2/spp/ChangeRequest<span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-d<span class="w"> </span><span class="s1">'{
+    &quot;type&quot;: &quot;ChangeRequest&quot;,
+    &quot;requestType&quot;: {&quot;code&quot;: &quot;edit_individual&quot;},
+    &quot;registrant&quot;: {&quot;system&quot;: &quot;urn:openspp:vocab:id-type&quot;, &quot;value&quot;: &quot;PH-123456789&quot;},
+    &quot;detail&quot;: {&quot;given_name&quot;: &quot;Maria Elena&quot;, &quot;phone&quot;: &quot;+639171234567&quot;}
+  }'</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import json,sys; print(json.load(sys.stdin)['reference'])&quot;</span><span class="k">)</span><span class="w">
+</span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Created: </span><span class="nv">$REF</span><span class="s2">&quot;</span><span class="w">
+
+</span><span class="c1"># 4. Submit for approval (REF is e.g. CR/2026/00001)
+</span>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">&quot;http://localhost:8069/api/v2/spp/ChangeRequest/</span><span class="si">${</span><span class="nv">REF</span><span class="si">}</span><span class="s2">/\$submit&quot;</span><span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>json.tool<span class="w">
+
+</span><span class="c1"># 5. Approve
+</span>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">&quot;http://localhost:8069/api/v2/spp/ChangeRequest/</span><span class="si">${</span><span class="nv">REF</span><span class="si">}</span><span class="s2">/\$approve&quot;</span><span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-d<span class="w"> </span><span class="s1">'{&quot;comment&quot;: &quot;Approved&quot;}'</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>json.tool<span class="w">
+
+</span><span class="c1"># 6. Apply to registrant
+</span>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">&quot;http://localhost:8069/api/v2/spp/ChangeRequest/</span><span class="si">${</span><span class="nv">REF</span><span class="si">}</span><span class="s2">/\$apply&quot;</span><span class="w"> </span><span class="se">\
+</span><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>json.tool
+</pre>
+<div class="section" id="changelog">
+<h2>Changelog</h2>
+</div>
+</div>
+<div class="section" id="section-1">
+<h1>19.0.2.0.3</h1>
+<ul class="simple">
+<li>fix(api): error statuses on change-request endpoints are now
+consistent across the module and aligned with the platform’s global
+FastAPI error handler. <tt class="docutils literal">ValidationError</tt> on a state transition
+returns <tt class="docutils literal">422 Unprocessable Entity</tt> (previously <tt class="docutils literal">409 Conflict</tt>),
+matching what create and update already returned for the same
+condition — a missing rejection reason or revision notes is invalid
+input, not a conflict. <tt class="docutils literal">MissingError</tt> returns <tt class="docutils literal">404 Not Found</tt>. An
+authorization failure on create returns <tt class="docutils literal">403 Forbidden</tt> (previously
+swallowed by the generic handler as a <tt class="docutils literal">500</tt>). The <tt class="docutils literal">403</tt> response
+body is now a fixed generic detail instead of the raw Odoo message,
+which named models and record rules (anti-enumeration).</li>
+</ul>
+</div>
+<div class="section" id="section-2">
+<h1>19.0.2.0.2</h1>
+<ul class="simple">
+<li>fix(api): an authorization failure on a change-request state
+transition now returns <tt class="docutils literal">403 Forbidden</tt> instead of <tt class="docutils literal">409 Conflict</tt>.
+<tt class="docutils literal">AccessError</tt> subclasses <tt class="docutils literal">UserError</tt> in Odoo, so all six
+state-transition endpoints — <tt class="docutils literal">$submit</tt> / <tt class="docutils literal">$approve</tt> / <tt class="docutils literal">$reject</tt>
+/ <tt class="docutils literal"><span class="pre">$request-revision</span></tt> / <tt class="docutils literal">$apply</tt> / <tt class="docutils literal">$reset</tt> — which caught
+<tt class="docutils literal">UserError</tt> and returned a conflict, reported permission failures as
+conflicts. A client is then told to resolve a conflict it cannot see,
+and one that retries on 409 loops on a permission error that will
+never clear. Reachable on <tt class="docutils literal">$apply</tt> in particular now that applying
+requires the change-request manager role, where the endpoint’s own
+scope check already returned 403, so the same endpoint reported two
+authorization failures with different statuses. <tt class="docutils literal">AccessDenied</tt> maps
+to 403 the same way, matching the platform’s global FastAPI error
+handler.</li>
+</ul>
+</div>
+<div class="section" id="section-3">
+<h1>19.0.2.0.1</h1>
+<ul class="simple">
+<li>fix: skip field types before getattr and isolate detail prefetch
+(#129)</li>
+</ul>
+</div>
+<div class="section" id="section-4">
+<h1>19.0.2.0.0</h1>
+<ul class="simple">
+<li>Initial migration to OpenSPP2</li>
+</ul>
+<div class="section" id="bug-tracker">
+<h2>Bug Tracker</h2>
+<p>Bugs are tracked on <a class="reference external" href="https://github.com/OpenSPP/OpenSPP2/issues">GitHub Issues</a>.
+In case of trouble, please check there if your issue has already been reported.
+If you spotted it first, help us to smash it by providing a detailed and welcomed
+<a class="reference external" href="https://github.com/OpenSPP/OpenSPP2/issues/new?body=module:%20spp_api_v2_change_request%0Aversion:%2019.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**">feedback</a>.</p>
+<p>Do not contact contributors directly about support or help with technical issues.</p>
+</div>
+<div class="section" id="credits">
+<h2>Credits</h2>
+<div class="section" id="authors">
+<h3>Authors</h3>
+<ul class="simple">
+<li>OpenSPP.org</li>
+</ul>
+</div>
+<div class="section" id="maintainers">
+<h3>Maintainers</h3>
+<p>Current maintainers:</p>
+<p><a class="reference external image-reference" href="https://github.com/jeremi"><img alt="jeremi" src="https://github.com/jeremi.png?size=40px" /></a> <a class="reference external image-reference" href="https://github.com/gonzalesedwin1123"><img alt="gonzalesedwin1123" src="https://github.com/gonzalesedwin1123.png?size=40px" /></a> <a class="reference external image-reference" href="https://github.com/reichie020212"><img alt="reichie020212" src="https://github.com/reichie020212.png?size=40px" /></a> <a class="reference external image-reference" href="https://github.com/emjay0921"><img alt="emjay0921" src="https://github.com/emjay0921.png?size=40px" /></a></p>
+<p>This module is part of the <a class="reference external" href="https://github.com/OpenSPP/OpenSPP2/tree/19.0/spp_api_v2_change_request">OpenSPP/OpenSPP2</a> project on GitHub.</p>
+<p>You are welcome to contribute.</p>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

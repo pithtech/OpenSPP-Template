@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Main Inspection Wizard Form (DON-002) -->
+    <record id="spp_drims_inspection_wizard_form" model="ir.ui.view">
+        <field name="name">spp.drims.inspection.wizard.form</field>
+        <field name="model">spp.drims.inspection.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Inspect Donation">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Inspecting: <field
+                            name="donation_reference"
+                            readonly="1"
+                            class="oe_inline"
+                        /></h1>
+                    </div>
+
+                    <field name="donation_id" invisible="1" />
+                    <field name="can_confirm" invisible="1" />
+                    <field name="confirm_message" invisible="1" />
+
+                    <div
+                        class="alert alert-info"
+                        role="alert"
+                        invisible="not can_confirm"
+                    >
+                        Set <strong>Condition</strong> and <strong
+                    >Action</strong> on each row, then click <strong
+                    >Confirm Inspection</strong>. Use <strong
+                    >+ Add split</strong> when a single product needs to be split
+                        across multiple conditions.
+                    </div>
+                    <!-- The qty widget pushes can_confirm + confirm_message
+                         onto the wizard whenever any row changes. This alert
+                         shows the stacked reason(s) why Confirm is gated. -->
+                    <div
+                        class="alert alert-warning"
+                        role="alert"
+                        invisible="can_confirm"
+                        style="white-space: pre-line;"
+                    >
+                        <strong>Confirm Inspection is unavailable:</strong>
+                        <br />
+                        <field name="confirm_message" readonly="1" nolabel="1" />
+                    </div>
+
+                    <!-- Items List (inline-editable) -->
+                    <group string="Items to Inspect" col="2">
+                        <field name="line_ids" nolabel="1" colspan="2">
+                            <list
+                                create="false"
+                                delete="false"
+                                editable="bottom"
+                                class="o_drims_inspection_list"
+                            >
+                                <field
+                                    name="product_id"
+                                    string="Product"
+                                    readonly="1"
+                                    decoration-muted="is_split"
+                                />
+                                <field
+                                    name="uom_id"
+                                    string="Unit"
+                                    optional="show"
+                                    readonly="1"
+                                />
+                                <field
+                                    name="quantity_expected"
+                                    string="Expected"
+                                    readonly="1"
+                                />
+                                <field
+                                    name="quantity"
+                                    string="Qty"
+                                    widget="qty_split_progress"
+                                    readonly="not is_split"
+                                />
+                                <field
+                                    name="condition_id"
+                                    string="Condition"
+                                    options="{'no_create': True, 'no_open': True}"
+                                    readonly="has_splits"
+                                />
+                                <field
+                                    name="disposition_id"
+                                    string="Action"
+                                    options="{'no_create': True, 'no_open': True}"
+                                    readonly="has_splits"
+                                />
+                                <field
+                                    name="can_mark_all_units"
+                                    column_invisible="True"
+                                />
+                                <field name="is_inspected" column_invisible="True" />
+                                <field name="is_split" column_invisible="True" />
+                                <field name="has_splits" column_invisible="True" />
+                                <field name="is_fully_split" column_invisible="True" />
+                                <field name="parent_line_id" column_invisible="True" />
+                                <field
+                                    name="donation_line_id"
+                                    column_invisible="True"
+                                />
+                                <!-- "All units" — visual badge only. Active
+                                     when both Condition and Action are set;
+                                     greyed otherwise. Hidden on every row
+                                     that is part of a split (parent or
+                                     child) because the badge means "apply
+                                     this decision to the full quantity",
+                                     which doesn't apply once split. -->
+                                <button
+                                    string="All units"
+                                    type="object"
+                                    name="action_all_units"
+                                    class="btn btn-secondary btn-sm"
+                                    invisible="not can_mark_all_units or has_splits or is_split"
+                                />
+                                <button
+                                    string="All units"
+                                    type="object"
+                                    name="action_all_units"
+                                    class="btn btn-secondary btn-sm o_drims_btn_disabled"
+                                    invisible="can_mark_all_units or has_splits or is_split"
+                                />
+                                <!-- "+ Add split" — hidden on split children.
+                                     On fully-split parents, hiding is handled
+                                     by the o_split_parent_full row class
+                                     applied dynamically in the ListRenderer
+                                     patch (Odoo 19's invisible eval doesn't
+                                     reliably react to JS-driven parent.quantity
+                                     updates in editable-list mode). -->
+                                <button
+                                    name="action_add_split"
+                                    string="+ Add split"
+                                    type="object"
+                                    class="btn btn-secondary btn-sm"
+                                    invisible="is_split"
+                                />
+                                <!-- Remove split — only on split children. -->
+                                <button
+                                    name="action_remove_split"
+                                    string="✕"
+                                    type="object"
+                                    class="btn btn-sm text-danger"
+                                    invisible="not is_split"
+                                    confirm="Remove this split?"
+                                />
+                            </list>
+                        </field>
+                    </group>
+
+                    <!-- Inspection Notes -->
+                    <group string="Inspection Notes" col="2">
+                        <field
+                            name="notes"
+                            nolabel="1"
+                            colspan="2"
+                            placeholder="General notes about this inspection (optional)..."
+                        />
+                    </group>
+                </sheet>
+
+                <footer>
+                    <button
+                        name="action_confirm_inspection"
+                        string="Confirm Inspection"
+                        type="object"
+                        class="btn-primary"
+                        invisible="not can_confirm"
+                        confirm="This will update the donation and mark it as inspected. Continue?"
+                    />
+                    <button
+                        string="Confirm Inspection"
+                        type="object"
+                        class="btn-secondary o_drims_btn_disabled"
+                        invisible="can_confirm"
+                        help="Resolve the items listed in the warning above before confirming."
+                    />
+                    <button string="Cancel" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action to open the wizard (kept for compatibility, but not used by button) -->
+    <record id="action_inspection_wizard" model="ir.actions.act_window">
+        <field name="name">Inspect Donation</field>
+        <field name="res_model">spp.drims.inspection.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

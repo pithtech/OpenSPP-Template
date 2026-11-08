@@ -1,0 +1,54 @@
+[MASTER]
+load-plugins=pylint_odoo
+score=n
+
+[ODOOLINT]
+readme-template-url="https://github.com/OCA/maintainer-tools/blob/master/template/module/README.rst"
+manifest-required-authors=OpenSPP.org
+manifest-required-keys=license
+manifest-deprecated-keys=description,active
+license-allowed=AGPL-3,GPL-2,GPL-2 or any later version,GPL-3,GPL-3 or any later version,LGPL-3
+valid-odoo-versions=19.0
+
+[MESSAGES CONTROL]
+disable=all
+
+# Mandatory checks: these block CI. High-volume cosmetic checks
+# (attribute-string-redundant, except-pass, missing-return, etc.)
+# are in the optional .pylintrc only, enforced via --exit-zero.
+enable=anomalous-backslash-in-string,
+    assignment-from-none,
+    dangerous-default-value,
+    development-status-allowed,
+    duplicate-key,
+    license-allowed,
+    manifest-author-string,
+    manifest-deprecated-key,
+    manifest-required-author,
+    manifest-required-key,
+    manifest-version-format,
+    method-compute,
+    method-inverse,
+    method-search,
+    pointless-statement,
+    print-used,
+    reimported,
+    return-in-init,
+    sql-injection,
+    too-few-format-args,
+    translation-field,
+    unreachable,
+    xml-syntax-error,
+    context-overridden,
+    duplicate-po-message-definition,
+    po-msgstr-variables,
+    po-syntax-error,
+    renamed-field-parameter,
+    resource-not-exist,
+    test-folder-imported,
+    external-request-timeout
+
+[REPORTS]
+msg-template={path}:{line}: [{msg_id}({symbol}), {obj}] {msg}
+output-format=colorized
+reports=no

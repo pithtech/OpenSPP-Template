@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Extend the embedded entitlement item form in the cash manager form -->
+    <record id="view_entitlement_manager_cash_form_cel" model="ir.ui.view">
+        <field name="name">view_entitlement_manager_cash_form_cel</field>
+        <field name="model">spp.program.entitlement.manager.cash</field>
+        <field
+            name="inherit_id"
+            ref="spp_programs.view_entitlement_manager_cash_form"
+        />
+        <field name="arch" type="xml">
+            <!-- Add formula column to inline tree (mode column hidden since only one option) -->
+            <xpath
+                expr="//field[@name='entitlement_item_ids']/list/field[@name='amount']"
+                position="after"
+            >
+                <field name="amount_cel_expression" string="Formula" optional="show" />
+            </xpath>
+
+            <!-- Hide amount mode in tree (single option) -->
+            <xpath
+                expr="//field[@name='entitlement_item_ids']/list/field[@name='sequence']"
+                position="after"
+            >
+                <field name="amount_mode" invisible="1" />
+            </xpath>
+
+            <!-- Extend the inline form view -->
+            <!-- Hide amount mode field (only CEL mode now) -->
+            <xpath
+                expr="//field[@name='entitlement_item_ids']/form/group/field[@name='amount']"
+                position="before"
+            >
+                <field name="amount_mode" invisible="1" />
+            </xpath>
+
+            <!--
+                The fixed amount stays visible. It is not an alternative to the
+                formula: the evaluator passes it in as ``base_amount``, and the
+                field's own help documents formulas built on it
+                ("base_amount * (1 + me.dependents_count * 0.1)"). Hiding it
+                unconditionally — as this view used to — left no way to set the
+                value those formulas multiply, which is what QA reported as
+                "I don't have a field to define the base amount" (OP#1172
+                round 1). Either field may stand alone: a formula may compute the
+                whole amount, or the Base Amount may be paid with no formula.
+            -->
+            <xpath
+                expr="//field[@name='entitlement_item_ids']/form/group/field[@name='amount']"
+                position="attributes"
+            >
+                <attribute name="string">Base Amount</attribute>
+                <attribute name="required">0</attribute>
+                <attribute
+                    name="help"
+                >Optional. Formulas can build on this value as base_amount.</attribute>
+            </xpath>
+
+            <!-- Add CEL expression fields after currency -->
+            <xpath
+                expr="//field[@name='entitlement_item_ids']/form/group/field[@name='currency_id']"
+                position="after"
+            >
+                <!-- CEL Expression Field with enhanced widget (always visible) -->
+                <!--
+                    No symbol browser here, and deliberately so. The browser
+                    lists the "entitlements" CEL profile, whose current record
+                    is spp.entitlement (`r`) with the beneficiary hanging off it
+                    as `registrant`. This field is not evaluated in that profile:
+                    _validate_cel_expression and _calculate_cel_amount pass a
+                    context of `me` (the beneficiary) and `base_amount`. So the
+                    browser was offering symbols the evaluator never receives —
+                    a formula built from it, such as `r.birthdate`, fails with
+                    "Invalid field spp.entitlement.birthdate", which is what QA
+                    hit (OP#1172 round 1).
+
+                    The field's own help documents the real vocabulary. Aligning
+                    the two properly means an entitlement-amount CEL profile
+                    whose record is the beneficiary; until that exists, offering
+                    no list beats offering the wrong one.
+
+                    Not required either, as of round 2: a fixed sum is a normal
+                    entitlement and should not oblige anyone to write "500" as a
+                    formula. The manager already handles an empty one: the
+                    prepare_entitlements that runs for cash is the override in
+                    entitlement_condition_cel.py, and it only evaluates a
+                    formula when there is one, paying the Base Amount otherwise.
+                    Requiring it here was the only thing standing in the way. QA
+                    asked for this much "FOR NOW", with the rest of this
+                    dialog's rework going to its own ticket.
+                -->
+                <field
+                    name="amount_cel_expression"
+                    colspan="4"
+                    widget="cel_expression"
+                    show_symbol_browser="false"
+                    show_validation_count="false"
+                    placeholder="Optional — leave empty to pay the Base Amount as-is"
+                    help="Optional. Leave this empty to pay the Base Amount unchanged. Enter a formula to vary the amount per beneficiary, using me for the beneficiary and base_amount for the Base Amount."
+                />
+                <field
+                    name="amount_cel_preview"
+                    readonly="1"
+                    colspan="4"
+                    invisible="amount_cel_preview == ''"
+                />
+                <field name="amount_cel_is_valid" invisible="1" />
+                <div
+                    invisible="amount_cel_error == ''"
+                    colspan="4"
+                    class="alert alert-danger"
+                    role="alert"
+                >
+                    <field name="amount_cel_error" readonly="1" nolabel="1" />
+                </div>
+            </xpath>
+
+            <!-- Hide multiplier fields (not used in CEL mode) -->
+            <xpath
+                expr="//field[@name='entitlement_item_ids']/form//field[@name='multiplier_field']"
+                position="attributes"
+            >
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath
+                expr="//field[@name='entitlement_item_ids']/form//field[@name='max_multiplier']"
+                position="attributes"
+            >
+                <attribute name="invisible">1</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

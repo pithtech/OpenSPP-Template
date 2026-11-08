@@ -1,0 +1,555 @@
+# Part of OpenSPP. See LICENSE file for full copyright and licensing details.
+import logging
+
+from lxml import etree
+
+from odoo import _, api, fields, models
+from odoo.exceptions import UserError
+
+from . import constants
+
+_logger = logging.getLogger(__name__)
+
+# States a membership may be returned to draft from. Both are dead ends
+# otherwise: deduplication and eligibility checks put a membership here and
+# nothing ever took it out again (OP#1170).
+RESETTABLE_TO_DRAFT = ("duplicated", "not_eligible")
+
+
+class SPPProgramMembership(models.Model):
+    _inherit = [
+        "mail.thread",
+        "mail.activity.mixin",
+    ]
+
+    _name = "spp.program.membership"
+    _description = "Program Membership"
+    _inherits = {"res.partner": "partner_id"}
+    _order = "id desc"
+
+    _unique_partner_program = models.Constraint(
+        "UNIQUE(partner_id, program_id)",
+        "Beneficiary must be unique per program.",
+    )
+
+    def init(self):
+        super().init()
+        self.env.cr.execute(
+            """
+            CREATE INDEX IF NOT EXISTS
+                spp_program_membership_program_id_state_idx
+            ON spp_program_membership (program_id, state)
+            """
+        )
+
+    partner_id = fields.Many2one(
+        "res.partner",
+        "Registrant",
+        help="A beneficiary",
+        required=True,
+        delegate=True,
+        ondelete="cascade",
+        domain=[("is_registrant", "=", True)],
+    )
+    program_id = fields.Many2one("spp.program", "", help="A program", required=True)
+
+    # TODO: When the state is changed from "exited", "not_eligible" or "duplicate" to something else
+    #      then reset the deduplication date.
+    state = fields.Selection(
+        selection=[
+            ("draft", "Draft"),
+            ("enrolled", "Enrolled"),
+            ("paused", "Paused"),
+            ("exited", "Exited"),
+            ("not_eligible", "Not Eligible"),
+            ("duplicated", "Duplicated"),
+        ],
+        default="draft",
+        copy=False,
+    )
+
+    enrollment_date = fields.Datetime(compute="_compute_enrolled_date", store=True)
+
+    last_deduplication = fields.Date("Last Deduplication Date")
+    exit_date = fields.Date()
+    exit_reason = fields.Char(
+        string="Exit Reason",
+        help="Free-text reason recorded when a beneficiary exits a program (e.g. 'Graduated', 'Opted out', 'Moved').",
+    )
+
+    registrant_id = fields.Integer(string="Registrant ID", related="partner_id.id")
+
+    duplicate_reason = fields.Char(
+        string="Duplicate Reason",
+        compute="_compute_duplicate_reason",
+    )
+
+    def _compute_duplicate_reason(self):
+        for rec in self:
+            if rec.state == "duplicated":
+                dup_records = self.env["spp.program.membership.duplicate"].search(
+                    [("beneficiary_ids", "in", rec.id), ("state", "=", "duplicate")],
+                    order="id desc",
+                    limit=1,
+                )
+                rec.duplicate_reason = dup_records.reason if dup_records else False
+            else:
+                rec.duplicate_reason = False
+
+    latest_cycle_state = fields.Selection(
+        selection=[
+            ("draft", "Draft"),
+            ("enrolled", "Enrolled"),
+            ("paused", "Paused"),
+            ("exited", "Exited"),
+            ("not_eligible", "Not Eligible"),
+            ("non_compliant", "Non-Compliant"),
+        ],
+        string="Cycle Status",
+        compute="_compute_latest_cycle_state",
+        help="State of the most recent cycle membership for this registrant in this program",
+    )
+
+    def _compute_latest_cycle_state(self):
+        """Get the latest cycle membership state per registrant+program."""
+        if not self:
+            return
+
+        for rec in self:
+            rec.latest_cycle_state = False
+
+        # Batch query: find latest cycle membership for each program membership
+        CycleMembership = self.env["spp.cycle.membership"]
+        for rec in self:
+            cycle_mem = CycleMembership.search(
+                [
+                    ("partner_id", "=", rec.partner_id.id),
+                    ("cycle_id.program_id", "=", rec.program_id.id),
+                ],
+                order="id desc",
+                limit=1,
+            )
+            if cycle_mem:
+                rec.latest_cycle_state = cycle_mem.state
+
+    def action_view_cycle_memberships(self):
+        """Open cycle memberships for this registrant in this program."""
+        self.ensure_one()
+        return {
+            "name": _("%s — Cycles") % self.program_id.name,
+            "type": "ir.actions.act_window",
+            "res_model": "spp.cycle.membership",
+            "view_mode": "list,form",
+            "domain": [
+                ("partner_id", "=", self.partner_id.id),
+                ("cycle_id.program_id", "=", self.program_id.id),
+            ],
+        }
+
+    # TODO: Implement not eligible reasons
+    # Default: "Missing data", "Does not match the criterias", "Duplicate", "Other"
+    # not_eligible_reason_id = fields.Many2one("Not Eligible Reason")
+
+    # TODO: Add a field delivery_mechanism_id
+    # delivery_mechanism_id = fields.Many2one("Delivery mechanism type", help="Delivery mechanism")
+    # the phone number, bank account, etc.
+    delivery_mechanism_value = fields.Char()
+
+    # TODO: JJ - Add a field for the preferred notification method
+
+    deduplication_status = fields.Selection(
+        selection=[
+            ("new", "New"),
+            ("processing", "Processing"),
+            ("verified", "Verified"),
+            ("duplicated", "duplicated"),
+        ],
+        default="new",
+        copy=False,
+    )
+
+    @api.depends("state")
+    def _compute_enrolled_date(self):
+        self.mapped("state")
+
+        # The compute can re-fire after the field has already been persisted
+        # (re-write of `state`, ORM-level flushes, etc.). Reading `rec.enrollment_date`
+        # in-cache returns the "to_compute" sentinel (False) so we can't rely on it
+        # to detect a prior value — peek at the persisted row instead. Demo
+        # generators and migration scripts may have intentionally backdated this.
+        persisted = {}
+        existing_ids = [rec.id for rec in self if isinstance(rec.id, int)]
+        if existing_ids:
+            self.env.cr.execute(
+                "SELECT id, enrollment_date FROM spp_program_membership WHERE id IN %s",
+                (tuple(existing_ids),),
+            )
+            persisted = dict(self.env.cr.fetchall())
+
+        for rec in self:
+            if rec.state == "enrolled":
+                prior = persisted.get(rec.id)
+                rec.enrollment_date = prior or fields.Datetime.now()
+
+    @api.model
+    def _get_view(self, view_id=None, view_type="form", **options):
+        context = self.env.context
+        arch, view = super()._get_view(view_id, view_type, **options)
+
+        if view_type == "form":
+            update_arch = False
+            doc = arch
+            # Check if we need to change the partner_id domain filter
+            target_type = context.get("target_type", False)
+            if target_type:
+                domain = None
+                if context.get("target_type", False) == "group":
+                    domain = "[('is_registrant', '=', True), ('is_group','=',True)]"
+                elif context.get("target_type", False) == "individual":
+                    domain = "[('is_registrant', '=', True), ('is_group','=',False)]"
+                if domain:
+                    update_arch = True
+                    nodes = doc.xpath("//field[@name='partner_id']")
+                    for node in nodes:
+                        node.set("domain", domain)
+
+            if update_arch:
+                arch = etree.tostring(doc, encoding="unicode")
+        return arch, view
+
+    def name_get(self):
+        res = super().name_get()
+        # Prefetch program_id and partner_id to avoid N+1 queries in loop
+        self.mapped("program_id.name")
+        self.mapped("partner_id.name")
+
+        for rec in self:
+            name = ""
+            if rec.program_id:
+                name += "[" + rec.program_id.name + "] "
+            if rec.partner_id:
+                name += rec.partner_id.name
+            rec.display_name = name
+        return res
+
+    def open_beneficiaries_form(self):
+        for rec in self:
+            return {
+                "name": "Program Beneficiaries",
+                "view_mode": "form",
+                "res_model": "spp.program.membership",
+                "res_id": rec.id,
+                "view_id": self.env.ref("spp_programs.view_program_membership_form").id,
+                "type": "ir.actions.act_window",
+                "target": "new",
+                "context": {
+                    "target_type": rec.program_id.target_type,
+                    "default_program_id": rec.program_id.id,
+                },
+            }
+
+    def open_registrant_form(self):
+        if self.partner_id.is_group:
+            return {
+                "name": "Group Member",
+                "view_mode": "form",
+                "res_model": "res.partner",
+                "res_id": self.partner_id.id,
+                "view_id": self.env.ref("spp_registry.view_individuals_form").id,
+                "type": "ir.actions.act_window",
+                "target": "new",
+                "context": {
+                    "default_is_group": True,
+                    "create": False,
+                    "edit": False,
+                },
+            }
+        else:
+            return {
+                "name": "Individual Member",
+                "view_mode": "form",
+                "res_model": "res.partner",
+                "res_id": self.partner_id.id,
+                "view_id": self.env.ref("spp_registry.view_individuals_form").id,
+                "type": "ir.actions.act_window",
+                "target": "new",
+                "context": {
+                    "default_is_group": False,
+                    "create": False,
+                    "edit": False,
+                },
+            }
+
+    def verify_eligibility(self):
+        eligibility_managers = self.program_id.get_managers(constants.MANAGER_ELIGIBILITY)
+        member = self
+        for em in eligibility_managers:
+            member = em.enroll_eligible_registrants(member)
+        if len(member) == 0 and self.state not in constants.PROTECTED_MEMBERSHIP_STATES:
+            # Leave duplicated / exited / paused alone: each is owned by its own
+            # workflow, and demoting a paused member to not_eligible would undo a
+            # deliberate pause just as surely as re-enrolling it (OP#1117).
+            self.state = "not_eligible"
+        return
+
+    def enroll_eligible_registrants(self):
+        eligibility_managers = self.program_id.get_managers(constants.MANAGER_ELIGIBILITY)
+        message = None
+        kind = "success"
+        member = self
+        for em in eligibility_managers:
+            member = em.enroll_eligible_registrants(member)
+
+        if len(member) > 0:
+            if self.state in constants.PROTECTED_MEMBERSHIP_STATES:
+                # Includes paused: resuming is the Resume button's job, not
+                # something re-running eligibility may decide (OP#1117).
+                message = _(
+                    "Cannot enroll: beneficiary is currently %s.",
+                    dict(self._fields["state"].selection).get(self.state, self.state),
+                )
+                kind = "warning"
+            elif self.state != "enrolled":
+                self.write(
+                    {
+                        "state": "enrolled",
+                        "enrollment_date": fields.Datetime.now(),
+                    }
+                )
+                message = _("%s Beneficiaries enrolled.", len(member))
+                kind = "success"
+            else:
+                message = _("Beneficiary is already enrolled.")
+                kind = "info"
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("Enrollment"),
+                    "message": message,
+                    "sticky": False,
+                    "type": kind,
+                    "next": {
+                        "type": "ir.actions.act_window_close",
+                    },
+                },
+            }
+
+        else:
+            self.state = "not_eligible"
+            message = "beneficiary is not eligible"
+            kind = "warning"
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("Enrollment"),
+                    "message": message,
+                    "sticky": False,
+                    "type": kind,
+                    "next": {
+                        "type": "ir.actions.act_window_close",
+                    },
+                },
+            }
+
+    def deduplicate_beneficiaries(self):
+        deduplication_managers = self.program_id.get_managers(constants.MANAGER_DEDUPLICATION)
+
+        message = None
+        kind = "success"
+        if len(deduplication_managers):
+            # The managers work across the whole program, not just this
+            # membership, so clear the program's flags first and let the run
+            # re-apply them. Without this a membership stays "duplicated" long
+            # after the clash behind it was fixed (OP#796).
+            self.program_id._reset_duplicate_flags()
+
+            states = ["draft", "enrolled", "eligible", "paused", "duplicated"]
+            duplicates = 0
+            for el in deduplication_managers:
+                duplicates += el.deduplicate_beneficiaries(states)
+
+                if duplicates > 0:
+                    message = _("%s Beneficiaries duplicate.", duplicates)
+                    kind = "warning"
+                else:
+                    message = _("No duplicates found.")
+                    kind = "success"
+        else:
+            raise UserError(_("No Deduplication Manager defined."))
+
+        if message:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("Deduplication"),
+                    "message": message,
+                    "sticky": False,
+                    "type": kind,
+                    "next": {
+                        "type": "ir.actions.act_window_close",
+                    },
+                },
+            }
+
+    def back_to_draft(self):
+        """Return duplicated or not-eligible memberships to draft.
+
+        Deliberately recordset-safe: the "Back to Draft" server action hands
+        this a whole selection, and it is offered from lists as well as from
+        the membership form.
+
+        Guarded because this is now reachable from four places rather than one.
+        It used to write ``draft`` over any state at all, so a stray call could
+        quietly undo an enrolment or reopen an exit (OP#1170).
+        """
+        blocked = self.filtered(lambda membership: membership.state not in RESETTABLE_TO_DRAFT)
+        if blocked:
+            raise UserError(
+                _(
+                    "Only duplicated or not-eligible memberships can be returned to draft. "
+                    "%s of the selected memberships are in another state.",
+                    len(blocked),
+                )
+            )
+        self.write({"state": "draft"})
+
+    def action_pause(self):
+        """Pause the membership."""
+        self.ensure_one()
+        if self.state != "enrolled":
+            raise UserError(_("Only enrolled memberships can be paused."))
+        self.write({"state": "paused"})
+
+    def action_resume(self):
+        """Resume a paused membership."""
+        self.ensure_one()
+        if self.state != "paused":
+            raise UserError(_("Only paused memberships can be resumed."))
+        self.write({"state": "enrolled"})
+
+    def action_exit(self):
+        """Open a wizard prompting for an exit reason.
+
+        The actual state / exit_date / exit_reason write happens inside
+        the wizard so every exit event captures a reason for audit.
+        """
+        self.ensure_one()
+        if self.state not in ("enrolled", "paused"):
+            raise UserError(_("Only enrolled or paused memberships can be exited."))
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Exit Program"),
+            "res_model": "spp.program.membership.exit.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "context": {"default_membership_id": self.id},
+        }
+
+    @api.model
+    def bulk_create_memberships(self, vals_list, chunk_size=1000, skip_duplicates=False):
+        """Create program memberships in bulk with optional chunking.
+
+        This helper is intended for large enrollment jobs (e.g. CEL-driven
+        bulk enrollment) where thousands of memberships need to be created
+        in a single operation.
+
+        :param vals_list: List of dicts with membership values
+        :param chunk_size: Number of records per batch (default 1000)
+        :param skip_duplicates: When True, use INSERT ... ON CONFLICT DO NOTHING
+            to silently skip duplicate (partner_id, program_id) pairs instead of
+            raising IntegrityError. Returns the count of inserted rows.
+        :return: Recordset (skip_duplicates=False) or int count (skip_duplicates=True)
+        """
+        # This is a public (RPC-callable) method. The skip_duplicates path uses
+        # raw SQL and the ORM path runs through sudo(), both of which bypass the
+        # ORM's ACL checks. Enforce model-level create access explicitly so a
+        # low-privileged user cannot use it to create memberships they could not
+        # create through the ORM.
+        self.check_access("create")
+
+        if not vals_list:
+            return 0 if skip_duplicates else self.env["spp.program.membership"]
+
+        if skip_duplicates:
+            return self._bulk_insert_on_conflict(vals_list, chunk_size)
+
+        if chunk_size and chunk_size > 0:
+            all_memberships = self.env["spp.program.membership"]
+            for i in range(0, len(vals_list), chunk_size):
+                batch_vals = vals_list[i : i + chunk_size]
+                # Use sudo() to avoid per-record access right re-evaluation
+                # when called from trusted managers, while still going
+                # through the ORM and audit hooks.
+                batch_memberships = super(
+                    SPPProgramMembership,
+                    self.sudo(),  # nosemgrep: odoo-sudo-without-context
+                    # Bulk enrollment helper used by trusted background managers
+                    # (e.g. CEL load tests); still goes through ORM and audit hooks.
+                ).create(batch_vals)
+                all_memberships |= batch_memberships
+            return all_memberships
+
+        return super(
+            SPPProgramMembership,
+            self.sudo(),  # nosemgrep: odoo-sudo-without-context
+        ).create(vals_list)
+
+    def _bulk_insert_on_conflict(self, vals_list, chunk_size=1000):
+        """Insert memberships using raw SQL with ON CONFLICT DO NOTHING.
+
+        Bypasses ORM for maximum throughput during bulk enrollment. Duplicates
+        (matching the UNIQUE constraint on partner_id, program_id) are silently
+        skipped.
+
+        :param vals_list: List of dicts with at least partner_id, program_id, state
+        :param chunk_size: Number of records per SQL INSERT batch
+        :return: Total number of rows actually inserted
+        """
+        cr = self.env.cr
+        uid = self.env.uid
+        total_inserted = 0
+
+        now = fields.Datetime.now()
+
+        for i in range(0, len(vals_list), chunk_size):
+            batch = vals_list[i : i + chunk_size]
+            values = []
+            params = []
+            for v in batch:
+                state = v.get("state", "draft")
+                enrollment_date = now if state == "enrolled" else None
+                values.append("(%s, %s, %s, %s, %s, %s, %s, now(), now())")
+                params.extend(
+                    [
+                        v["partner_id"],
+                        v["program_id"],
+                        state,
+                        enrollment_date,
+                        v.get("deduplication_status", "new"),
+                        uid,
+                        uid,
+                    ]
+                )
+
+            sql = """
+                INSERT INTO spp_program_membership
+                    (partner_id, program_id, state, enrollment_date,
+                     deduplication_status,
+                     create_uid, write_uid, create_date, write_date)
+                VALUES {}
+                ON CONFLICT (partner_id, program_id) DO NOTHING
+            """.format(  # noqa: S608  # nosec B608
+                ", ".join(values)
+            )
+            cr.execute(sql, params)
+            total_inserted += cr.rowcount
+
+        _logger.info(
+            "Bulk inserted %d program memberships (%d skipped as duplicates)",
+            total_inserted,
+            len(vals_list) - total_inserted,
+        )
+        return total_inserted

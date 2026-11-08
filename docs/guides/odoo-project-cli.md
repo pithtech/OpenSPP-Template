@@ -66,13 +66,18 @@ or the Dockerfile. `start` and `test` detect such changes and offer to pull the 
 
 ### vendor — Fetch the OpenSPP source
 
-Downloads the pinned release into `vendor/openspp/` (gitignored, read-only). Claude Code and you read it to learn
+Downloads the pinned release into `upstream/openspp/` (gitignored, read-only). Claude Code and you read it to learn
 the models, views, groups, and tests you are extending.
 
 ```bash
 ./odoo-project vendor
 ./odoo-project vendor --force         # re-download (after changing OPENSPP_REF)
 ```
+
+The folder is `upstream/openspp`, not `vendor/`: the repo root is mounted into the container as an addons root, and a
+top-level `vendor` directory makes Odoo's stylesheet build resolve Bootstrap's `vendor/rfs` import against it, so every
+page loses its styling. If you have an old `vendor/` from an earlier version of this template, move it
+(`mv vendor upstream`) or delete it; `doctor` warns while it exists.
 
 ### start (s) — Start OpenSPP
 
@@ -173,7 +178,7 @@ to Apps > Update Apps List > Install in the UI.
 ### doctor — Check prerequisites
 
 Checks Docker, Compose, the daemon, backend (WSL 2 on Windows), memory, Python, Node.js, Git, pre-commit,
-argcomplete, the pinned release, whether the image is present, whether `vendor/openspp` is current, and port 8069.
+argcomplete, the pinned release, whether the image is present, whether `upstream/openspp` is current, and port 8069.
 
 ### fix-odoo19, audit-security
 

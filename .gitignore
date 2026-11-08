@@ -110,4 +110,4 @@ scripts/run_ci_local.sh
 .claude/settings.local.json
 
 # Read-only OpenSPP source checkout (odoo-project vendor); pinned by OPENSPP_REF in .env
-/vendor/
+/upstream/

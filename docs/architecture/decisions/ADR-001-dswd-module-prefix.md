@@ -33,7 +33,7 @@ never used for our code.
 
 - Lint rules (`.odoo-lint.yaml`, `scripts/lint/`) enforce the prefix automatically.
 - A participant's module can be installed next to another participant's without renaming.
-- Upstream OpenSPP modules remain untouched in the image and in `vendor/openspp/`, which keeps upgrades to newer
+- Upstream OpenSPP modules remain untouched in the image and in `upstream/openspp/`, which keeps upgrades to newer
   releases a matter of bumping `OPENSPP_REF`.
 - When a module turns out to be useful beyond DSWD, contributing it upstream means renaming it to `spp_*` as part of
   the OpenSPP pull request.

@@ -64,5 +64,5 @@ Permission levels: `viewer` → `officer` → `manager` → admin (`spp_security
 ## Deep-Dive References
 
 - `docs/principles/access-rights.md`
-- `vendor/openspp/spp_security/readme/DESCRIPTION.md` (categories, admin group, extension pattern)
-- `vendor/openspp/spp_registry/security/` (a complete domain example)
+- `upstream/openspp/spp_security/readme/DESCRIPTION.md` (categories, admin group, extension pattern)
+- `upstream/openspp/spp_registry/security/` (a complete domain example)

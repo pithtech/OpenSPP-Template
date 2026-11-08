@@ -25,7 +25,7 @@ dswd_wellbeing/
 
 ## 3. The three rules
 
-1. **Never edit `vendor/openspp/`.** Read it; extend it from your module. The next release overwrites it.
+1. **Never edit `upstream/openspp/`.** Read it; extend it from your module. The next release overwrites it.
 2. **Inherit, do not redefine.** `_inherit = "res.partner"` adds to the household; `_name` would create a new table. New
    fields on upstream models are prefixed `dswd_`.
 3. **A file not listed in `__manifest__.py` does not exist.** Data and view files load only if they are in `data`.
@@ -139,7 +139,7 @@ class ResPartner(models.Model):
 </odoo>
 ```
 
-Find the anchor first: `grep -n 'name="group_' vendor/openspp/spp_registry/views/individual_views.xml`.
+Find the anchor first: `grep -n 'name="group_' upstream/openspp/spp_registry/views/individual_views.xml`.
 
 ### Step 4: the security file and the tests
 

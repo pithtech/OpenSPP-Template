@@ -16,6 +16,7 @@
     "data": [
         "security/ir.model.access.csv",
         "data/vocabulary_well_being_level.xml",
+        "views/res_partner_views.xml",
     ],
     "application": False,
     "installable": True,

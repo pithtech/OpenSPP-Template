@@ -35,3 +35,10 @@ class TestHouseholdWellBeing(RegistryCommon):
         household.dswd_well_being_level_id = subsistence
         self.assertEqual(household.dswd_well_being_level_id, subsistence)
         self.assertEqual(household.dswd_well_being_level_id.display, "Subsistence")
+
+    def test_level_shows_on_the_household_form(self):
+        """The inherited household form renders the well-being field in the 4Ps section."""
+        form = self.env.ref("spp_registry.view_individuals_form")
+        arch = self.Partner.get_view(view_id=form.id, view_type="form")["arch"]
+        self.assertIn('name="dswd_4ps_section"', arch)
+        self.assertIn('name="dswd_well_being_level_id"', arch)

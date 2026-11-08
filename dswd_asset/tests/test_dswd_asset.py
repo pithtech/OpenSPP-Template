@@ -39,3 +39,20 @@ class TestDswdAsset(TransactionCase):
         self.assertEqual(self.env.ref("dswd_asset.menu_dswd_asset").action.id, action.id)
         arch = self.Asset.get_view(view_type="form")["arch"]
         self.assertIn('name="custodian_id"', arch)
+
+    def test_assign_to_me_makes_the_current_user_the_custodian(self):
+        """The form button writes the current user into custodian_id (the ORM write in one line)."""
+        other = self.env.ref("base.user_admin")
+        self.asset.custodian_id = other
+        self.asset.with_user(self.env.user).action_assign_to_me()
+        self.assertEqual(self.asset.custodian_id, self.env.user)
+
+    def test_find_warranty_expiring_returns_only_assets_ending_soon(self):
+        """A model method built on search(): warranties ending within the window, still in use."""
+        soon = self.Asset.create({"name": "LT-SOON", "warranty_end_date": date.today() + timedelta(days=10)})
+        self.Asset.create({"name": "LT-LATER", "warranty_end_date": date.today() + timedelta(days=200)})
+        self.Asset.create({"name": "LT-GONE", "warranty_end_date": date.today() - timedelta(days=5)})
+        retired = self.Asset.create({"name": "LT-RETIRED", "warranty_end_date": date.today() + timedelta(days=10)})
+        retired.is_in_use = False
+        found = self.Asset.find_warranty_expiring(days=30)
+        self.assertEqual(found, soon)

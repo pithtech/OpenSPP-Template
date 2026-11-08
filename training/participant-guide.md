@@ -78,14 +78,51 @@ Odoo reads your files when it installs or updates a module, not continuously. Af
 
 ### 3.1 What you can do after this module
 
-1. Say what a module is, name the role of each file in one, and say why a file not listed in the manifest does not
+1. Say what Odoo is (the platform, its licence, its release, where OpenSPP sits on it) and name the three parts of MVC
+   in Odoo terms.
+2. Say what a module is, name the role of each file in one, and say why a file not listed in the manifest does not
    exist.
-2. Write a model with Char, Selection, Date, Many2one and Boolean fields, and say "model = table, field = column".
-3. Write a list view, a form view, an action and a menu, and explain the chain menu, action, view, model.
-4. Write the access row a new model needs, and recognise its absence in the log and on screen.
-5. Run a module's tests and read the summary line.
+3. Write a model with Char, Selection, Date, Many2one and Boolean fields, and say "model = table, field = column".
+4. Write a list view, a form view, an action and a menu, and explain the chain menu, action, view, model.
+5. Write the access row a new model needs, and recognise its absence in the log and on screen.
+6. Use the ORM from a method and from the shell: `search`, `browse`, `create`, `write`, `unlink`.
+7. Add a PDF report to a model and find it in the Print menu.
+8. Run a module's tests and read the summary line.
 
-### 3.2 Odoo in five words
+### 3.2 What Odoo is
+
+Odoo is an open-source business application platform written in Python on PostgreSQL, with a web client written in
+JavaScript. It began in 2005 as TinyERP, became OpenERP, and has been Odoo since 2014. One major version ships every
+year in the autumn; this training runs on **Odoo 19** (2025). Two editions exist: **Community**, under the LGPL v3
+licence, which is what OpenSPP builds on and what you run; and **Enterprise**, proprietary modules sold by Odoo S.A. on
+top of Community. Everything in this training is Community.
+
+What makes Odoo a platform rather than a product is the module system: every feature, including the core ones, is a
+module, and a module can add tables, columns, screens, menus, reports and rules to any other module without changing its
+code. OpenSPP is about a hundred such modules (`spp_*`) that turn Odoo into a social protection management information
+system: registry, programs, cycles, entitlements, change requests, grievances, an API. Your `dswd_*` modules sit on top
+of those, the same way OpenSPP sits on top of Odoo.
+
+Three facts to keep:
+
+- The database is PostgreSQL; every model is a table you could inspect with `./odoo-project sql`.
+- The server is one Python process (several, in production) that loads every installed module at start.
+- The web client is a single-page application; the XML views you write are turned into screens by it.
+
+### 3.3 MVC, in Odoo terms
+
+Odoo is a Model-View-Controller platform, with its own names for the three parts:
+
+| MVC part   | In Odoo                                                                                                                                                   | Where you write it                                                          |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| Model      | `models.Model` classes and their fields; the ORM maps them to tables and rows                                                                             | `models/*.py`                                                               |
+| View       | XML records on `ir.ui.view` (list, form, search, kanban) and QWeb templates for reports; rendered by the web client                                       | `views/*.xml`, `report/*.xml`                                               |
+| Controller | What happens when the user acts: window actions and menus route clicks to views; methods on the model run the business logic; HTTP controllers serve URLs | `views/*.xml` (actions, menus), `models/*.py` (methods), `controllers/*.py` |
+
+The rule of thumb: data and rules live in the model, drawing lives in the view, and the controller is thin. A button on
+a form calls a method on the model; the method uses the ORM; the view only says where the button sits.
+
+### 3.4 Odoo in five words
 
 | Word   | Means                                                | See it at                     |
 | ------ | ---------------------------------------------------- | ----------------------------- |
@@ -98,7 +135,7 @@ Odoo reads your files when it installs or updates a module, not continuously. Af
 Open Settings > Technical > Models and search `res.partner`. Its fields come from `base`, from `spp_registry`, from
 `spp_vocabulary` and more. Many modules add columns to one table. Module 4 is about doing exactly that.
 
-### 3.3 The module you build: `dswd_asset`
+### 3.5 The module you build: `dswd_asset`
 
 An IT asset register: the laptops, desktops and printers of an office and who looks after them. It is plain Odoo;
 nothing in it is specific to 4Ps. The `dswd_` prefix is this project's naming rule, enforced by the repository's lint,
@@ -112,6 +149,7 @@ dswd_asset/
 ├── models/dswd_asset.py            the model: table, fields, a computed field, a constraint
 ├── views/dswd_asset_views.xml      list, form and search views, and the action
 ├── views/menus.xml                 the app tile and the menu that opens the action
+├── report/dswd_asset_report.xml    the Asset Sheet PDF report and its template
 ├── security/groups.xml             viewer, officer and manager groups
 ├── security/ir.model.access.csv    who may read, write, create, delete
 ├── tests/test_dswd_asset.py        what "working" means, as code
@@ -122,7 +160,7 @@ dswd_asset/
 The module ships in your repository with `auto_install: False`. It is installed only when you run
 `./odoo-project install dswd_asset`.
 
-### 3.4 Step 0: a module is a folder and a manifest
+### 3.6 Step 0: a module is a folder and a manifest
 
 ```python
 {
@@ -138,6 +176,7 @@ The module ships in your repository with `auto_install: False`. It is installed 
         "security/ir.model.access.csv",
         "views/dswd_asset_views.xml",
         "views/menus.xml",
+        "report/dswd_asset_report.xml",
     ],
     "application": False,
     "installable": True,
@@ -155,7 +194,7 @@ With only this file and an empty `__init__.py`, the module installs. It does not
 mode, click Update Apps List, search "Asset", and install; or from the terminal: `./odoo-project install dswd_asset`.
 `./odoo-project logs` shows `Loading module dswd_asset`.
 
-### 3.5 Step 1: the model is the table
+### 3.7 Step 1: the model is the table
 
 ```python
 from odoo import _, api, fields, models
@@ -218,7 +257,7 @@ WARNING odoo.modules.loading: The models ['dswd.asset'] have no access rules in 
 
 Nothing is broken. Nobody can open the table either.
 
-### 3.6 Step 2: views draw the table, a menu opens it
+### 3.8 Step 2: views draw the table, a menu opens it
 
 ```xml
 <record id="view_dswd_asset_list" model="ir.ui.view">
@@ -312,7 +351,7 @@ No group currently allows this operation.
 
 The warning from step 1 became an error the moment there was a door to knock on.
 
-### 3.7 Step 3: groups and access rows
+### 3.9 Step 3: groups and access rows
 
 ```xml
 <record id="category_dswd_asset" model="ir.module.category">
@@ -370,7 +409,7 @@ access_dswd_asset_manager,dswd.asset manager,model_dswd_asset,group_asset_manage
 After `./odoo-project update`, the list opens. Register the laptop in front of you. Then set a warranty end date earlier
 than the purchase date and read the dialog: that sentence is in the Python file.
 
-### 3.8 Step 4: tests say what "working" means
+### 3.10 Step 4: tests say what "working" means
 
 ```python
 from datetime import date, timedelta
@@ -449,13 +488,124 @@ class TestDswdAssetAccess(TransactionCase):
 
 ```
 $ ./odoo-project test dswd_asset
-0 failed, 0 error(s) of 8 tests
+0 failed, 0 error(s) of 12 tests
 Full log: .../dswd_asset_unittest_20261108_153000.log
 ```
 
 The summary line is the first thing you read when someone says a module is broken; the log path is the second.
 
-### 3.9 The four mistakes of a new module
+### 3.11 Step 5: the ORM, from a method and from the shell
+
+The ORM (object-relational mapper) is how Python talks to the tables: a model is a class, a row is a record, a query is
+a method call. Five operations cover almost everything:
+
+| Operation        | Meaning                                                             | Returns        |
+| ---------------- | ------------------------------------------------------------------- | -------------- |
+| `search(domain)` | the records matching a domain, a list of `(field, operator, value)` | a recordset    |
+| `browse(ids)`    | the records with these ids, without a query until a field is read   | a recordset    |
+| `create(values)` | a new row                                                           | the new record |
+| `write(values)`  | change fields on every record in the set                            | `True`         |
+| `unlink()`       | delete every record in the set                                      | `True`         |
+
+Two methods added to `dswd.asset` show the two shapes a method takes:
+
+```python
+    def action_assign_to_me(self):
+        """Form button: the ORM write in one line. ``self`` is the asset the button was pressed on."""
+        self.write({"custodian_id": self.env.user.id})
+
+    @api.model
+    def find_warranty_expiring(self, days=30):
+        """Assets still in use whose warranty ends within ``days``: a search with a domain."""
+        today = fields.Date.context_today(self)
+        return self.search(
+            [
+                ("is_in_use", "=", True),
+                ("warranty_end_date", ">=", today),
+                ("warranty_end_date", "<=", fields.Date.add(today, days=days)),
+            ],
+            order="warranty_end_date",
+        )
+```
+
+- A method without a decorator runs on records: `self` is the asset (or assets) it was called on. The form's
+  `<button name="action_assign_to_me" type="object" />` calls it on the record being edited.
+- `@api.model` marks a method that works on the model as a whole: `env["dswd.asset"].find_warranty_expiring(30)`.
+- `self.env` is the environment: the current user (`self.env.user`), the other models (`self.env["res.users"]`), xml ids
+  (`self.env.ref("dswd_asset.group_asset_manager")`).
+
+The same operations from the shell, the fastest way to answer "what is in the database right now":
+
+```
+$ ./odoo-project shell
+>>> Asset = env["dswd.asset"]
+>>> Asset.search_count([])
+2
+>>> laptops = Asset.search([("asset_type", "=", "laptop")])
+>>> laptops.mapped("name")
+['LT-0001']
+>>> a = Asset.create({"name": "LT-0099", "asset_type": "laptop"})
+>>> a.write({"model_name": "Lenovo ThinkPad T14"})
+>>> a.custodian_id.name
+'OdooBot'
+>>> Asset.find_warranty_expiring(365).mapped("name")
+['LT-0001']
+>>> a.unlink()
+>>> env.cr.commit()      # the shell does not save until you say so
+```
+
+`mapped`, `filtered` and `sorted` work on any recordset; a Many2one field is itself a record, so `a.custodian_id.name`
+walks the link. Nothing the shell does is saved until `env.cr.commit()`.
+
+### 3.12 Step 6: a PDF report
+
+A report is two records in one XML file: an `ir.actions.report` that names the model, the template and the format, and a
+QWeb template that is ordinary HTML with `t-` attributes. Odoo renders the template to HTML, then to PDF with
+wkhtmltopdf, which the image includes.
+
+```xml
+<record id="action_report_dswd_asset" model="ir.actions.report">
+    <field name="name">Asset Sheet</field>
+    <field name="model">dswd.asset</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">dswd_asset.report_dswd_asset</field>
+    <field name="report_file">dswd_asset.report_dswd_asset</field>
+    <field name="print_report_name">'Asset Sheet - %s' % (object.name)</field>
+    <field name="binding_model_id" ref="model_dswd_asset" />
+    <field name="binding_type">report</field>
+</record>
+
+<template id="report_dswd_asset">
+    <t t-call="web.html_container">
+        <t t-foreach="docs" t-as="asset">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h2>Asset Sheet: <span t-field="asset.name" /></h2>
+                    <table class="table table-sm o_main_table">
+                        <tbody>
+                            <tr><th>Make and Model</th><td><span t-field="asset.model_name" /></td></tr>
+                            <tr><th>Type</th><td><span t-field="asset.asset_type" /></td></tr>
+                            <tr><th>Custodian</th><td><span t-field="asset.custodian_id" /></td></tr>
+                            <tr><th>Purchase Date</th><td><span t-field="asset.purchase_date" /></td></tr>
+                            <tr><th>Warranty End</th><td><span t-field="asset.warranty_end_date" /></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </t>
+</template>
+```
+
+- `binding_model_id` puts "Asset Sheet" in the Print menu of the asset list and form; `print_report_name` names the
+  downloaded file.
+- `docs` is the recordset being printed; `t-foreach` makes one page per record; `t-field` renders a field with its
+  widget (dates, Many2one names, selections) the way the form does; `t-esc` prints any expression.
+- `web.external_layout` adds the company header and footer; `web.html_container` is the page wrapper.
+- A report is tested without a PDF engine by rendering the HTML:
+  `self.env["ir.actions.report"]._render_qweb_html("dswd_asset.action_report_dswd_asset", asset.ids)`.
+
+### 3.13 The four mistakes of a new module
 
 | Mistake                                       | Symptom                                                        | Where to look                                      |
 | --------------------------------------------- | -------------------------------------------------------------- | -------------------------------------------------- |
@@ -464,7 +614,7 @@ The summary line is the first thing you read when someone says a module is broke
 | A view field that is not on the model         | update fails: `Field "x" does not exist in model "dswd.asset"` | compare with Settings > Technical > Fields         |
 | `_name` versus `model_id` in the access file  | `No matching record found for external id 'model_dswd_...'`    | `model_` plus `_name` with dots as underscores     |
 
-### 3.10 From Module 3 to Module 4
+### 3.14 From Module 3 to Module 4
 
 4Ps needs a well-being level on every household. Which file do we start with?
 
@@ -826,21 +976,24 @@ runs the full set.
 
 ### 7.6 Glossary
 
-| Term                         | Meaning                                                                                         |
-| ---------------------------- | ----------------------------------------------------------------------------------------------- |
-| Addons path                  | The folders Odoo scans for modules; your repository root is one of them inside the container.   |
-| Manifest                     | `__manifest__.py`: the module's name, dependencies and data files.                              |
-| ORM                          | Odoo's object layer: `create`, `write`, `search`, `unlink` on a model instead of SQL.           |
-| Model, field                 | A table and a column, declared in Python.                                                       |
-| View                         | XML that draws a model as a list, a form or a search box; an `ir.ui.view` record.               |
-| Action, menu                 | An action names a model and its views; a menu points at an action.                              |
-| XML id                       | The address of a record defined in a data file, `module.name`; used by `ref=` and `env.ref`.    |
-| Access row                   | One line of `ir.model.access.csv`: what one group may do on one model.                          |
-| Group, privilege, category   | A permission tier; what the user form shows for it; the heading it sits under.                  |
-| `_inherit`                   | Add fields and behaviour to an existing model.                                                  |
-| Inherited view               | A view that modifies another with XPath on named elements.                                      |
-| `noupdate`                   | Data loaded once on install and never overwritten by an update.                                 |
-| Vocabulary, code             | OpenSPP's code lists as data, with namespace URIs; `spp.vocabulary` and `spp.vocabulary.code`.  |
-| Registrant, household, group | A `res.partner` with `is_registrant`; a household is also `is_group`.                           |
-| SWDI                         | Social Welfare and Development Indicators: the 4Ps yearly well-being assessment, levels 1 to 3. |
-| `TransactionCase`            | The Odoo test base class: each test runs in a rolled-back transaction.                          |
+| Term                         | Meaning                                                                                                               |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Addons path                  | The folders Odoo scans for modules; your repository root is one of them inside the container.                         |
+| Manifest                     | `__manifest__.py`: the module's name, dependencies and data files.                                                    |
+| ORM                          | Odoo's object layer: `create`, `write`, `search`, `unlink` on a model instead of SQL.                                 |
+| MVC                          | Model, view, controller: in Odoo, `models.Model`, XML views and QWeb templates, and actions, menus and model methods. |
+| QWeb                         | Odoo's template engine: HTML with `t-` attributes, used by reports and by the web client.                             |
+| Domain                       | A list of `(field, operator, value)` conditions passed to `search` and to filters.                                    |
+| Model, field                 | A table and a column, declared in Python.                                                                             |
+| View                         | XML that draws a model as a list, a form or a search box; an `ir.ui.view` record.                                     |
+| Action, menu                 | An action names a model and its views; a menu points at an action.                                                    |
+| XML id                       | The address of a record defined in a data file, `module.name`; used by `ref=` and `env.ref`.                          |
+| Access row                   | One line of `ir.model.access.csv`: what one group may do on one model.                                                |
+| Group, privilege, category   | A permission tier; what the user form shows for it; the heading it sits under.                                        |
+| `_inherit`                   | Add fields and behaviour to an existing model.                                                                        |
+| Inherited view               | A view that modifies another with XPath on named elements.                                                            |
+| `noupdate`                   | Data loaded once on install and never overwritten by an update.                                                       |
+| Vocabulary, code             | OpenSPP's code lists as data, with namespace URIs; `spp.vocabulary` and `spp.vocabulary.code`.                        |
+| Registrant, household, group | A `res.partner` with `is_registrant`; a household is also `is_group`.                                                 |
+| SWDI                         | Social Welfare and Development Indicators: the 4Ps yearly well-being assessment, levels 1 to 3.                       |
+| `TransactionCase`            | The Odoo test base class: each test runs in a rolled-back transaction.                                                |

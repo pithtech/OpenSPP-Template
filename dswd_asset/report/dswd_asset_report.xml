@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- A PDF report: an action that names a QWeb template. binding_model_id puts it in the Print menu. -->
+    <record id="action_report_dswd_asset" model="ir.actions.report">
+        <field name="name">Asset Sheet</field>
+        <field name="model">dswd.asset</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">dswd_asset.report_dswd_asset</field>
+        <field name="report_file">dswd_asset.report_dswd_asset</field>
+        <field name="print_report_name">'Asset Sheet - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_dswd_asset" />
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- The template: HTML with t- attributes. docs is the recordset being printed. -->
+    <template id="report_dswd_asset">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="asset">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2>Asset Sheet: <span t-field="asset.name" /></h2>
+                        <table class="table table-sm o_main_table">
+                            <tbody>
+                                <tr><th>Make and Model</th><td><span t-field="asset.model_name" /></td></tr>
+                                <tr><th>Type</th><td><span t-field="asset.asset_type" /></td></tr>
+                                <tr><th>Custodian</th><td><span t-field="asset.custodian_id" /></td></tr>
+                                <tr><th>Purchase Date</th><td><span t-field="asset.purchase_date" /></td></tr>
+                                <tr><th>Warranty End</th><td><span t-field="asset.warranty_end_date" /></td></tr>
+                                <tr>
+                                    <th>Under Warranty</th>
+                                    <td><t t-if="asset.is_under_warranty">Yes</t><t t-else="">No</t></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p class="text-muted">
+                            Printed on <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%Y-%m-%d')" />
+                            by <span t-esc="user.name" />.
+                        </p>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

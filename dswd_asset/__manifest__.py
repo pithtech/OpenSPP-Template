@@ -18,6 +18,7 @@
         "security/ir.model.access.csv",
         "views/dswd_asset_views.xml",
         "views/menus.xml",
+        "report/dswd_asset_report.xml",
     ],
     "application": False,
     "installable": True,

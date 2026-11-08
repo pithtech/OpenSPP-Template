@@ -1748,15 +1748,10 @@ def migrate(cr, version):
 
 ### 4.14 Exercises (Module 6, Day 3)
 
-The exercise sheet is `training/module4/exercise-day3.md`. Before you start, the pre-flight: `doctor` clean, `start`,
-styled page, `test dswd_wellbeing` at 5 passed. Then:
-
-- **Tier 1, no environment needed**: `training/module4/dswd_wellbeing_broken/` holds the module with three planted
-  faults. Find each one, write the file and line, the symptom you expect, and the one-line fix.
-- **Tier 2**: add the well-being level as an optional column on the household list view
-  (`spp_registry.view_groups_list_tree_base`), with a test.
-- **Tier 3**: a second module, `dswd_id_types`, adding the PhilSys number to the upstream ID Type vocabulary with the
-  validation pattern `^\d{4}-\d{4}-\d{4}-\d{4}$`, and a test that an invalid number raises `ValidationError`.
+On Day 3 you build three modules of your own, each from a Day 2 pattern: a new module like `dswd_asset`, an extension of
+the household like `dswd_wellbeing`, and a customization of OpenSPP through data. The sheets are in `training/module6/`;
+chapter 6 of this guide describes the session. Before Day 3: `./odoo-project start` and
+`./odoo-project test dswd_wellbeing` at 5 passed.
 
 ---
 
@@ -2021,7 +2016,7 @@ The modules on no card are in the catalogue index, for the post-training session
 
 ## 6. Module 6: Hands-on activity
 
-To be added. The Day 3 exercise sheet for Module 4 is already in `training/module4/exercise-day3.md`.
+To be added. The exercise sheets are in `training/module6/`.
 
 ---
 

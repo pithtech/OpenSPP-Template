@@ -6,18 +6,16 @@ Day 2, 10:10 to 12:00, after Module 3 and a ten-minute break. The design behind 
 tags exist only in a clone of the template repository (yours); a participant's repository is a template copy with one
 commit, no history and no tags, and already holds the finished module.
 
-| File                                                 | For                 | Use                                                                                                                                                                 |
-| ---------------------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [runbook.md](runbook.md)                             | Trainer             | Run of show with commands, the four planted faults and their real log lines, cut-offs, fallbacks                                                                    |
-| [slides.md](slides.md)                               | Trainer, projected  | Marp deck, 23 slides (18 content, 5 screenshots) one per block or step; render with the VS Code Marp extension or `npx @marp-team/marp-cli slides.md -o slides.pdf` |
-| [handout-anatomy.md](handout-anatomy.md)             | Everyone, printed   | Fill-in file map, the three rules, the loop, the five mistakes, the code of every step                                                                              |
-| [drill.md](drill.md)                                 | Pairs, printed      | Three real log excerpts to diagnose in block 9                                                                                                                      |
-| [drill-answers.md](drill-answers.md)                 | Trainer             | Answer key for the drill                                                                                                                                            |
-| [quiz.md](quiz.md)                                   | Participants        | Ten items, an optional self-check; not scheduled in the session                                                                                                     |
-| [quiz-answers.md](quiz-answers.md)                   | Trainer             | Answer key with the accepted variants                                                                                                                               |
-| [exercise-day3.md](exercise-day3.md)                 | Participants, Day 3 | Three tiers: find the faults, list column, Philippine ID types                                                                                                      |
-| [exercise-day3-answers.md](exercise-day3-answers.md) | Trainer             | Answer key for the Day 3 exercise: the three faults, the bonus, outlines for Tiers 2 and 3                                                                          |
-| [dswd_wellbeing_broken/](dswd_wellbeing_broken/)     | Participants, Day 3 | The module with three planted faults; lint passes, Odoo does not                                                                                                    |
+| File                                             | For                | Use                                                                                                                                                                 |
+| ------------------------------------------------ | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [runbook.md](runbook.md)                         | Trainer            | Run of show with commands, the four planted faults and their real log lines, cut-offs, fallbacks                                                                    |
+| [slides.md](slides.md)                           | Trainer, projected | Marp deck, 23 slides (18 content, 5 screenshots) one per block or step; render with the VS Code Marp extension or `npx @marp-team/marp-cli slides.md -o slides.pdf` |
+| [handout-anatomy.md](handout-anatomy.md)         | Everyone, printed  | Fill-in file map, the three rules, the loop, the five mistakes, the code of every step                                                                              |
+| [drill.md](drill.md)                             | Pairs, printed     | Three real log excerpts to diagnose in block 9                                                                                                                      |
+| [drill-answers.md](drill-answers.md)             | Trainer            | Answer key for the drill                                                                                                                                            |
+| [quiz.md](quiz.md)                               | Participants       | Ten items, an optional self-check; not scheduled in the session                                                                                                     |
+| [quiz-answers.md](quiz-answers.md)               | Trainer            | Answer key with the accepted variants                                                                                                                               |
+| [dswd_wellbeing_broken/](dswd_wellbeing_broken/) | Pairs, block 9     | The module with three planted faults (the drill excerpts); lint passes, Odoo does not                                                                               |
 
 ## Preparing the demo machine (the evening before)
 
@@ -46,5 +44,5 @@ requires a participant laptop: participants read, predict and diagnose. Keyboard
 
 ## Participants without a working environment
 
-They follow the **Read** track: the handout has every file, the drill needs only paper, and the Day 3 Tier 1 exercise is
-read-only. Send them to the lunch triage table on Day 2 so they are ready for Day 3.
+They follow the **Read** track: the handout has every file and the drill needs only paper. Send them to the lunch triage
+table on Day 2 so they are ready for Day 3, where every exercise needs a working stack (or a pair with one).

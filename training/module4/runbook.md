@@ -135,9 +135,9 @@ reproduce.) Developer mode is on (Settings > Activate the developer mode) so App
 1. Objectives slide: read the five, ask for a thumbs up on each.
 2. What moves to Module 5: the production modules read through this morning's parts: the module map, the registry and
    its hierarchical vocabularies, roles and approvals, change requests, compliance, payroll, casework, APIs.
-3. Hand out [exercise-day3.md](exercise-day3.md). "Your repository already has the finished module; before Module 6:
-   `./odoo-project start` and `install dswd_wellbeing`. If your laptop does not run Docker, Tier 1 needs only the folder
-   and your eyes."
+3. Point to Module 6: "Tomorrow you build three modules of your own, starting from `dswd_asset` and `dswd_wellbeing`.
+   Before 8:30: `./odoo-project start` and `test dswd_wellbeing`. If your laptop does not run Docker, sit with a pair
+   that has a working one."
 4. Point to the lunch triage table.
 
 ## If the demo machine fails

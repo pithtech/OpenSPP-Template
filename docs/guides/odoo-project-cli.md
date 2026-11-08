@@ -133,6 +133,18 @@ Uses `click-odoo-update` inside the running container to detect and upgrade modu
 ./odoo-project update
 ```
 
+`update` only upgrades modules that are already installed. To add a new module, use `install`.
+
+### install (i) — Install new modules
+
+Runs `odoo -i` inside the running container, then restarts Odoo so the registry picks up the new modules. Equivalent
+to Apps > Update Apps List > Install in the UI.
+
+```bash
+./odoo-project install dswd_wellbeing
+./odoo-project install dswd_wellbeing dswd_id_types   # several at once
+```
+
 ### resetdb — Drop and recreate the database
 
 ```bash
@@ -210,6 +222,7 @@ default_db = "odoo"
 | Port 8069 already in use                  | `./odoo-project stop`; `doctor` shows who holds the port                        |
 | "Docker image may be outdated"            | Accept the pull (it is quick when the image is already current); if the pull fails, log in to GHCR or run `./odoo-project build` |
 | Module not updating after code changes    | `./odoo-project update`, then `restart` if needed                               |
+| New module not found or not installed     | `./odoo-project install <module>`; `update` does not install new modules        |
 | First start seems stuck                   | Installing `spp_starter_sp_mis` takes 1-8 minutes; `logs -f` shows progress     |
 | Tests fail but the UI works               | Tests run on a fresh database; check the log path printed by `test`             |
 | Database connection errors                | `doctor`, then `status`, then `logs db`                                         |

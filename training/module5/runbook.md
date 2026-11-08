@@ -19,11 +19,13 @@ requests, the triage and the closing.
 - Open the code-moment files in tabs, in card order (the list at the end of this page). Test each one opens at the right
   line: Ctrl+P, the path, `:` and the line.
 - The deck rendered to PDF on the laptop as the projector fallback; the deck carries the same excerpts.
-- Printed: the catalogue (cards bound, one per participant), the A1 map poster on the wall, one set of eight category
-  cards per pair, the triage sheet (one per pair), the triage answer key and the checkpoint bank for yourself.
+- Printed: the catalogue (A4, one card per sheet, front and back, bound; one per participant), the A1 map poster on the
+  wall, one set of eight category cards per pair, the triage sheet (one per pair), the triage answer key and the
+  checkpoint bank for yourself. Test-print card 8, the longest, before ordering the catalogue; if time or budget is
+  short, print one catalogue per pair and share the PDF.
 - Seat technicians next to developers before 1:00; pairs keep the same partner all afternoon.
 
-## Block 1, 1:00 to 1:10: opener
+## Block 1, 1:00 to 1:05: opener
 
 1. The five objectives, one breath each. "This morning you learned the parts of a module. This afternoon you read the
    real ones. By five you can take a 4Ps ticket and say which module, which part, which file."
@@ -33,20 +35,44 @@ requests, the triage and the closing.
 3. The category cards: "M, V, D, S, W, J, A, T. I read a symptom; your pair holds up the card for the file you would
    open first, not the file the fix ends in."
 4. Warm-up: "A user says: the list of reasons for a grantee change needs 'working abroad'." Count to three. Answer: D, a
-   vocabulary data file, `dswd_4ps_registry/data/vocabulary_grantee_change_reasons.xml`. "Module 4, block 2. And the
-   file is `noupdate`: on production, a new code also needs a migration."
+   vocabulary data file, `dswd_4ps_registry/data/vocabulary_grantee_change_reasons.xml`. "Module 4, step 1: the
+   vocabulary file. And this file is `noupdate`: on production, a new code also needs a migration; the primer at 1:15
+   says what that means."
 
-## Block 2, 1:10 to 1:25: the map (card 1)
+## Block 2, 1:05 to 1:15: the map (card 1)
 
-1. Poster on screen and on the wall. "66 modules with a manifest. 26 cards cover 38 of them. About a third of the 66 are
-   sample data, demo seeders and tests. You can ignore those on a ticket."
+1. Poster on screen and on the wall. "66 modules with a manifest. 26 cards cover 38 of them. About a quarter of the 66
+   (17 modules) are sample data, demo seeders and tests. You can ignore those on a ticket."
 2. Read the poster top to bottom as the 4Ps process: where (area), who (registry), who may (roles, approvals), when
    (period); then change, verify, pay, assess, manage; then connect.
 3. Two instances: instance 1 is the registry and operations, instance 2 is casework; the bridge joins them; `starter`
    puts both on one database. **Code moment**: `dswd_4ps_instance1/__manifest__.py`, the `depends` list grouped by
    layer. "A manifest is the map of a deployment; section 3.6."
 4. Predict: "Which modules install on both instances?" Area, registry, roles, the API and auth: the casework side
-   depends on them. Period and the approval modules: instance 1 only.
+   depends on them (plus the bridge schemas, the portal API base, the theme and attachment hardening). Period and the
+   approval modules: instance 1 only.
+
+## Block 2b, 1:15 to 1:25: primer (five slides)
+
+"Five things the production modules use on almost every card. This morning did not present them; each has a Reference
+section in your guide. One sentence each now; the cards show them all afternoon." Two minutes per slide: the sentence,
+the production example, the guide section. No questions until the end.
+
+1. **Record rules** (guide 3.12): "An access row says which models a group may use; a record rule says which rows of a
+   model a user may see." Example: `dswd_4ps_area` shows each user only the areas in or above their center areas, and
+   none to a user without one (card 2).
+2. **Jobs and scheduled actions** (3.17): "A job is work queued with `with_delay()` that runs later in the background; a
+   scheduled action, or cron, runs on a clock." Example: a school attendance event queues a job on the `cv_events`
+   channel, and a daily cron finishes the household (card 11).
+3. **Migrations and `noupdate`** (4.13): "A `noupdate` data file loads once, at install; changing its records on a
+   running database takes a migration." Example: every group, role and rule file in `dswd_4ps_roles` is `noupdate`, and
+   the module has 20 migrations so far (card 4).
+4. **Hooks** (5.10): "A hook is code Odoo calls at a fixed moment: `post_init_hook` once after install, `_register_hook`
+   each time the server loads the module." Example: the `post_init_hook` of `dswd_4ps_area` loads the PSGC areas at
+   install, and never again (card 2).
+5. **Wizards** (3.10): "A wizard is a temporary model behind a dialog: the user fills in a small form, and its button
+   does the work." Example: the payroll Reject + Rewind wizard offers no rewind once credit instructions exist (card
+   13).
 
 ## Block 3, 1:25 to 2:05: foundation (deep, cards 2 to 7)
 
@@ -71,7 +97,8 @@ Say, per card:
 - **Roles**: every group, role and rule file is `noupdate`: "a role change is a migration, never only an XML edit." Keep
   the recursion context flags.
 - **Approvals**: "an override without `super()`: if upstream adds a check, it does not run here." Then the flow data: 21
-  definitions, 19 linked to 6 types; a transition no definition matches auto-approves.
+  definitions, 19 linked to 6 types; a transition no definition matches auto-approves, except on Reinstate Household,
+  which keeps a catch-all.
 - **Period**: fail-loud by design; the December duty.
 
 ## Block 4, 2:05 to 2:10: checkpoint 1
@@ -90,7 +117,7 @@ the module aloud. Sit down when done.
      apply model.
    - `models/cr_detail_change_address.py`: the detail model's `_inherit`.
    - Point out: Change Address has no linked approval definition, so it approves on submit (card 6). "The approval you
-     saw at 1:50 is on Update Household Info."
+     saw just before the checkpoint is on Update Household Info."
    - `models/cr_parent_access.py`: the docstring says why access is checked in code, not by a record rule. "A follow-up
      to section 3.12: at this scale a rule was the wrong tool."
 3. **Important points** (7 min): batching under a ticket number; the `cancelled` state added to the approval mixin
@@ -114,8 +141,8 @@ the module aloud. Sit down when done.
    the household flag. Then the top of `models/compliance_pipeline.py`, read for structure only.
 2. Say: "Reconcile later, not on every write: the event job writes one row and marks the household; a daily reconcile
    finishes it. Status rows are a cache rebuilt from events." And: "the school threshold is the constant 85 in the
-   pipeline; the system parameter of the same name only feeds display fields." Household rollup rules by pillar live in
-   payroll's entitlement manager, not here.
+   pipeline; the system parameter of the same name only feeds display fields." The per-pillar household rules for
+   payment live in payroll's entitlement manager, not here.
 3. Category prompt: "A child's attendance was submitted, the household is still non-compliant." J: the event job and the
    reconcile, before any code.
 4. **Card 12** (12 min). Parent groups (`pg_max_members`, default 30), plans with approval, sessions, equivalency, the
@@ -166,8 +193,9 @@ Stand up. Set 2 from the checkpoint bank.
 
 1. Hand out [triage-sheet.md](triage-sheet.md), one per pair. "Training scenarios, not real incidents. Module, card,
    first file. Twelve minutes. Use your catalogue."
-2. Walk the room. At 4:44, report-back from [triage-answers.md](triage-answers.md): one pair per ticket, then "who had
-   something different?" Draw out the three points at the top of the answer key.
+2. Walk the room. At 4:44, report-back from [triage-answers.md](triage-answers.md) on four tickets only: 1, 2, 4 and 6
+   (four categories; ticket 6 has no card). One pair per ticket, then "who had something different?" Then the answers
+   slide with all eight, and the three points at the top of the answer key.
 
 ## Block 13, 4:50 to 4:57: closing
 

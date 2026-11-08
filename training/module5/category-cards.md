@@ -1,8 +1,9 @@
 # Module 5 Category Cards
 
-Print one set per pair: eight cards, one colour each, A6 or larger, the letter large enough to read from the front of
-the room. Before the back of a module card is shown, the trainer reads a one-line symptom; each pair holds up the card
-for the component they would open first. The same letters are used on the triage sheet.
+Print one set per pair: eight A6 cards, four to an A4 sheet so the print shop can cut them. The letter at least 8 cm
+high, bold, black: the trainer reads it from the front of the room. Colour is optional and white card is fine, because
+the letter is the cue. Before the back of a module card is shown, the trainer reads a one-line symptom; each pair holds
+up the card for the component they would open first. The same letters are used on the triage sheet.
 
 | Card | Colour | Component                     | Open first                                                 | Guide        |
 | ---- | ------ | ----------------------------- | ---------------------------------------------------------- | ------------ |

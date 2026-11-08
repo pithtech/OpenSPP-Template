@@ -19,7 +19,8 @@
    which file would I open?" Nothing is clicked in the running system; the screen shows the production code in an
    editor, at the file each point is about.
 2. **Read every module through Modules 3 and 4.** The morning taught the parts of a module (manifest, models, fields,
-   views, security, tests, ORM, `_inherit`, inherited views, vocabularies, wizards, jobs, migrations). The afternoon
+   views, security, tests, ORM, `_inherit`, inherited views, vocabularies), and the guide's Reference sections cover
+   wizards, record rules, jobs and migrations, which a ten-minute primer at 1:15 introduces with hooks. The afternoon
    uses exactly those words. A fixed strip of those categories appears on every module card and in the corner of
    every slide.
 3. **Organised by the 4Ps business process, not alphabetically.** Where they are (area), who they are (registry), who
@@ -48,7 +49,9 @@ By 5:00 a participant can:
 
 ## 3. The module card
 
-One A5 card per module, the same layout every time; the cards are bound into a catalogue participants keep.
+One card per module, the same layout every time, printed on A4 (one sheet, front and back); the cards are bound into a
+catalogue participants keep. Test-print card 8, the longest, before ordering; if time or budget is short, print one
+catalogue per pair and share the PDF.
 
 **Front**: purpose in one sentence; the 4Ps process (with its section in `training/4ps-program-reference.md`);
 instance 1, 2 or both; depends on and depended on by; size (non-test Python lines, tests); three to five key models,
@@ -77,9 +80,10 @@ needs no running stack.
 
 | Time | Block | Tier | Minutes |
 | --- | --- | --- | --- |
-| 1:00 | Opener: objectives, how to read a card, warm-up ticket with category cards | | 10 |
-| 1:10 | The map: 66 modules on the poster, layers, the two-instance split, bundles (`starter`, `instance1`, `instance2`), "26 cards today" | | 15 |
-| 1:25 | Foundation: registry (14), area (8), roles (10), approvals (4), period (4) | Deep | 40 |
+| 1:00 | Opener: objectives, how to read a card, warm-up ticket with category cards | | 5 |
+| 1:05 | The map: 66 modules on the poster, layers, the two-instance split, bundles (`starter`, `instance1`, `instance2`), "26 cards today" | | 10 |
+| 1:15 | Primer: five slides of one sentence and one production example each: record rules (3.12), jobs and scheduled actions (3.17), migrations and `noupdate` (4.13), hooks (`post_init_hook`, `_register_hook`; 5.10), wizards (3.10) | | 10 |
+| 1:25 | Foundation: area (8), registry (14), roles (9), approvals (7), period (2) | Deep | 40 |
 | 2:05 | Checkpoint 1: three quick tickets, standing vote | | 5 |
 | 2:10 | Change requests: upstream architecture, 4Ps types, approvals, documents, limits, batching and cancellation, access mixin, code moments | Deep | 40 |
 | 2:50 | Break | | 15 |
@@ -96,7 +100,7 @@ needs no running stack.
 minutes. **Never dropped**: the map, foundation, change requests, the triage and the closing.
 
 **Engagement without hands-on.** Before each card's back is revealed, a one-line symptom is read and rows hold up a
-coloured category card (M model, V view, D data or vocabulary, S security, W wizard, J job, A API, T test). Predict
+category card (M model, V view, D data or vocabulary, S security, W wizard, J job, A API, T test). Predict
 questions in the morning style. Two standing checkpoints. Deep blocks before the break, while energy is highest. No
 block longer than 40 minutes without a prompt. Pairs for the triage, technicians next to developers.
 
@@ -190,18 +194,28 @@ the code won. The complete list of corrections to the earlier survey:
 
 Eight tickets in pairs, each answered with: module, category card, the first file to open. The tickets are fabricated
 training scenarios, labelled as such on the sheet. Each answer was checked against the code; the key in
-`training/module5/triage-answers.md` gives the reasoning and every file a full fix touches. The eight cover five of the
-eight categories (S, M, D, J, A); view, wizard and test are not first-file answers in production tickets of this kind.
-Edwin may swap in a real recent ticket the class will recognise.
+`training/module5/triage-answers.md` gives the reasoning and every file a full fix touches. The eight cover every
+category but test (S or M, V, D, W, J, A); test is not a first-file answer in production tickets of this kind. Edwin may
+swap in a real recent ticket the class will recognise.
 
-1. "A provincial officer cannot see households in one barangay." (area; S)
-2. "Add the place of birth to the Update Member Personal Information request." (change request; M) Rewritten: the
-   mother's maiden name is already captured by Update Member Additional Information, and Update Member Info was renamed.
+Tickets 2, 4 and 6 were replaced on 2026-11-09 (decision 9): the earlier three were the category prompts the trainer
+answers aloud in blocks 3, 5 and 7, so the triage measured recall. The new three are spoken nowhere in the runbook and
+are not copied from a card. Ticket 6 lands on a module with no card, found through the catalogue index (objective 5),
+and the sheet's stretch question asks for the `spp_*` module under tickets 2 and 7 (objective 2). Only four tickets are
+reported back aloud (1, 2, 4 and 6); a slide then shows all eight answers.
+
+1. "A provincial officer cannot see households in one barangay." (area; M or S, as card 2 points to
+   `models/registrant.py`)
+2. "A field worker gave us the ticket number the app showed after an update. Typing it in the Change Requests search
+   finds nothing." (change request; V) The ticket number is on the batch, and the search view only matches the batch
+   reference.
 3. "Nobody can approve a client-status change from 24 to 3." (approval flow data; D)
-4. "A child's school attendance was submitted but the household is still non-compliant." (compliance; J)
+4. "The C/ML cannot transfer five households into another parent group: it says the group would go over its max." (FDS
+   operations; W) The transfer wizard enforces the group's Max Members; no code change is needed.
 5. "Add Member must now always include the Household Head Declaration, not just any one of the usual documents."
    (supporting docs data; D) Reworded: Add Member requires any one of seven documents, not a list.
-6. "The 2027 working-day deadline raises an error." (period; D)
+6. "I exported 3,000 families with Export (DSWD) after lunch. The export batch still says Running and there is no
+   file." (`dswd_4ps_export`, no card; J) Large exports run as chunk jobs on the `dswd_export` channel.
 7. "A Level 1 assessment was approved but no case was created." (swdi_cms; J)
 8. "The beneficiary portal shows no payroll for a household that was paid." (payroll API; A) The service reads
    `spp.payment`, not the snapshot.
@@ -225,12 +239,12 @@ Built in `training/module5/` (see its README):
 
 | Material | File |
 | --- | --- |
-| Deck, 34 slides, excerpts copied from the cards | `slides.md` |
+| Deck, 40 slides, excerpts copied from the cards | `slides.md` |
 | Trainer runbook: cut-offs, drop order, code moments in tab order, prompts per card | `runbook.md` |
 | 26 module cards and the index of all 66 modules | `module-cards.md` |
 | Module map poster (A1) | `module-map.md` |
 | Ticket-triage sheet and answer key | `triage-sheet.md`, `triage-answers.md` |
-| Category cards in eight colours per pair | `category-cards.md` |
+| Category cards, eight per pair, lettered | `category-cards.md` |
 | Checkpoint bank | `checkpoint-bank.md` |
 
 ## 9. Risks
@@ -265,6 +279,13 @@ Taken by Edwin on 2026-11-08:
 7. **Production commit**: the cards and code moments are pinned to `ad98dac9` (2026-11-06), still production's HEAD
    when the materials were built. Re-check the week before if production moves.
 
+Taken by Edwin on 2026-11-09:
+
+8. **Primer**: a ten-minute primer at 1:15 (five slides: record rules, jobs and scheduled actions, migrations and
+   `noupdate`, hooks, wizards), paid for by shortening the opener to 5 minutes and the map to 10. Foundation still
+   starts at 1:25.
+9. **Triage**: tickets 2, 4 and 6 replaced by three unseen scenarios (section 6), each checked against `ad98dac9`.
+
 ## 11. Production documentation found stale, and other observations
 
 To fix before the training or to mention when showing the docs. Found while writing and checking the cards.
@@ -280,6 +301,8 @@ To fix before the training or to mention when showing the docs. Found while writ
   6 types.
 - `dswd_4ps_swdi_cms` manifest and the `trigger_type` help text: say six triggers; there are seven.
 - `dswd_4ps_payroll` manifest: says the snapshot table is partitioned; partitioning comes from `dswd_4ps_pg_partition`.
+- `dswd_4ps_payroll` manifest summary: says "13-step payroll lifecycle"; `STATE_SELECTION` has 17 states from draft to
+  done. The catalogue index quotes the summary and notes the difference.
 - `dswd_4ps_payroll` cancel message: suggests Reject and Rewind, but rewind is also refused past the point of no return.
 - `dswd_4ps_catchup_payroll` manifest: still calls the module a foundation with empty stub actions; the step actions
   are implemented. The drift-detection cron's docstring is stale too.

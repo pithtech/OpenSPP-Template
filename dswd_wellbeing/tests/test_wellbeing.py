@@ -1,4 +1,5 @@
 # Part of the DSWD 4Ps OpenSPP training template. See LICENSE file for full copyright and licensing details.
+from odoo.exceptions import ValidationError
 from odoo.tests import tagged
 
 from odoo.addons.spp_registry.tests.common import RegistryCommon
@@ -42,3 +43,10 @@ class TestHouseholdWellBeing(RegistryCommon):
         arch = self.Partner.get_view(view_id=form.id, view_type="form")["arch"]
         self.assertIn('name="dswd_4ps_section"', arch)
         self.assertIn('name="dswd_well_being_level_id"', arch)
+
+    def test_rejects_a_code_from_another_vocabulary(self):
+        """A code outside the well-being vocabulary is refused even when written from code or the API."""
+        female = self.VocabCode.get_code("urn:iso:std:iso:5218", "2")
+        self.assertTrue(female, "the upstream gender vocabulary ships code 2")
+        with self.assertRaises(ValidationError):
+            self.group.with_context(tracking_disable=True).dswd_well_being_level_id = female

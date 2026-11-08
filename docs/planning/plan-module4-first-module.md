@@ -48,6 +48,18 @@ per the scaffold if the lint requires it (check `tools/`).
 
 Commits: `feat(dswd_wellbeing): step N, <what>`; tags after the PR merge: `git tag m4-step-N <sha>` and push tags.
 
+### Deviations while building
+
+- The pre-commit hook "Odoo: ACL files exist" fails any installable module without `security/ir.model.access.csv`,
+  so the header-only file ships in **step 0**, not step 4. Step 4 is now the readme and the test-run moment only.
+- The repo excludes `docs/` and `README.md` from every pre-commit hook (top-level `exclude`), so prettier never runs on
+  the guides; `tests/test_docs.py` is the only check on them.
+- Step 0 measured: `./odoo-project test dswd_wellbeing` took 2 min 31 s on Edwin's Mac including a cached image
+  rebuild (the pull fails without a GHCR login).
+- Steps 1 to 3 measured: about 20 s each for `./odoo-project test dswd_wellbeing` once the image exists, including
+  the fresh test database. The live test run in the demo therefore fits inside its own block; no second terminal is
+  needed on a machine with the image already built.
+
 ## C. Guide fixes (`docs/guides/module-development.md`, `extending-openspp.md`)
 
 Confirmed, fix now:

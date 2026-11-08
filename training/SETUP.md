@@ -426,8 +426,8 @@ If Docker is not running, launch Docker Desktop and wait for it to finish starti
 Do this before the session; the downloads are large.
 
 1. Accept the GitHub invitation to the template repository (sent by your instructor).
-2. Open the template repository on GitHub, click **Use this template > Create a new repository**, choose your own
-   account as owner, name it `dswd-4ps-modules`, keep it private, and create it.
+2. Open the template repository, <https://github.com/pithtech/OpenSPP-Template>, click **Use this template > Create a
+   new repository**, choose your own account as owner, name it `dswd-4ps-modules`, keep it private, and create it.
 3. **Create a token for the Docker image.** The image is private, so Docker needs to log in to GitHub once:
 
    1. On GitHub go to **Settings > Developer settings > Personal access tokens > Tokens (classic)** and click **Generate

@@ -6,7 +6,7 @@ questions. Bracketed numbers point to the sources in section 10. Every figure ca
 quoted in the press are marked as such.
 
 Compiled 2026-11-08 from online sources and from the production 4Ps module source code (`dswd-4ps-dp-openspp-v2-module`,
-Newlogic). Verify any number before putting it on a slide.
+Newlogic). Each figure carries its as-of date and source; check the source before quoting it.
 
 ---
 

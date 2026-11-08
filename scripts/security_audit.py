@@ -312,17 +312,9 @@ def audit_security_xml(file_path: Path, audit: ModuleAudit) -> None:
             audit.rules_found.append(xml_id)
 
         elif model == "ir.module.category":
-            # Categories should only be in dswd_security
-            if audit.module_name != "dswd_security":
-                audit.issues.append(
-                    Issue(
-                        severity="ERROR",
-                        category="ARCHITECTURE",
-                        message="Module category defined outside dswd_security",
-                        file_path=rel_path,
-                        suggestion="Categories must be defined in dswd_security module only",
-                    )
-                )
+            # A module may define its own category for its groups (see the security groups
+            # template in docs/guides/module-development.md); nothing to check.
+            pass
 
 
 def audit_access_csv(file_path: Path, audit: ModuleAudit) -> None:
@@ -376,25 +368,10 @@ def audit_module(module_path: Path) -> ModuleAudit:
     """Perform a complete audit of a module."""
     audit = ModuleAudit(module_name=module_path.name, module_path=module_path)
 
-    # Check manifest for dswd_security dependency
+    # Groups link into OpenSPP's spp_security; a module that defines none needs no dependency on it
     manifest = parse_manifest(module_path)
     depends = manifest.get("depends", [])
-    audit.has_security_module_dep = "dswd_security" in depends
-
-    # dswd_security itself doesn't need the dependency check
-    if audit.module_name == "dswd_security":
-        audit.has_security_module_dep = True
-
-    if not audit.has_security_module_dep and audit.module_name not in ["base", "dswd_security"]:
-        audit.issues.append(
-            Issue(
-                severity="WARNING",
-                category="ARCHITECTURE",
-                message="Module should depend on dswd_security",
-                file_path="__manifest__.py",
-                suggestion="Add 'dswd_security' to depends list",
-            )
-        )
+    audit.has_security_module_dep = "spp_security" in depends
 
     # Check for security directory
     security_dir = module_path / "security"
@@ -419,8 +396,19 @@ def audit_module(module_path: Path) -> ModuleAudit:
     # Audit views
     audit_views(module_path, audit)
 
+    if audit.groups_found and not audit.has_security_module_dep:
+        audit.issues.append(
+            Issue(
+                severity="WARNING",
+                category="ARCHITECTURE",
+                message="Module defines groups but does not depend on spp_security",
+                file_path="__manifest__.py",
+                suggestion="Add 'spp_security' to depends and link the manager group into spp_security.group_spp_admin",
+            )
+        )
+
     # Check for admin link if module has groups
-    if audit.groups_found and not audit.has_admin_link and audit.module_name != "dswd_security":
+    if audit.groups_found and not audit.has_admin_link:
         # Only warn if there are manager-level groups
         has_manager = any("manager" in g for g in audit.groups_found)
         if has_manager:
@@ -428,10 +416,10 @@ def audit_module(module_path: Path) -> ModuleAudit:
                 Issue(
                     severity="INFO",
                     category="ARCHITECTURE",
-                    message="Module should link manager group to dswd_security.group_dswd_admin",
+                    message="Module should link its manager group into spp_security.group_spp_admin",
                     file_path="security/groups.xml",
                     suggestion=(
-                        'Add: <record id="dswd_security.group_dswd_admin">'
+                        'Add: <record id="spp_security.group_spp_admin">'
                         '<field name="implied_ids" eval="[Command.link(ref(\'group_*_manager\'))]"/>'
                         "</record>"
                     ),

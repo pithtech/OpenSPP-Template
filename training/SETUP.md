@@ -476,16 +476,23 @@ Do this before the session; the downloads are large.
    `unauthorized` or `denied`, repeat the `docker login ghcr.io` step above; if it fails for another reason, run
    `odoo-project build` instead (slower, 10 to 25 minutes).
 
-5. Optional but recommended: `odoo-project start`, wait for "Odoo available at http://localhost:8069", log in with
-   `admin` / `admin`, then `odoo-project stop`. The first start installs OpenSPP: about a minute on a fast machine, up
-   to eight on a laptop.
+5. **Start it once and log in.** This is the finish line; everyone must reach it before the training:
+
+   ```bash
+   odoo-project start
+   ```
+
+   The first start installs OpenSPP (about a minute on a fast machine, up to eight on a laptop) and ends with "Odoo
+   available at http://localhost:8069". Open that address, log in with `admin` / `admin`, and check that the page is
+   styled: a blue menu bar on the left and **no** red "css error" banner at the bottom. Then `odoo-project stop`. If the
+   page is unstyled, run `odoo-project doctor`, fix what it reports, and run `odoo-project resetassets`.
 
 ---
 
 ## What to Bring to the Training
 
 - Your laptop with all tools installed and verified
-- Your repository cloned, with the image pulled and `doctor` green
+- Your repository cloned, the image pulled, `doctor` green, and the first start done with a styled login page
 - This guide for reference if anything needs troubleshooting
 
 **You're all set! See you at the training.**

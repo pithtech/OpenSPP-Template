@@ -630,7 +630,7 @@ class ComplianceChecker:
             return
 
         # Look for the admin extension record
-        admin_ext_id = "dswd_security.group_dswd_admin"
+        admin_ext_id = "spp_security.group_spp_admin"
         found_link = False
 
         for xml_id, record in self._groups_xml.items():
@@ -645,7 +645,7 @@ class ComplianceChecker:
 
         if not found_link:
             admin_link_suggestion = (
-                f'Add: <record id="dswd_security.group_dswd_admin">'
+                f'Add: <record id="spp_security.group_spp_admin">'
                 f'<field name="implied_ids" '
                 f"eval=\"[Command.link(ref('{self.spec.admin_link_group}'))]\"/>"
                 f"</record>"

@@ -22,7 +22,8 @@ them; the rest are in the catalogue index.
   MANAGE      dswd_4ps_cms (17)            + swdi_cms (18)
               no card: pg_partition, swdi_dashboard, cms_nas
   ----------------------------------------------------------------------------------
-  CONNECT     dswd_4ps_api (20)            + route modules (21): api_change_request,
+  CONNECT     the bridge (19)              bridge_shared, bridge_server, bridge_client
+              dswd_4ps_api (20)            + route modules (21): api_change_request,
                                              api_compliance, api_fds, api_field_limit,
                                              swdi_api, retro_api
                                            + portal APIs (22): portal_api_base,

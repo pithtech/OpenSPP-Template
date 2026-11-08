@@ -25,13 +25,19 @@ model.
 dswd_asset/
 ├── __manifest__.py                 ______________________________________
 ├── __init__.py                     ______________________________________
+├── models/__init__.py              ______________________________________
 ├── models/dswd_asset.py            ______________________________________
 ├── views/dswd_asset_views.xml      ______________________________________
 ├── views/menus.xml                 ______________________________________
 ├── report/dswd_asset_report.xml    ______________________________________
 ├── security/groups.xml             ______________________________________
 ├── security/ir.model.access.csv    ______________________________________
+├── tests/__init__.py                ______________________________________
 ├── tests/test_dswd_asset.py        ______________________________________
+├── tests/test_access.py            ______________________________________
+├── tests/test_report.py            ______________________________________
+├── static/description/icon.png     ______________________________________
+├── pyproject.toml                  ______________________________________
 └── readme/DESCRIPTION.md           ______________________________________
 ```
 
@@ -60,12 +66,12 @@ dswd_asset/
 
 ## 6. The four mistakes of a new module
 
-| Mistake                                       | Symptom                                                                                                                    | Where to look                                  |
-| --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| No access row                                 | `have no access rules` in the `update` output; the menu stays hidden; opening the action gives `AccessError` even as admin | `security/ir.model.access.csv`                 |
-| Action without a menu, or menu without action | clean update, nothing to click                                                                                             | Technical > User Interface > Menu Items        |
-| A view field that is not on the model         | update fails: `Field "x" does not exist in model "dswd.asset"`                                                             | compare with Technical > Fields                |
-| `_name` versus `model_id` in the access file  | `No matching record found for external id 'model_dswd_...'`                                                                | `model_` plus `_name` with dots as underscores |
+| Mistake                                       | Symptom                                                                                                                        | Where to look                                      |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------- |
+| No access row                                 | `have no access rules` in the `install` or `update` output; the menu is hidden; `AccessError` on the action URL, even as admin | `security/ir.model.access.csv`                     |
+| Action without a menu, or menu without action | clean update, nothing to click                                                                                                 | Settings > Technical > User Interface > Menu Items |
+| A view field that is not on the model         | update fails: `Field "x" does not exist in model "dswd.asset"`                                                                 | compare with Settings > Technical > Fields         |
+| `_name` versus `model_id` in the access file  | `No matching record found for external id 'model_dswd_...'`                                                                    | `model_` plus `_name` with dots as underscores     |
 
 ## 7. The code, step by step
 
@@ -88,7 +94,8 @@ dswd_asset/
 ```
 
 At step 0 `data` lists only the access file, which holds just its header row. Each later step adds its files: views and
-menus (step 2), groups (step 3), the report (step 6). A file listed here that does not exist stops the install.
+menus (step 2), groups (step 3), the report (step 6). A file not listed here does not exist to Odoo: no error, it is
+simply ignored. A file listed here that does not exist stops the install.
 
 ### Step 1: the model (`models/dswd_asset.py`)
 
@@ -100,6 +107,7 @@ from odoo.exceptions import ValidationError
 class DswdAsset(models.Model):
     _name = "dswd.asset"
     _description = "IT Asset"
+    _order = "name"
 
     name = fields.Char(string="Asset Tag", required=True)
     model_name = fields.Char(string="Make and Model")
@@ -137,8 +145,10 @@ Plus `from . import dswd_asset` in `models/__init__.py` and `from . import model
     <field name="arch" type="xml">
         <list>
             <field name="name" />
+            <field name="model_name" />
             <field name="asset_type" />
             <field name="custodian_id" widget="many2one_avatar_user" />
+            <field name="purchase_date" optional="show" />
             <field name="is_under_warranty" />
         </list>
     </field>
@@ -148,10 +158,11 @@ Plus `from . import dswd_asset` in `models/__init__.py` and `from . import model
     <field name="name">IT Assets</field>
     <field name="res_model">dswd.asset</field>
     <field name="view_mode">list,form</field>
+    <field name="context">{'search_default_filter_in_use': 1}</field>
 </record>
 
-<menuitem id="menu_dswd_asset_root" name="IT Assets" web_icon="dswd_asset,static/description/icon.png" />
-<menuitem id="menu_dswd_asset" name="Assets" parent="menu_dswd_asset_root" action="action_dswd_asset" />
+<menuitem id="menu_dswd_asset_root" name="IT Assets" web_icon="dswd_asset,static/description/icon.png" sequence="95" />
+<menuitem id="menu_dswd_asset" name="Assets" parent="menu_dswd_asset_root" action="action_dswd_asset" sequence="10" />
 ```
 
 The form view has the same shape: `<form><sheet>` with named `<group>` elements; the search view lists fields and
@@ -180,11 +191,13 @@ access_dswd_asset_manager,dswd.asset manager,model_dswd_asset,group_asset_manage
 ```
 
 Viewer reads; officer reads, writes, creates; manager also deletes. The last record links the manager tier into the
-OpenSPP admin group, which is why the `admin` user can open the app.
+OpenSPP admin group: every OpenSPP admin is an asset manager.
 
 ### Step 4: a test
 
 ```python
+from datetime import date
+
 from odoo.exceptions import ValidationError
 from odoo.tests import TransactionCase, tagged
 
@@ -193,11 +206,12 @@ from odoo.tests import TransactionCase, tagged
 class TestDswdAsset(TransactionCase):
     def setUp(self):
         super().setUp()
-        self.asset = self.env["dswd.asset"].create({"name": "LT-0001"})
+        self.Asset = self.env["dswd.asset"]
+        self.asset = self.Asset.create({"name": "LT-0001", "model_name": "Dell Latitude 5440"})
 
     def test_warranty_before_purchase_is_refused(self):
         with self.assertRaises(ValidationError):
-            self.asset.write({"purchase_date": "2026-01-10", "warranty_end_date": "2025-12-31"})
+            self.asset.write({"purchase_date": date(2026, 1, 10), "warranty_end_date": date(2025, 12, 31)})
 ```
 
 `./odoo-project test dswd_asset` builds a fresh database, installs the module, runs the tests and prints
@@ -213,13 +227,14 @@ class TestDswdAsset(TransactionCase):
     def find_warranty_expiring(self, days=30):
         today = fields.Date.context_today(self)
         return self.search([("is_in_use", "=", True), ("warranty_end_date", ">=", today),
-                            ("warranty_end_date", "<=", fields.Date.add(today, days=days))])
+                            ("warranty_end_date", "<=", fields.Date.add(today, days=days))],
+                           order="warranty_end_date")
 ```
 
 `<button name="action_assign_to_me" type="object" string="Assign to me" groups="dswd_asset.group_asset_officer" />` in
 the form header calls the first; `groups` hides it from viewers, who cannot write. From `./odoo-project shell`:
-`env["dswd.asset"].search([...])`, `.create({...})`, `.write({...})`, `.unlink()`, `.mapped("name")`; nothing is saved
-until `env.cr.commit()`.
+`env["dswd.asset"].search([...])`, `.browse(ids)`, `.create({...})`, `.write({...})`, `.unlink()`, `.mapped("name")`;
+`write` and `unlink` return `True`; nothing is saved until `env.cr.commit()`.
 
 ### Step 6: a PDF report
 

@@ -13,7 +13,7 @@ up the card for the component they would open first. The same letters are used o
 | S    | Red    | Security                      | `security/*`: groups, access rows, record rules            | 3.11-3.12    |
 | W    | Purple | Wizard                        | `wizards/*.py` and their views: multi-step user actions    | 3.10         |
 | J    | Orange | Job (cron or background work) | `data/ir_cron.xml`, `with_delay()` callers, queue channels | 3.17         |
-| A    | Grey   | API                           | `routers/`, `services/`, `schemas/`, client scopes         | Module 5     |
+| A    | Grey   | API                           | `routers/`, `services/`, `schemas/`, client scopes         | 5.9          |
 | T    | White  | Test                          | `tests/*.py`: what the module promises                     | 3.13, 4.10   |
 
 ## The front of each card

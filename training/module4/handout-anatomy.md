@@ -4,9 +4,9 @@ Fill in the blanks during the session. Keep this page; it is your desk reference
 
 ## 1. The requirement
 
-The SWDI assessment places every 4Ps household at one of three levels: Survival, Subsistence, Self-Sufficient. Since EO
-120 (2026) the level decides whether a household stays in the program past seven years. We add the level to the
-household record in OpenSPP.
+The SWDI assessment places every 4Ps household at one of three levels: Survival, Subsistence, Self-Sufficient. Since
+Executive Order 120 (July 2026) the level decides whether a household stays in the program past seven years. We add the
+level to the household record in OpenSPP.
 
 ## 2. The file map (fill in the role of each file)
 
@@ -34,10 +34,10 @@ dswd_wellbeing/
 
 | You changed                                                             | Run                                                                                                         | Then                    |
 | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ----------------------- |
-| Nothing yet, new module                                                 | `./odoo-project install dswd_wellbeing`                                                                     | Apps shows it installed |
+| Nothing yet: a brand-new module                                         | `./odoo-project install dswd_wellbeing`                                                                     | Apps shows it installed |
+| `__manifest__.py`, `data/`, `security/`, a new field, a new view record | `./odoo-project update`                                                                                     | refresh                 |
 | A Python method body                                                    | `./odoo-project restart`; nothing with `start --profile dev` (it reloads)                                   | refresh the browser     |
 | An existing view's XML                                                  | `./odoo-project update`; nothing with `start --profile dev` (it reads the file)                             | refresh the browser     |
-| `__manifest__.py`, `data/`, `security/`, a new field, a new view record | `./odoo-project update`                                                                                     | refresh                 |
 | A record in a `noupdate="1"` data file                                  | a fresh database: `stop -v -y`, `start`, `install` (shipped codes of a system vocabulary cannot be deleted) |                         |
 | A test                                                                  | `./odoo-project test dswd_wellbeing`                                                                        | read the summary line   |
 
@@ -49,11 +49,11 @@ the running server (and installs started from Apps). Three lines to recognise: `
 
 | Mistake                                                  | Symptom                              | How you find it |
 | -------------------------------------------------------- | ------------------------------------ | --------------- |
-| Data file not in the manifest                            | clean update, nothing appears        |                 |
+| Data file written but not in manifest `data`             | update clean, UI unchanged           |                 |
 | Invalid value in a data file (`domain`)                  | `ParseError`, registry fails to load |                 |
 | Import missing in `models/__init__.py`                   | no error, field absent               |                 |
-| XPath anchor misspelled                                  | `cannot be located in parent view`   |                 |
-| `restart` instead of `update`, or `noupdate` data edited | change never shows                   |                 |
+| Wrong XPath anchor (`group_tag_section`, `@class=`)      | `cannot be located in parent view`   |                 |
+| `restart` instead of `update`, or edited `noupdate` data | change never shows                   |                 |
 
 ## 6. The code, step by step
 
@@ -72,6 +72,7 @@ the running server (and installs started from Apps). Three lines to recognise: `
         "data/vocabulary_well_being_level.xml",
         "views/res_partner_views.xml",
     ],
+    "application": False,
     "installable": True,
 }
 ```
@@ -83,6 +84,7 @@ the running server (and installs started from Apps). Three lines to recognise: `
     <record id="vocab_well_being_level" model="spp.vocabulary">
         <field name="name">4Ps Well-Being Level</field>
         <field name="namespace_uri">urn:dswd:4ps:well-being-level</field>
+        <field name="description">Household well-being level from the SWDI assessment</field>
         <field name="is_system" eval="True" />
         <field name="domain">social_assistance</field>
     </record>
@@ -92,9 +94,10 @@ the running server (and installs started from Apps). Three lines to recognise: `
         <field name="code">survival</field>
         <field name="display">Survival</field>
         <field name="definition">SWDI level 1: the household cannot meet basic needs without assistance.</field>
+        <field name="target_type">group</field>
         <field name="sequence">10</field>
     </record>
-    <!-- subsistence (20) and self_sufficient (30) follow the same shape -->
+    <!-- subsistence (sequence 20) and self_sufficient (sequence 30) follow the same shape -->
 </odoo>
 ```
 
@@ -189,4 +192,5 @@ The field's `domain` only filters the dropdown. The constraint guards writes fro
 
 The production 4Ps registry module ships 27 vocabularies the same way (`urn:dswd:4ps:client-status`,
 `urn:dswd:4ps:set-group`, `urn:dswd:4ps:ip-group` with 394 codes), and household fields such as client status are
-`Many2one` to `spp.vocabulary.code` exactly like this one. Module 5 shows them.
+`Many2one` to `spp.vocabulary.code` exactly like this one. The household's level there is copied from the latest SWDI
+assessment (guide 4.12, 5.8). Module 5 shows them.

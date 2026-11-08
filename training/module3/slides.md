@@ -34,23 +34,30 @@ Then wait. Nothing in the next twenty minutes needs your laptop.
 
 ---
 
+<!-- _footer: "Guide 3.1" -->
+
 ## By ten you can
 
+<style scoped>section { padding-top: 24px; padding-bottom: 48px; } section ol { font-size: 0.85em; }</style>
+
 1. Say what Odoo is and name the three parts of MVC in Odoo terms.
-2. Say what a module is and name the role of each file in one.
+2. Say what a module is, the role of each file in one, and why a file not in the manifest does not exist.
 3. Write a model with Char, Selection, Date, Many2one and Boolean fields: "model = table, field = column".
 4. Write a list view, a form view, an action and a menu: menu, action, view, model.
 5. Write the access row a new model needs, and recognise its absence in the log and on screen.
-6. Use the ORM from a method and from the shell; add a PDF report.
-7. Run `./odoo-project test dswd_asset` and read the summary line.
+6. Use the ORM from a method and from the shell: `search`, `browse`, `create`, `write`, `unlink`.
+7. Add a PDF report and find it in the Print menu.
+8. Run `./odoo-project test dswd_asset` and read the summary line.
 
 After the break you learn why you will almost never build a module this way for 4Ps.
 
 ---
 
+<!-- _footer: "Guide 3.2" -->
+
 ## What Odoo is
 
-- Python on PostgreSQL, web client in JavaScript. 2005 TinyERP, 2008 OpenERP, 2014 Odoo.
+- Python on PostgreSQL, web client in JavaScript. 2005 TinyERP, then OpenERP, since 2014 Odoo.
 - One major release a year. This training: **Odoo 19** (2025).
 - **Community** edition, LGPL v3: what OpenSPP builds on and what you run. Enterprise: proprietary modules on top.
 - Everything is a module, including the core. A module adds tables, columns, screens, menus, reports and rules to other modules **without changing their code**.
@@ -58,17 +65,21 @@ After the break you learn why you will almost never build a module this way for 
 
 ---
 
+<!-- _footer: "Guide 3.3" -->
+
 ## MVC, in Odoo terms
 
-| MVC        | In Odoo                                                              | You write it in               |
-| ---------- | -------------------------------------------------------------------- | ----------------------------- |
-| Model      | `models.Model` classes and fields; the ORM maps them to tables       | `models/*.py`                 |
-| View       | XML on `ir.ui.view` (list, form, search), QWeb templates for reports | `views/*.xml`, `report/*.xml` |
-| Controller | actions and menus route clicks; model methods run the logic          | `views/*.xml`, `models/*.py`  |
+| MVC        | In Odoo                                                                                  | You write it in                                  |
+| ---------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| Model      | `models.Model` classes and fields; the ORM maps them to tables                           | `models/*.py`                                    |
+| View       | XML on `ir.ui.view` (list, form, search, kanban), QWeb templates for reports             | `views/*.xml`, `report/*.xml`                    |
+| Controller | actions and menus route clicks; model methods run the logic; HTTP controllers serve URLs | `views/*.xml`, `models/*.py`, `controllers/*.py` |
 
 Data and rules in the model. Drawing in the view. The controller stays thin: a button calls a method, the method uses the ORM, the view only says where the button sits.
 
 ---
+
+<!-- _footer: "Guide 3.4" -->
 
 ## Odoo in five words
 
@@ -84,11 +95,17 @@ Look at `res.partner` under Models: fields from `base`, from `spp_registry`, fro
 
 ---
 
+<!-- _footer: "Guide 3.5" -->
+
 ## What we build: an IT asset register
 
-![h:520](images/step3-asset-form.png)
+![h:440](images/step3-asset-form.png)
+
+Fill in the file map on your handout, section 3, as we go. Every file and its role: Guide 3.5.
 
 ---
+
+<!-- _footer: "Guide 3.6" -->
 
 ## Step 0: a module is a folder and a manifest
 
@@ -100,6 +117,7 @@ Look at `res.partner` under Models: fields from `base`, from `spp_registry`, fro
     "license": "LGPL-3",
     "depends": ["base", "spp_security"],
     "data": ["security/ir.model.access.csv"],
+    "application": False,
     "installable": True,
     "auto_install": False,
 }
@@ -107,9 +125,13 @@ Look at `res.partner` under Models: fields from `base`, from `spp_registry`, fro
 
 Odoo needs a folder and a manifest, nothing more. The `dswd_` prefix is **our** project's rule, the way `spp_` is OpenSPP's: it says who owns the code, not what it is about.
 
+A file not listed in `data` does not exist to Odoo: no error, it is simply ignored.
+
 **Install now:** `./odoo-project install dswd_asset`
 
 ---
+
+<!-- _footer: "Guide 3.7" -->
 
 ## Step 1: the model is the table
 
@@ -117,6 +139,7 @@ Odoo needs a folder and a manifest, nothing more. The `dswd_` prefix is **our** 
 class DswdAsset(models.Model):
     _name = "dswd.asset"
     _description = "IT Asset"
+    _order = "name"
 
     name = fields.Char(string="Asset Tag", required=True)
     model_name = fields.Char(string="Make and Model")
@@ -131,9 +154,13 @@ class DswdAsset(models.Model):
     is_under_warranty = fields.Boolean(compute="_compute_is_under_warranty")
 ```
 
+Plus `from . import dswd_asset` in `models/__init__.py` and `from . import models` in `__init__.py`; forget either and the model is silently absent.
+
 **Predict**: Region IV buys tablets. What do we change?
 
 ---
+
+<!-- _footer: "Guide 3.7 · more in 3.8" -->
 
 ## Computed and constrained
 
@@ -151,21 +178,26 @@ class DswdAsset(models.Model):
                 raise ValidationError(_("The warranty end date must be on or after the purchase date."))
 ```
 
-A computed field is never typed in; it is not stored, so it cannot be searched. A constraint refuses bad data with a sentence the user reads.
+A computed field is never typed in; it is not stored, so it cannot be searched or filtered without a `search=` method (Guide 3.8). A constraint refuses bad data with a sentence the user reads.
 
 ---
+
+<!-- _footer: "Guide 3.7" -->
 
 ## After step 1: a table, no door
 
-![h:520](images/step1-technical-fields.png)
+![h:470](images/step1-technical-fields.png)
 
 ---
 
+<!-- _footer: "Guide 3.7" -->
+
 ## The warning you will meet again
 
+<style scoped>section pre { font-size: 0.5em; }</style>
+
 ```
-WARNING odoo.modules.loading: The models ['dswd.asset'] have no access rules in module dswd_asset,
-consider adding some, like:
+WARNING ... odoo.modules.loading: The models ['dswd.asset'] have no access rules in module dswd_asset, consider adding some, like:
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 dswd_asset.access_dswd_asset,access_dswd_asset,dswd_asset.model_dswd_asset,base.group_user,1,0,0,0
 ```
@@ -176,7 +208,11 @@ Nothing is broken yet. Nobody can open the table either. Remember this warning: 
 
 ---
 
+<!-- _footer: "Guide 3.9" -->
+
 ## Step 2: views draw the table, a menu opens it
+
+<style scoped>section { padding-top: 24px; padding-bottom: 48px; } section pre { font-size: 0.6em; } section p { font-size: 0.85em; }</style>
 
 ```xml
 <record id="view_dswd_asset_list" model="ir.ui.view">
@@ -185,8 +221,10 @@ Nothing is broken yet. Nobody can open the table either. Remember this warning: 
     <field name="arch" type="xml">
         <list>
             <field name="name" />
+            <field name="model_name" />
             <field name="asset_type" />
             <field name="custodian_id" widget="many2one_avatar_user" />
+            <field name="purchase_date" optional="show" />
             <field name="is_under_warranty" />
         </list>
     </field>
@@ -196,15 +234,18 @@ Nothing is broken yet. Nobody can open the table either. Remember this warning: 
     <field name="name">IT Assets</field>
     <field name="res_model">dswd.asset</field>
     <field name="view_mode">list,form</field>
+    <field name="context">{'search_default_filter_in_use': 1}</field>
 </record>
 
-<menuitem id="menu_dswd_asset_root" name="IT Assets" web_icon="dswd_asset,static/description/icon.png" />
-<menuitem id="menu_dswd_asset" name="Assets" parent="menu_dswd_asset_root" action="action_dswd_asset" />
+<menuitem id="menu_dswd_asset_root" name="IT Assets" web_icon="dswd_asset,static/description/icon.png" sequence="95" />
+<menuitem id="menu_dswd_asset" name="Assets" parent="menu_dswd_asset_root" action="action_dswd_asset" sequence="10" />
 ```
 
-Odoo 19: `<list>`, not `<tree>`. **Predict**: where will it appear?
+Abridged: the form and search views are in Guide 3.9. Odoo 19: `<list>`, not `<tree>`. **Predict**: where will it appear?
 
 ---
+
+<!-- _footer: "Guide 3.9" -->
 
 ## After step 2: no tile, even for admin
 
@@ -216,11 +257,15 @@ Open the action by its URL instead:
 
 ---
 
+<!-- _footer: "Guide 3.9 · then read 3.10" -->
+
 ## The warning became an error
 
-![h:520](images/step2-access-error.png)
+![h:470](images/step2-access-error.png)
 
 ---
+
+<!-- _footer: "Guide 3.11" -->
 
 ## Step 3: groups and access rows
 
@@ -244,15 +289,19 @@ access_dswd_asset_officer,dswd.asset officer,model_dswd_asset,group_asset_office
 access_dswd_asset_manager,dswd.asset manager,model_dswd_asset,group_asset_manager,1,1,1,1
 ```
 
-Viewer reads. Officer reads, writes, creates. Manager also deletes. The last record is why `admin` can open it.
+Viewer reads. Officer reads, writes, creates. Manager also deletes. The last record makes every OpenSPP admin an asset manager.
 
 ---
+
+<!-- _footer: "Guide 3.11" -->
 
 ## After step 3: the app tile
 
-![h:520](images/step2-app-tile.png)
+![h:470](images/step2-app-tile.png)
 
 ---
+
+<!-- _footer: "Guide 3.11 · then read 3.12" -->
 
 ## Your turn: register the laptop in front of you
 
@@ -262,6 +311,8 @@ Then set a warranty end date **before** the purchase date, and read the dialog.
 
 ---
 
+<!-- _footer: "Guide 3.13" -->
+
 ## Step 4: a test says what "working" means
 
 ```python
@@ -269,11 +320,12 @@ Then set a warranty end date **before** the purchase date, and read the dialog.
 class TestDswdAsset(TransactionCase):
     def setUp(self):
         super().setUp()
-        self.asset = self.env["dswd.asset"].create({"name": "LT-0001"})
+        self.Asset = self.env["dswd.asset"]
+        self.asset = self.Asset.create({"name": "LT-0001", "model_name": "Dell Latitude 5440"})
 
     def test_warranty_before_purchase_is_refused(self):
         with self.assertRaises(ValidationError):
-            self.asset.write({"purchase_date": "2026-01-10", "warranty_end_date": "2025-12-31"})
+            self.asset.write({"purchase_date": date(2026, 1, 10), "warranty_end_date": date(2025, 12, 31)})
 ```
 
 ```
@@ -281,13 +333,15 @@ $ ./odoo-project test dswd_asset
 0 failed, 0 error(s) of 12 tests
 ```
 
-Written with each step: the demo tag runs 8, your finished copy 12, with access tests per tier.
-
-**Start yours now** and read the summary line at 9:56.
+Written with each step: the demo tag runs 8, your copy 12. **Start yours now**; read the summary line at 9:56.
 
 ---
 
+<!-- _footer: "Guide 3.14" -->
+
 ## Step 5: the ORM, in a method
+
+<style scoped>section { padding-top: 24px; padding-bottom: 48px; } section pre { font-size: 0.6em; } section p { font-size: 0.85em; }</style>
 
 ```python
     def action_assign_to_me(self):
@@ -315,9 +369,11 @@ Written with each step: the demo tag runs 8, your finished copy 12, with access 
 </header>
 ```
 
-No decorator: `self` is the record. `@api.model`: works on the whole table. `search`, `create`, `write`, `unlink`.
+No decorator: `self` is the record. `@api.model`: works on the whole table. Five operations: `search`, `browse`, `create`, `write`, `unlink` (Guide 3.14).
 
 ---
+
+<!-- _footer: "Guide 3.14 · then read 3.15 to 3.17" -->
 
 ## Step 5: the ORM, in the shell
 
@@ -326,22 +382,30 @@ $ ./odoo-project shell
 >>> Asset = env["dswd.asset"]
 >>> Asset.search_count([])
 2
->>> Asset.search([("asset_type", "=", "laptop")]).mapped("name")
+>>> laptops = Asset.search([("asset_type", "=", "laptop")])
+>>> laptops.mapped("name")
 ['LT-0001']
->>> a = Asset.create({"name": "LT-0099"})
+>>> a = Asset.create({"name": "LT-0099", "asset_type": "laptop"})
 >>> a.write({"model_name": "Lenovo ThinkPad T14"})
+True
 >>> a.custodian_id.name
 'OdooBot'
 >>> Asset.find_warranty_expiring(365).mapped("name")
 ['LT-0001']
->>> a.unlink(); env.cr.commit()
+>>> a.unlink()
+True
+>>> env.cr.commit()      # the shell does not save until you say so: shell only, never in module code
 ```
 
-A Many2one is itself a record: `a.custodian_id.name` walks the link. Nothing is saved until `env.cr.commit()`.
+A Many2one is itself a record: `a.custodian_id.name` walks the link. Nothing is saved until `env.cr.commit()`, and that line belongs in the shell only.
 
 ---
 
+<!-- _footer: "Guide 3.18" -->
+
 ## Step 6: a PDF report
+
+<style scoped>section { padding-top: 24px; padding-bottom: 48px; } section pre { font-size: 0.6em; } section p { font-size: 0.85em; }</style>
 
 ```xml
 <record id="action_report_dswd_asset" model="ir.actions.report">
@@ -369,20 +433,26 @@ A Many2one is itself a record: `a.custodian_id.name` walks the link. Nothing is 
 </template>
 ```
 
-`binding_model_id` puts it in the Print menu. `docs` is what is being printed. HTML, then PDF.
+Abridged; the full file is in Guide 3.18. `binding_model_id` puts it in the Print menu. `docs` is what is being printed. HTML, then PDF.
 
 ---
+
+<!-- _footer: "Guide 3.19" -->
 
 ## The four mistakes of a new module
 
-| Mistake                                      | Symptom                                                     | Look at                                    |
-| -------------------------------------------- | ----------------------------------------------------------- | ------------------------------------------ |
-| No access row                                | `have no access rules`; menu hidden; `AccessError` by URL   | `security/ir.model.access.csv`             |
-| Action without a menu, menu without action   | clean update, nothing to click                              | Technical > User Interface > Menu Items    |
-| A view field that is not on the model        | `Field "x" does not exist in model "dswd.asset"`            | Technical > Fields                         |
-| `_name` versus `model_id` in the access file | `No matching record found for external id 'model_dswd_...'` | `model_` plus `_name`, dots to underscores |
+<style scoped>section table { font-size: 0.72em; }</style>
+
+| Mistake                                       | Symptom                                                                                                                        | Where to look                                      |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------- |
+| No access row                                 | `have no access rules` in the `install` or `update` output; the menu is hidden; `AccessError` on the action URL, even as admin | `security/ir.model.access.csv`                     |
+| Action without a menu, or menu without action | clean update, nothing to click                                                                                                 | Settings > Technical > User Interface > Menu Items |
+| A view field that is not on the model         | update fails: `Field "x" does not exist in model "dswd.asset"`                                                                 | compare with Settings > Technical > Fields         |
+| `_name` versus `model_id` in the access file  | `No matching record found for external id 'model_dswd_...'`                                                                    | `model_` plus `_name` with dots as underscores     |
 
 ---
+
+<!-- _footer: "Guide 3.20" -->
 
 ## The question
 
@@ -392,19 +462,24 @@ A Many2one is itself a record: `a.custodian_id.name` walks the link. Nothing is 
 
 ---
 
+<!-- _footer: "Guide 3.20" -->
+
 ## The household table already exists
 
-![h:380](images/handoff-household-fields.png)
+![h:320](images/handoff-household-fields.png)
 
 Hundreds of columns, from several modules. A new `dswd.household` would mean two tables, two forms, two access files, and no link to programs. After the break you add **one column** to this table instead.
 
 ---
+
+<!-- _footer: "Guide 3.20" -->
 
 ## The tablet, resolved
 
 ```python
     asset_type = fields.Selection(
         [("laptop", "Laptop"), ("desktop", "Desktop"), ("printer", "Printer"), ("tablet", "Tablet"), ("other", "Other")],
+        required=True, default="laptop",
     )
 ```
 
@@ -414,15 +489,21 @@ In OpenSPP a code list is **data**: Settings > Vocabularies. That is the first f
 
 ---
 
+<!-- _footer: "Guide 3.20" -->
+
 ## Today and after the break: the same files, three swaps
 
-| Today, `dswd_asset`                    | Next, `dswd_wellbeing`                                              |
-| -------------------------------------- | ------------------------------------------------------------------- |
-| `_name = "dswd.asset"`, a new table    | `_inherit = "res.partner"`, columns on an existing table            |
-| `asset_type = fields.Selection([...])` | `dswd_well_being_level_id = fields.Many2one("spp.vocabulary.code")` |
-| `<list>` and `<form>` from scratch     | `inherit_id` plus one XPath on a named anchor                       |
-| an action and a menu you created       | no menu: the household form already has one                         |
-| groups and four access rows            | access file: header only                                            |
-| `depends = ["base", "spp_security"]`   | `depends = ["spp_registry", "spp_vocabulary"]`                      |
+<style scoped>section { padding-top: 24px; padding-bottom: 56px; } section h2 { margin-bottom: 8px; } section table { font-size: 0.7em; } section p { font-size: 0.85em; margin: 8px 0; }</style>
+
+| Module 3, `dswd_asset`                        | Module 4, `dswd_wellbeing`                                          |
+| --------------------------------------------- | ------------------------------------------------------------------- |
+| `_name = "dswd.asset"`, a new table           | `_inherit = "res.partner"`, columns on an existing table            |
+| `asset_type = fields.Selection([...])`        | `dswd_well_being_level_id = fields.Many2one("spp.vocabulary.code")` |
+| `<list>` and `<form>` written from scratch    | `inherit_id` plus one XPath on a named anchor                       |
+| an action and a menu you created              | no menu: the household form already has one                         |
+| groups and four access rows                   | access file: header only, "no new model, no rows"                   |
+| `depends = ["base", "spp_security"]`          | `depends = ["spp_registry", "spp_vocabulary"]`                      |
+| `TransactionCase`, `create()` your own record | `RegistryCommon` hands you a household                              |
+| the field is yours: `asset_type`              | a field on someone else's model: prefix `dswd_`                     |
 
 Same files, same loop, same `test`. Three swaps matter most: `_inherit`, a vocabulary instead of a Selection, an inherited view. See you at 10:10.

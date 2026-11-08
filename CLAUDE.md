@@ -124,6 +124,12 @@ Layer 0: ODOO CORE + OCA       (base, mail, web; base_user_role, job_worker, fas
   `GH_TOKEN="$(gh auth token --user pithtech)" gh ...` (or `gh auth switch --user pithtech` first), and check
   `gh api user --jq .login` before creating or merging a PR.
 
+### Commits and PRs
+
+- No Claude attribution anywhere: no `Co-Authored-By: Claude`, no "Generated with Claude Code" footer, no mention of
+  Claude in commit messages, PR titles or PR bodies. `.claude/settings.json` sets `includeCoAuthoredBy` to false; the
+  `/commit` and `/pr` commands repeat the rule. Before `gh pr create`, check the body for "Claude".
+
 After every correction or PR, propose updates to this Known Pitfalls section.
 
 ## Running Locally

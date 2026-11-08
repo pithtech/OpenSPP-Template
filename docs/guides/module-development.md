@@ -134,7 +134,7 @@ Layer 2: DOMAIN CORE          (dswd_grievance, dswd_school, dswd_service)
     ↓
 Layer 1: FOUNDATION           (spp_security, spp_vocabulary)
     ↓
-Layer 0: ODOO CORE            (base, hr, stock, account, calendar)
+Layer 0: ODOO CORE + OCA      (base, mail, web; base_user_role, job_worker, fastapi)
 ```
 
 If your module adds a feature that only makes sense when two other modules are installed together, it belongs in Layer 3 as a bridge module, not in Layer 2.
@@ -164,7 +164,7 @@ Configuration items belong under the shared app-level Configuration menu, not ne
 <odoo>
     <menuitem id="menu_dswd_configuration_schools"
               name="Schools"
-              parent="spp_vocabulary.menu_spp_vocabulary_configuration"
+              parent="spp_vocabulary.menu_vocabulary_root"
               action="action_dswd_school"
               sequence="20"/>
 </odoo>
@@ -172,9 +172,12 @@ Configuration items belong under the shared app-level Configuration menu, not ne
 
 Key points:
 
-- **Parent** — always `spp_vocabulary.menu_spp_vocabulary_configuration` (module-qualified, since `spp_vocabulary` defines it).
-- **Sequence** — pick a number that orders logically among other config items (Vocabularies is 10).
-- **Groups** — the parent menu already gates on `base.group_system`. Add additional group restrictions on the child only if a narrower audience is needed.
+- **Parent** — `spp_vocabulary.menu_vocabulary_root` (module-qualified, since `spp_vocabulary` defines it). It is the
+  "Vocabularies" entry under Settings.
+- **Sequence** — the upstream items run from 10 (Manage Vocabularies) to 60 (Vocabulary Selections); pick a number
+  above 60 so your item lands after them.
+- **Groups** — Settings is only visible to `base.group_system`. Add group restrictions on the child only if a narrower
+  audience is needed.
 
 ## TDD Workflow
 
@@ -567,13 +570,16 @@ class Prefix{Domain}(models.Model):
 
 #### `dswd_{domain}/views/menus.xml`
 
+Hang the root under an app menu the users already see (here the Registry root). `base.menu_custom` is the Technical
+menu and only appears in developer mode.
+
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <menuitem
         id="menu_{domain}_root"
         name="{Domain}"
-        parent="base.menu_custom"
+        parent="spp_registry.spp_main_menu_root"
         sequence="20"
     />
     <menuitem
@@ -591,8 +597,8 @@ class Prefix{Domain}(models.Model):
 ```csv
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_dswd_{domain}_system,dswd.{domain} / System,model_dswd_{domain},base.group_system,1,1,1,1
-access_dswd_{domain}_officer,dswd.{domain} / Officer,model_dswd_{domain},dswd_attendance.group_dswd_attendance_officer,1,1,1,0
-access_dswd_{domain}_manager,dswd.{domain} / Manager,model_dswd_{domain},dswd_attendance.group_dswd_attendance_manager,1,1,1,1
+access_dswd_{domain}_officer,dswd.{domain} / Officer,model_dswd_{domain},group_{domain}_officer,1,1,1,0
+access_dswd_{domain}_manager,dswd.{domain} / Manager,model_dswd_{domain},group_{domain}_manager,1,1,1,1
 ```
 
 > **Note:** The `spp_security` module provides cross-project security groups. If your project has not created this module yet, define module-specific groups (see the [Security groups template](#security-groups-securitysecurity_groupsxml) below) and reference those instead.
@@ -646,8 +652,8 @@ DSWD 4Ps > {Domain} > Records
 
 ## Security
 
-- `dswd_attendance.group_dswd_attendance_officer` — create and edit
-- `dswd_attendance.group_dswd_attendance_manager` — full access including delete
+- `group_{domain}_officer` — create and edit
+- `group_{domain}_manager` — full access including delete
 
 ## Dependencies
 
@@ -774,10 +780,10 @@ The `spp_vocabulary` module provides the foundation vocabulary infrastructure fo
 | `spp.vocabulary.code` | Individual code within a vocabulary — has a code, display label, and computed URI |
 
 Key features:
-- **Namespace URIs** for interoperability (`urn:iso:std:iso:5218`, `urn:dswd:vocab:{name}`)
+- **Namespace URIs** for interoperability (`urn:iso:std:iso:5218`, `urn:dswd:4ps:{name}`)
 - **System protection** — system vocabularies (`is_system=True`) prevent user edits
 - **Cached lookups** — `get_code(namespace_uri, code)` and `resolve_by_uri(uri)` with ORM cache
-- **Configuration menu** — vocabularies are managed under **Registry > Configuration > Vocabularies**
+- **Configuration menu** — vocabularies are managed under **Settings > Vocabularies** (`spp_vocabulary.menu_vocabulary_root`)
 
 ### Seed Vocabularies
 
@@ -794,7 +800,7 @@ OpenSPP's `spp_vocabulary` ships standard vocabularies, among them:
 | Group type        | `urn:openspp:vocab:group-type`            |
 | Disability status | `urn:openspp:vocab:disability-status`     |
 
-See `vendor/openspp/spp_vocabulary/data/` for the full list. Use `urn:dswd:vocab:{name}` for vocabularies you add.
+See `vendor/openspp/spp_vocabulary/data/` for the full list. Use `urn:dswd:4ps:{name}` for vocabularies you add; the production 4Ps modules use the same pattern.
 
 ### Adding a Vocabulary via XML Data
 
@@ -805,10 +811,10 @@ Create a data file (e.g., `data/vocabulary_{name}.xml`) and add it to `__manifes
 <odoo noupdate="1">
     <record id="vocab_priority" model="spp.vocabulary">
         <field name="name">Priority Level</field>
-        <field name="namespace_uri">urn:dswd:vocab:priority</field>
+        <field name="namespace_uri">urn:dswd:4ps:priority</field>
         <field name="description">Priority classification for work items</field>
         <field name="is_system" eval="True"/>
-        <field name="domain">administrative</field>
+        <field name="domain">social_assistance</field>
     </record>
 
     <record id="code_priority_low" model="spp.vocabulary.code">
@@ -834,6 +840,9 @@ Create a data file (e.g., `data/vocabulary_{name}.xml`) and add it to `__manifes
 </odoo>
 ```
 
+`domain` is a fixed selection: `core`, `social_assistance`, `social_insurance`, `labor`, `disability`,
+`agriculture`, `health` or `education`. Any other value fails at install with a `ParseError`.
+
 ### Using Vocabulary Codes in Models
 
 Reference a vocabulary code with a `Many2one` field:
@@ -850,7 +859,7 @@ class PrefixWorkItem(models.Model):
     priority_id = fields.Many2one(
         comodel_name="spp.vocabulary.code",
         string="Priority",
-        domain="[('namespace_uri', '=', 'urn:dswd:vocab:priority')]",
+        domain="[('namespace_uri', '=', 'urn:dswd:4ps:priority')]",
         help="Priority level from the Priority vocabulary",
     )
 ```
@@ -868,10 +877,10 @@ Use `no_create` and `no_open` to prevent users from creating or editing vocabula
 
 ```python
 # By namespace + code
-code = self.env["spp.vocabulary.code"].get_code("urn:dswd:vocab:priority", "high")
+code = self.env["spp.vocabulary.code"].get_code("urn:dswd:4ps:priority", "high")
 
 # By full URI
-code = self.env["spp.vocabulary.code"].resolve_by_uri("urn:dswd:vocab:priority#high")
+code = self.env["spp.vocabulary.code"].resolve_by_uri("urn:dswd:4ps:priority#high")
 ```
 
 Both methods use the ORM cache for fast repeated lookups.

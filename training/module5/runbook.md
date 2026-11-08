@@ -146,7 +146,8 @@ Stand up. Set 2 from the checkpoint bank.
    block and one rule: 117 rules for six groups, each scoped by the user's own center areas.
 3. **Card 18, `swdi_cms`** (5 min). Seven triggers turn assessment results into cases through the job worker. Code
    moment: `data/trigger_config_data.xml`: "a trigger is a data record." A failed event is a row in state `failed`, with
-   a Retry action; there is no separate queue.
+   a Retry action; there is no separate queue. On the slide, the `trigger_type` help text lists six types; the data has
+   seven. Ask: "which one do you trust?" The data; help text and manifests drift.
 4. **Card 19, the bridge** (4 min, from the poster). The registry is the master; casework looks households up and
    imports them synchronously; events flow back through jobs. Code moment: `excludes` in the two bridge manifests.
 

@@ -6,8 +6,7 @@ size: 16:9
 title: "Module 5: DSWD-specific implementation of OpenSPP"
 style: |
   section pre { font-size: 0.6em; }
-  section.excerpt pre { font-size: 0.5em; }
-  section table { font-size: 0.7em; }
+  section table { font-size: 0.85em; }
 ---
 
 <!-- _class: lead -->
@@ -46,7 +45,8 @@ A discussion of modules, not a tutorial. The screens are the NL training team's.
 | A ticket usually lands in | files, each with a symptom                                  |
 | Code moment               | the file we open now                                        |
 
-`Manifest 3.6 · Models 3.7/4.6 · Fields 3.8 · Views 3.9/4.7-4.8 · Wizards 3.10 · Security 3.11-3.12/4.9 · Tests 3.13/4.10 · ORM 3.15 · Jobs 3.17 · Reports 3.18 · Vocabularies 4.4 · Migrations 4.13`
+The strip: Manifest 3.6 · Models 3.7/4.6 · Fields 3.8 · Views 3.9/4.7-4.8 · Wizards 3.10 · Security 3.11-3.12/4.9 ·
+Tests 3.13/4.10 · ORM 3.15 · Jobs 3.17 · Reports 3.18 · Vocabularies 4.4 · Migrations 4.13
 
 ---
 
@@ -74,8 +74,6 @@ Warm-up: "The list of reasons for a grantee change is missing 'deceased'."
 | Assess, manage | `swdi`, `cms`, `swdi_cms`                                                        |
 | Connect        | `api` and its route modules, portal APIs, `integration`, `newgrs`, `ods`, `auth` |
 
-About a third of the 66 are sample data, demo seeders and tests.
-
 ---
 
 ## Two instances, or one (card 1)
@@ -102,7 +100,7 @@ Code moment: `dswd_4ps_instance1/__manifest__.py`. A manifest is the map of a de
 
 ## Area: a fail-closed record rule (3.12)
 
-`dswd_4ps_area/security/area_record_rules.xml`, lines 41 to 52
+`dswd_4ps_area/security/area_record_rules.xml`, lines 41 to 52 (domain wrapped)
 
 ```xml
     <record id="rule_spp_area_center_area_filter" model="ir.rule">
@@ -110,7 +108,11 @@ Code moment: `dswd_4ps_instance1/__manifest__.py`. A manifest is the map of a de
         <field name="model_id" ref="spp_area.model_spp_area" />
         <field
             name="domain_force"
-        >[] if user.sees_all_areas else (['|', ('id', 'child_of', user.center_area_ids.ids), ('id', 'parent_of', user.center_area_ids.ids)] if user.center_area_ids else [('id', '=', False)])</field>
+        >[] if user.sees_all_areas
+           else (['|', ('id', 'child_of', user.center_area_ids.ids),
+                       ('id', 'parent_of', user.center_area_ids.ids)]
+                 if user.center_area_ids
+                 else [('id', '=', False)])</field>
         <field name="global" eval="True" />
         <field name="perm_read" eval="True" />
         <field name="perm_write" eval="False" />
@@ -183,7 +185,7 @@ Code moment: `dswd_4ps_instance1/__manifest__.py`. A manifest is the map of a de
 
 ## Approval flow data: 24 to 3, two tiers
 
-`dswd_4ps_approval_flow_data/data/approval_defs_update_hh_info.xml`, lines 81 to 91
+`dswd_4ps_approval_flow_data/data/approval_defs_update_hh_info.xml`, lines 81 to 91 (condition wrapped)
 
 ```xml
     <record id="approval_def_hh_info_poo_rpmo" model="spp.approval.definition">
@@ -193,7 +195,8 @@ Code moment: `dswd_4ps_instance1/__manifest__.py`. A manifest is the map of a de
         <field name="approval_group_ids" eval="[Command.link(ref('dswd_4ps_roles.group_4ps_swo_iii'))]" />
         <field name="sequence">10</field>
         <field name="use_cel_condition" eval="True" />
-        <field name="cel_condition">record.selected_field_name == "client_status_id" and old_value.code == "24" and new_value.code == "3"</field>
+        <field name="cel_condition">record.selected_field_name == "client_status_id"
+            and old_value.code == "24" and new_value.code == "3"</field>
         <field name="sla_days">10</field>
         <field name="is_require_comment" eval="True" />
     </record>

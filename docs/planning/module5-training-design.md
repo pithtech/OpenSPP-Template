@@ -210,17 +210,11 @@ year raises an error. A yearly administrator duty in December. Dates only, never
   in three tiers, First 1,000 Days, rice), the sealed snapshot, approvals, the output files to Land Bank, the result
   upload, fund allocation.
 - Important points: the point of no return (once credit instructions exist, cancel and rewind are blocked; before it,
-  a rewind archives instead of deleting); the snapshot is immutable and everything downstream reads it; grant rates
+  a rewind archives instead of deleting); the snapshot, which the code calls NAPA, is immutable and everything
+  downstream reads it; grant rates
   are append-only; five job channels with fan-out and a finalize barrier; heavy raw SQL; things not to change casually.
 - Catch-up pays households deferred from a regular cycle; retro keeps overpayment and underpayment ledgers and reuses
   the regular run pipeline; both use explicit locks.
-- **NAPA.** The code and the user manuals use the term without spelling it out; the expansion is to be confirmed with
-  the payroll team or asked of the class. Its role is clear: the certified entitlement list of a cycle (the households
-  and amounts eligible). CVD generates it, BCMD/BDMD endorses it, and creating it seals the per-household snapshot
-  (`dswd.4ps.payroll.snapshot.beneficiary`) that every later step reads: the NAPA files (split by client status and
-  compliance), the payroll summary and the credit instructions. Models `dswd.4ps.payroll.napa.file` and the NAPA
-  endorsement file; run states `napa_generated` and `napa_endorsed`; user steps in
-  `client-docs/guides/retro-payroll-user-manual.md`.
 - Code moment: the state field of `models/payroll_cycle_run.py` (the run as a state machine and the point of no
   return), then `models/snapshot_beneficiary.py` (the write guard after the seal). Nothing is run.
 
@@ -273,7 +267,7 @@ The post-training plan is made after the training (Edwin's decision). For now, t
 | Group | Modules |
 | --- | --- |
 | Registry tools | `registry_import`, `export`, `ecr`, `field_limit` (detail), `hazard`, `account_creation` |
-| Payroll in depth | `payroll` (pipeline and files), `catchup_payroll`, `retro_payroll`, `pg_partition`, `retro_api`, `payroll_api` |
+| Payroll in depth | `payroll` (pipeline and files; the NAPA steps and roles: generate, endorse, file splits), `catchup_payroll`, `retro_payroll`, `pg_partition`, `retro_api`, `payroll_api` |
 | Casework in depth | `swdi_dashboard`, `swdi_api`, `cms_nas`, `portal_api_casework` |
 | Integration in depth | `api` family, `auth`, `integration`, `newgrs`, `ods`, bridge |
 | Operations | `attachment_hardening`, `post_sql_repair`, `theme`, `security_tests`, `e2e` |
@@ -317,8 +311,8 @@ Taken by Edwin on 2026-11-08:
 4. **Triage tickets**: fabricated training scenarios, labelled as such, each answer checked against the code (section
    6).
 5. **Post-training sessions**: planned after the training; section 7 only lists the modules not discussed.
-6. **NAPA**: the expansion is not in the code or docs; its role is described in section 5.4. Confirm with the payroll
-   team or ask the class.
+6. **NAPA**: named in one clause of the payroll tour, as the code's name for the sealed snapshot; its steps and roles
+   are left for the post-training sessions.
 
 Still open:
 

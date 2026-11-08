@@ -134,8 +134,8 @@ RA 11310 sec. 11 [2], as detailed in the Operations Manual [1] and DSWD field of
   IPs in GIDA, families in need of special protection (disaster-affected) and hazardous-work groups. MCCT households are
   mainstreamed into regular CCT per MC 08 s.2016 [1]. Regional example: 250,617 regular versus 27,283 MCCT [23].
 - **Sets**: registration rounds numbered per year (Set 11B in 2022, Set 12 in 2023) used to fill vacated slots [15][16].
-  The production module's set group vocabulary runs from `1A` to `12V`, with definitions such as "Listahanan 2 Poor
-  Households" (11B) and "MCCT Mainstreaming" (10A).
+  The production module's set group vocabulary runs from `1A` to `14H` (57 codes), with definitions such as "Listahanan
+  2 Poor Households" (11B) and "MCCT Mainstreaming" (10A).
 - **BUS update types**: transfer of residence, change of grantee, add or remove member, correction, filed on BUS forms 5
   and 6 and approved by the Regional Director [1][17].
 - **ESGP-PA / TES**: CHED and DSWD tertiary grant for 4Ps children (2012, expanded 2014); continuing grantees were

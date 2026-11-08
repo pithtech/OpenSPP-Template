@@ -88,7 +88,7 @@ production registry keeps a Listahanan ID on every household (Module 5, card 3).
 | File                             | Content                                                                                                                                                |
 | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `__manifest__.py`                | depends on `spp_registry`                                                                                                                              |
-| `models/res_partner.py`          | `_inherit = "res.partner"`; `dswd_listahanan_id` (Char, indexed); no two households may share one                                                     |
+| `models/res_partner.py`          | `_inherit = "res.partner"`; `dswd_listahanan_id` (Char; the UNIQUE constraint creates its index); no two households may share one                                                     |
 | `views/res_partner_views.xml`    | inherits `spp_registry.view_individuals_form`, adds the field after `group_tags_section` (the anchor Module 4 used), shown only for households (`is_group`) |
 | `security/ir.model.access.csv`   | header only: no new model                                                                                                                              |
 | `tests/test_listahanan.py`       | a household takes an ID; a second household with the same ID is refused; the field is in the form's arch                                              |
@@ -106,7 +106,7 @@ that test idiom as a hint, because it cannot be guessed. The dry run records the
 **Stretch.** The ID as an optional column on the household list (`spp_registry.view_groups_list_tree_base`, after
 `registration_date`).
 
-### Exercise 3, customization: `dswd_id_types` (20 minutes)
+### Exercise 3, customization: `dswd_id_types` (15 minutes)
 
 **The 4Ps subject.** 4Ps identifies members with PhilSys, the national ID; production adds PhilSys to OpenSPP's ID types
 with a format check (Module 5, card 3; production `dswd_4ps_registry/data/id_types.xml`).

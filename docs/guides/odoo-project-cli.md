@@ -46,8 +46,9 @@ Every command has a short alias shown in parentheses.
 
 ### pull — Get the published image
 
-Downloads `ghcr.io/pithtech/openspp-template:<OPENSPP_REF>` and tags it as the local image. Minutes instead of
-the 10-25 minutes a build takes. The image is private: log Docker in once with a GitHub token that has
+Downloads `ghcr.io/pithtech/openspp-template:<OPENSPP_REF>` and tags it as the local image, then pulls the
+PostgreSQL image (from Docker Hub) so the first `start` downloads nothing. Minutes instead of the 10-25 minutes a
+build takes. The image is private: log Docker in once with a GitHub token that has
 `read:packages` (`docker login ghcr.io`, see `training/SETUP.md` step 8) before the first pull.
 
 ```bash
@@ -90,7 +91,7 @@ installs the default modules (`spp_starter_sp_mis`) and waits until they are ins
 ./odoo-project start                     # ui profile, port 8069
 ./odoo-project start --demo=demo         # fresh database with the MIS demo data
 ./odoo-project start --wipe -y           # delete all data first, then start
-./odoo-project start --profile dev       # dynamic port, auto-reload enabled
+./odoo-project start --profile dev       # dynamic port, auto-reload enabled (see note below)
 ./odoo-project start --no-build          # skip the image freshness check
 ```
 
@@ -102,6 +103,10 @@ installs the default modules (`spp_starter_sp_mis`) and waits until they are ins
 | `--no-watch`  | Disable auto-reload (dev profile enables it by default)            |
 | `--no-build`  | Skip the Docker image freshness check                              |
 | `-y, --yes`   | Skip confirmation prompts                                          |
+
+Auto-reload relies on file-change events reaching the container. On Windows with the repository on the `C:` drive
+they may not arrive through the bind mount, so Odoo may keep running old code: run `.\odoo-project restart` (Python)
+or `.\odoo-project update` (XML, data) as on the ui profile.
 
 ### stop — Stop all services
 
@@ -187,6 +192,8 @@ occured" at the bottom), fix the cause, then delete the stored bundles and resta
 ./odoo-project lint dswd_attendance/models/*.py
 ```
 
+PowerShell does not expand `*.py`: list the files by name, or run `lint` with no arguments for the changed files.
+
 ### doctor — Check prerequisites
 
 Checks Docker, Compose, the daemon, backend (WSL 2 on Windows), memory, Python, Node.js, Git, pre-commit,
@@ -197,6 +204,7 @@ argcomplete, the pinned release, whether the image is present, whether `upstream
 ```bash
 ./odoo-project fix-odoo19 dswd_attendance --dry-run   # rewrite legacy Command tuples
 ./odoo-project audit-security dswd_attendance         # static ACL/group audit
+./odoo-project audit-security dswd_a dswd_b --json    # several modules, JSON report
 ```
 
 ### activate — Tab completion
@@ -224,7 +232,8 @@ Any module list also works: `--demo=spp_starter_social_registry`.
 
 ## Configuration
 
-Personal defaults in `~/.odoo-project.toml`:
+Personal defaults in `~/.odoo-project.toml`. Create it in a text editor and save it as UTF-8. On Windows do not
+create it with `echo ... >` in PowerShell 5.1, which writes UTF-16; the CLI then warns and ignores the file.
 
 ```toml
 default_demo = "base"
@@ -236,7 +245,7 @@ default_db = "odoo"
 
 | Symptom                                   | What to do                                                                      |
 | ----------------------------------------- | ------------------------------------------------------------------------------- |
-| Port 8069 already in use                  | `./odoo-project stop`; `doctor` shows who holds the port                        |
+| Port 8069 already in use                  | `./odoo-project stop`; `doctor` says whether it is in use; on Windows `netstat -ano \| findstr 8069` shows the PID |
 | "Docker image may be outdated"            | Accept the pull (it is quick when the image is already current); if the pull fails, log in to GHCR or run `./odoo-project build` |
 | Module not updating after code changes    | `./odoo-project update`, then `restart` if needed                               |
 | New module not found or not installed     | `./odoo-project install <module>`; `update` does not install new modules        |

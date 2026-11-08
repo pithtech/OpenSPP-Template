@@ -1,8 +1,9 @@
 # Implementation Plan: Module 4 first module, `install` command, guide fixes
 
-> **Status**: approved design ([module4-training-design.md](module4-training-design.md)), Edwin 2026-11-08: "go with
-> the defaults and add the install command". This plan covers the code and doc changes; the training materials
-> (runbook, slides, handouts, drill, quiz, broken copy) are a separate round.
+> **Status**: implemented 2026-11-08 on `feat/module4-dswd-wellbeing` (sections A, B, C done and verified; tags
+> `m4-step-0` to `m4-step-5` to be created after the PR merges). Approved design:
+> [module4-training-design.md](module4-training-design.md), Edwin 2026-11-08: "go with the defaults and add the
+> install command". The training materials (runbook, slides, handouts, drill, quiz, broken copy) are a separate round.
 > **Branch**: `feat/module4-dswd-wellbeing`, one PR, commits per step so each demo step has a tag.
 
 ---
@@ -59,6 +60,13 @@ Commits: `feat(dswd_wellbeing): step N, <what>`; tags after the PR merge: `git t
 - Steps 1 to 3 measured: about 20 s each for `./odoo-project test dswd_wellbeing` once the image exists, including
   the fresh test database. The live test run in the demo therefore fits inside its own block; no second terminal is
   needed on a machine with the image already built.
+
+- End-to-end on 2026-11-08: `start --profile dev`, then `install dswd_wellbeing` took 6 s (module loaded, service
+  restarted on a new dynamic port, health 200); the database then held the module as installed, the three codes, the
+  inherited view and the field.
+- `./odoo-project audit-security` reports one warning, "Module should depend on dswd_security": the audit script
+  expects a project security module the template does not have (modules link into `spp_security`). Not a defect of
+  the module; the script's expectation is a candidate clean-up.
 
 ## C. Guide fixes (`docs/guides/module-development.md`, `extending-openspp.md`)
 

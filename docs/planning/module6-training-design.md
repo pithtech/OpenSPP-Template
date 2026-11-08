@@ -1,7 +1,8 @@
 # Module 6 Training Design: Three Modules of Your Own
 
-> **Status**: proposal for Edwin's review (2026-11-09). Nothing is built and nothing goes into the participant guide
-> until Edwin approves.
+> **Status**: proposal for Edwin's review (2026-11-09), revised with Edwin's decisions (section 8). Nothing is built and
+> nothing goes into the participant guide until Edwin approves. **The reference solutions and the answer key are never
+> in this repository**: participants create their repositories from it.
 > **Sources**: Edwin's brief (one exercise each for module development, extending and customization, each related to
 > DSWD 4Ps, running on the participant's own Docker stack, doable in 90 minutes); two expert proposals (instructional
 > design; exercises checked against OpenSPP 2026.09 and Odoo 19); the program of activities (Day 3, 8:30 to 10:30,
@@ -19,10 +20,12 @@
 2. **Each one is a Day 2 pattern applied to a new 4Ps subject.** Exercise 1 follows Module 3 (`dswd_asset`), exercises
    2 and 3 follow Module 4 (`dswd_wellbeing`). Participants watched those modules built on Day 2; on Day 3 they type
    their own.
-3. **Guided, not designed from scratch.** One sheet per exercise gives every file in full, the command to run after each
-   step and what the participant should see. The skill practised is the loop (write, `install` or `update`, read the
-   output, test) and reading errors, not inventing Odoo syntax under time pressure. A short stretch at the end of each
-   sheet keeps fast pairs busy.
+3. **Specs and a Day 2 file to copy, not the code.** The solutions are not shared, so a sheet never prints a complete
+   file. Each step says what to build, which Day 2 file to copy and adapt (`dswd_asset` for exercise 1,
+   `dswd_wellbeing` for exercises 2 and 3, both already in the participant's repository), the command to run, what the
+   participant should see, and a hint for the one or two lines that are hard to guess (an XPath anchor, a vocabulary
+   reference, a test assertion). The skill practised is the loop and reading errors, with real decisions to make. A short
+   stretch at the end of each sheet keeps fast pairs busy.
 4. **Showable by construction.** Every exercise ends in the same three proofs: the install line, the test summary
    (`0 failed`), and a screen. The 30-minute discussion is built on those.
 5. **Pairs at one working laptop.** Participants without a working stack join a pair; nobody is parked.
@@ -45,12 +48,13 @@ All three modules live at the root of the participant's repository, next to `dsw
 the repository rules (`dswd_` prefix, `application: False`, `auto_install: False`, `base.group_system` first in the
 access file) and are installed with `./odoo-project install <module>`.
 
-### Exercise 1, development: `dswd_fds_session` (35 minutes)
+### Exercise 1, development: `dswd_fds_session` (40 minutes)
 
 **The 4Ps subject.** Family Development Sessions are a monthly 4Ps condition (Module 5, card 12). A municipal office
 wants a simple register of the sessions it held.
 
-**What they build.**
+**What they build** (the sheet gives this as a specification; the solution is outside the repository). Copy and adapt
+from: `dswd_asset` (manifest, model, views, menus, access file, tests).
 
 | File                           | Content                                                                                                                                                  |
 | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -73,12 +77,13 @@ constraint message.
 **Traps we expect** (to confirm in the dry run): the menu hidden until the access file loads (Module 3's step-2
 lesson); a view field not on the model; the module not found in Apps because the default "Apps" filter hides it.
 
-### Exercise 2, extending: `dswd_listahanan` (25 minutes)
+### Exercise 2, extending: `dswd_listahanan` (30 minutes)
 
 **The 4Ps subject.** 4Ps households are identified from Listahanan, the national household targeting system; the
 production registry keeps a Listahanan ID on every household (Module 5, card 3). Add it, unique.
 
-**What they build.**
+**What they build** (as a specification). Copy and adapt from: `dswd_wellbeing` (manifest, `models/res_partner.py`,
+`views/res_partner_views.xml`, header-only access file, tests); the uniqueness line from guide 3.8.
 
 | File                             | Content                                                                                                                                                |
 | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -91,12 +96,9 @@ production registry keeps a Listahanan ID on every household (Module 5, card 3).
 **Day 2 link.** Module 4 steps 2 to 4 with a plain field instead of a vocabulary: `_inherit`, the `dswd_` prefix,
 `inherit_id` plus one XPath on a named anchor, a test that reads the view.
 
-**Uniqueness, to settle in the dry run.** Two ways, both Odoo 19: a database constraint (`models.Constraint`, the Odoo
-19 replacement for `_sql_constraints`, guide 3.8) or a Python `@api.constrains` with a search. The database constraint
-is the right tool but its test needs the database error and a savepoint; the Python constraint gives a clear
-`ValidationError` the participant can read on screen. Recommendation: the database constraint in the module, with the
-test pattern given in full on the sheet; the dry run decides whether the message on screen is readable enough, or the
-Python constraint is used instead.
+**Uniqueness (decided).** A database constraint, `models.Constraint("UNIQUE(dswd_listahanan_id)", ...)`, the Odoo 19
+replacement for `_sql_constraints` (guide 3.8). Its test expects the database error inside a savepoint; the sheet gives
+that test idiom as a hint, because it cannot be guessed. The dry run records the message the user sees on screen.
 
 **Done when.** `install` completes; `test` ends `0 failed of 3 tests`; the field shows on a household's Profile page
 (Registry > Browse All (Audit) > All Groups) and not on an individual; a duplicate is refused on screen.
@@ -104,12 +106,13 @@ Python constraint is used instead.
 **Stretch.** The ID as an optional column on the household list (`spp_registry.view_groups_list_tree_base`, after
 `registration_date`).
 
-### Exercise 3, customization: `dswd_id_types` (30 minutes)
+### Exercise 3, customization: `dswd_id_types` (20 minutes)
 
 **The 4Ps subject.** 4Ps identifies members with PhilSys, the national ID; production adds PhilSys to OpenSPP's ID types
 with a format check (Module 5, card 3; production `dswd_4ps_registry/data/id_types.xml`).
 
-**What they build.**
+**What they build** (as a specification). Copy and adapt from: `dswd_wellbeing` (manifest, `data/` file, header-only
+access file, tests); the record shape from upstream `spp_vocabulary/data/vocabulary_id_type.xml`.
 
 | File                           | Content                                                                                                                                                                         |
 | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -137,16 +140,19 @@ different model (`spp.id.type`), which the Identity tab does not use.
 | ----------- | --- | ----------------------------------------------------------------------- |
 | 8:00-8:30   |     | At the door: `start`, log in, `test dswd_wellbeing` once (warms up the first test run); pairs formed |
 | 8:30-8:35   | 5   | Launch: the three modules, the three proofs, the rules (pair, then row, then helper, then trainer) |
-| 8:35-9:10   | 35  | Exercise 1, development                                                 |
-| 9:10-9:35   | 25  | Exercise 2, extending                                                   |
-| 9:35-10:00  | 25  | Exercise 3, customization (the sheet is planned for 30; the stretch absorbs the difference) |
+| 8:35-9:15   | 40  | Exercise 1, development                                                 |
+| 9:15-9:45   | 30  | Exercise 2, extending                                                   |
+| 9:45-10:00  | 15  | Exercise 3, customization (planned for 20: the smallest module, one data record and a test; fast pairs finish it, the rest finish it after the session) |
 | 10:00-10:30 | 30  | Discussion                                                              |
 
-Checkpoints: at 9:10 and 9:35 a show of hands ("install done; tests green"); a pair still in exercise 1 at 9:20 moves to
+Checkpoints: at 9:15 and 9:45 a show of hands ("install done; tests green"); a pair still in exercise 1 at 9:25 moves to
 exercise 2 and finishes 1 later. Driver swap at each exercise, so both partners type.
 
-**If the dry run shows slow laptops** (a `test` or `update` over about 2 minutes): exercise 3 becomes the take-home
-(its sheet and the guide carry it), and exercises 1 and 2 get 45 minutes each.
+Without complete code on the sheets, exercise 3 is the one most pairs will not finish in the room. That is planned: it
+is the smallest, the guide carries it, and the discussion still covers it from the pairs that did.
+
+**If the dry run shows slow laptops** (a `test` or `update` over about 2 minutes): exercise 3 is announced as the
+take-home at 8:30, and exercises 1 and 2 get 45 minutes each.
 
 ## 5. The 30-minute discussion
 
@@ -162,22 +168,24 @@ laptop rather than switching laptops on the projector.
 
 ## 6. Materials to build
 
-All under `training/module6/`; reference solutions as real modules so they are tested like `dswd_asset` and
-`dswd_wellbeing`.
+In the repository, under `training/module6/`: only what participants may see. **Outside the repository**, in
+`~/Documents/DSWD-4PS-Training-11-2026/module6/` on the trainer's machine: the three reference solutions as real
+modules and `answers.md` (the expected output of each step, the errors participants meet and their fixes, the code of
+every file).
 
 | Material                                                   | For                 | Notes                                                                                   |
 | ---------------------------------------------------------- | ------------------- | --------------------------------------------------------------------------------------- |
-| `exercise-1-development.md`, `exercise-2-extending.md`, `exercise-3-customization.md` | Participants, printed | Every file in full, the command after each step, what you should see, traps, stretch |
-| Reference solutions `dswd_fds_session`, `dswd_listahanan`, `dswd_id_types` | Trainer             | Where they live is decision 1 in section 8                                              |
-| `answers.md`                                               | Trainer             | Expected output of each step, the errors participants will meet and their fixes          |
+| `exercise-1-development.md`, `exercise-2-extending.md`, `exercise-3-customization.md` | Participants, printed | Specification per step, the Day 2 file to copy, the command after each step, what you should see, hints, traps, stretch; no complete files |
 | `runbook.md`                                               | Trainer             | Run of show, checkpoints, the discussion script, fallbacks                              |
 | `slides.md`                                                | Projected           | About 8 slides: door, launch, one per exercise, checkpoints, discussion                 |
 | `README.md`                                                | Trainer             | Index and preparation                                                                    |
 | Participant guide, section 6                               | Participants        | Written after Edwin reviews the materials, as for Module 5                               |
 
-**Verification before anything is printed.** Every sheet is typed exactly as written into a clean checkout and run on
-the stack: install, test, the screen, and the traps, so the expected output on the sheets is the real output. The
-reference modules join CI like the other two.
+**Verification before anything is printed.** The reference solutions are built by following the sheets, then copied
+into a scratch checkout (never committed) and run on the stack: install, test, the screen, and the traps, so the expected
+output on the sheets is the real output. Because the solutions are outside the repository, CI does not test them; the
+trainer re-runs `./odoo-project test` on each before the session. For the demo, the trainer copies a solution into the
+repository root of the demo laptop.
 
 The current `training/module4/exercise-day3.md` and its answer key are replaced: the module 4 README and runbook, and
 guide 4.14, point to Module 6 instead. `training/module4/dswd_wellbeing_broken/` stays as Module 4 drill material.
@@ -190,17 +198,16 @@ guide 4.14, point to Module 6 instead. `training/module4/dswd_wellbeing_broken/`
 | Typing errors eat the time                         | Files given in full; the traps listed on each sheet; pair rule; helpers                                         |
 | A laptop without a working stack                   | The participant joins a pair; the sheets also read as a worked example                                          |
 | A failed `update` leaves the old server running and the old screens in the browser | Every sheet says: read the output to the end; if it does not say the update completed, it failed           |
-| Participants' finished modules collide with the reference solutions | Reference solutions not shipped where participants build (decision 1)                                          |
+| Without complete code, pairs fall behind      | Each sheet names the Day 2 file to copy; hints for the hard lines; exercise 3 planned to finish after the session for most |
+| The solutions leak                                 | Solutions and answer key only outside the repository; the demo copies a solution to the root and does not commit |
 | The default "Apps" filter hides the new modules    | The sheets use `./odoo-project install`; where Apps is used, they say to remove the filter                     |
 
-## 8. Decisions for Edwin
+## 8. Decisions
 
-1. **Where the reference solutions live.** Participants build the three modules at their repository root. If the
-   template ships the solutions there, participants start with the answers. Options: (a) ship them in
-   `training/module6/solutions/` (not an addons path, so not installable as is; trainer copies them to the root to
-   demo); (b) keep them only in the trainer's checkout on a branch. Recommendation: (a), so the solutions are reviewed
-   and tested in this repository, with CI testing them from that folder.
-2. **Uniqueness in exercise 2**: the database constraint (recommended) or the Python constraint, after the dry run.
-3. **Observation.** The program's evaluation plan asks for observation checklists during the workshop. Module 6 as
-   designed produces the evidence (install line, test summary, screen per exercise); a one-page checklist per zone with
-   those three proofs per exercise is cheap to add. Add it, or leave evaluation to the post-test?
+Taken by Edwin on 2026-11-09:
+
+1. **The reference solutions stay outside the repository**, with the answer key: participants create their repositories
+   from this template and must not receive them. Consequence: the sheets give specifications and the Day 2 file to copy,
+   never complete files (Edwin's choice among three options: full code, skeletons with blanks, specifications).
+2. **Uniqueness in exercise 2**: the database constraint, `models.Constraint`.
+3. **No observation checklist** in Module 6.

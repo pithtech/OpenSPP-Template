@@ -89,6 +89,8 @@ Layer 0: ODOO CORE + OCA       (base, mail, web; base_user_role, job_worker, fas
 - Registrant searches must include `is_registrant=True`; households also `is_group=True`
 - Depend on the specific upstream module (`spp_programs`), not a starter bundle (`spp_starter_sp_mis`)
 - Do not redefine upstream groups or categories; link into them
+- A `Many2one` `domain` only filters the dropdown. A field that must hold codes from one vocabulary needs an
+  `@api.constrains` on the namespace, or writes from code, imports and the API will store anything
 
 ### Demo Data
 
@@ -102,6 +104,8 @@ Layer 0: ODOO CORE + OCA       (base, mail, web; base_user_role, job_worker, fas
 - Always use `Command.create()` not `(0, 0, {...})` tuples for relational writes
 - When updating views, verify the correct view is being displayed (not a cached old version)
 - Search views: check `<filter>` and `<group>` syntax against Odoo 19 docs
+- `noupdate="1"` data files are parsed only on first load. A bad value (an invalid selection value, a wrong `ref`) fails
+  at install, not on a later `update`; fix values before the first load, or delete the record and update again
 
 ### Tests
 
@@ -123,6 +127,14 @@ Layer 0: ODOO CORE + OCA       (base, mail, web; base_user_role, job_worker, fas
   merged through `gh` gets a merge commit authored by that account. Run `gh` here as
   `GH_TOKEN="$(gh auth token --user pithtech)" gh ...` (or `gh auth switch --user pithtech` first), and check
   `gh api user --jq .login` before creating or merging a PR.
+- The CI and pre-commit workflows run only on pull requests against `main`. A PR stacked on a feature branch gets no
+  checks until it is retargeted to `main`; `gh run watch` in a pipe reports the pipe's exit status, not the run's.
+
+### Docs and Markdown
+
+- Prettier reads a run of underscores in a table cell as emphasis and rewrites it differently on every pass, so the hook
+  never settles. Use empty cells for fill-in blanks. `docs/` and `README.md` are excluded from every hook; only
+  `tests/test_docs.py` checks them.
 
 ### Commits and PRs
 

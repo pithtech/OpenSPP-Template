@@ -6,8 +6,9 @@ reference for the module development and support work that follows the training.
 and every error message the sessions use. It contains no screenshots: everything in it can be reproduced on your own
 laptop with your own repository.
 
-Modules 1, 2, 5 and 6 are added as their sessions are prepared. This edition covers the two sessions of the Day 2
-morning: Module 3, Introduction to Odoo, and Module 4, Developing Custom Modules and Extending Odoo Models.
+Modules 1, 2 and 6 are added as their sessions are prepared. This edition covers the three sessions of Day 2: Module 3,
+Introduction to Odoo, and Module 4, Developing Custom Modules and Extending Odoo Models, in the morning; Module 5,
+DSWD-specific implementation of OpenSPP, in the afternoon.
 
 ---
 
@@ -1571,10 +1572,11 @@ all three; lint checks shape, not meaning.
 
 ### 4.12 Where this lives in production
 
-The production 4Ps registry module ships 26 vocabularies the same way and extends `res.partner` with Many2one fields to
+The production 4Ps registry module ships 27 vocabularies the same way and extends `res.partner` with Many2one fields to
 `spp.vocabulary.code` exactly like this one: client status, member status, set group, poverty status, indigenous peoples
-group, well-being level. Its household form is extended by inheriting the same `spp_registry` view. What you built in
-Module 4 is the shape of every `dswd_4ps_*` module. Module 5 shows them.
+group. Its household form is extended by inheriting the same `spp_registry` view. The well-being level vocabulary exists
+there too, but the household's level is copied from the latest SWDI assessment (5.8). What you built in Module 4 is the
+shape of every `dswd_4ps_*` module. Module 5 shows them.
 
 `training/4ps-program-reference.md`, section 8, maps every 4Ps concept (household, grantee, client status, sets,
 periods, compliance, payroll, grievances) to the OpenSPP model and the production module that implements it.
@@ -1630,9 +1632,259 @@ styled page, `test dswd_wellbeing` at 5 passed. Then:
 
 ---
 
-## 5. Module 5: DSWD-specific implementation of OpenSPP
+## Module 5: DSWD-specific implementation of OpenSPP
 
-To be added.
+The session discusses the production DSWD 4Ps modules, the repository `dswd-4ps-dp-openspp-v2-module`. It is not a
+tutorial of the system: the screens are covered by the NL training team. It reads the modules through the parts of a
+module you met in Modules 3 and 4, in the order of the 4Ps business process, and asks one question of each: if a ticket
+lands here, which file do I open?
+
+The companion to this chapter is the module catalogue, `training/module5/module-cards.md`: one card per module or module
+family, and an index of all 66 modules. This chapter gives the map and the points to remember; the cards give the
+detail. Every count, path and line number in both was checked at production commit `ad98dac9` (2026-11-06). Production
+moves on: when a number here disagrees with the code you have open, the code is right.
+
+Section 5.10 is **Reference**: the habits of production code that a newcomer misreads. It is not presented in the
+session; read it before your first change to a `dswd_4ps_*` module.
+
+### 5.1 What you can do after this module
+
+1. Place any `dswd_4ps_*` module on the map: what part of the 4Ps process it serves and which instance it installs on.
+2. Given a 4Ps event (a grantee changes, a school attendance form arrives, a payroll run, an SWDI assessment), name the
+   module that handles it and the `spp_*` module it extends.
+3. Given a ticket, name the module and the part to open first.
+4. Recognise the production traps (context keys that skip checks, `x_4ps_` fields, raw SQL, `noupdate` data and install
+   hooks, system parameters, approval state) and say why "simplifying" them is dangerous.
+5. Find any module in the catalogue and read its card.
+
+### 5.2 How to read a production module
+
+Each card in the catalogue has the same parts:
+
+| Part                      | Says                                                                                                        |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| The table                 | The 4Ps process, the instance, what it depends on, how many modules depend on it, its size                  |
+| Key models                | **new table** is a model with its own `_name`; **extends** is an `_inherit` on an existing model (3.7, 4.6) |
+| The strip                 | Twelve boxes, one per part of a module, shaded where the module uses that part in a way worth knowing       |
+| Important points          | What changes how you must work on the module                                                                |
+| A ticket usually lands in | Files, each with a symptom in user words                                                                    |
+| Code moment, code excerpt | The file opened in the session, and the lines shown                                                         |
+
+The strip is this guide in twelve boxes:
+
+| Manifest | Models   | Fields | Views        | Wizards | Security       | Tests      | ORM  | Jobs | Reports | Vocabularies | Migrations |
+| -------- | -------- | ------ | ------------ | ------- | -------------- | ---------- | ---- | ---- | ------- | ------------ | ---------- |
+| 3.6      | 3.7, 4.6 | 3.8    | 3.9, 4.7-4.8 | 3.10    | 3.11-3.12, 4.9 | 3.13, 4.10 | 3.15 | 3.17 | 3.18    | 4.4          | 4.13       |
+
+Read a module as "which boxes are shaded": that is where its tickets land. In the session, the same parts are eight
+coloured cards you hold up when a symptom is read: **M** model, **V** view, **D** data or vocabulary, **S** security,
+**W** wizard, **J** job, **A** API, **T** test. The rule: hold up the card for the file you would open first, not the
+file the fix ends in.
+
+### 5.3 The map
+
+The production repository has 66 modules with a manifest. 26 cards cover 38 of them; the rest are registry tools,
+operations modules, and 17 sample-data, demo and test-only modules that you can set aside on a ticket.
+
+| Question       | Modules                                                                                                   | Cards    |
+| -------------- | --------------------------------------------------------------------------------------------------------- | -------- |
+| Where          | `dswd_4ps_area`                                                                                           | 2        |
+| Who            | `dswd_4ps_registry`                                                                                       | 3        |
+| Who may        | `dswd_4ps_roles`, `dswd_4ps_approval_multi_group`, `dswd_4ps_approval_flow_data`                          | 4 to 6   |
+| When           | `dswd_4ps_period`                                                                                         | 7        |
+| Change         | `dswd_4ps_change_request`, `dswd_4ps_supporting_docs_data`, `dswd_4ps_field_limit`                        | 8 to 10  |
+| Verify         | `dswd_4ps_compliance`, `dswd_4ps_fds_operations`                                                          | 11, 12   |
+| Pay            | `dswd_4ps_payroll`, `dswd_4ps_catchup_payroll`, `dswd_4ps_retro_payroll`                                  | 13 to 15 |
+| Assess, manage | `dswd_4ps_swdi`, `dswd_4ps_cms`, `dswd_4ps_swdi_cms`                                                      | 16 to 18 |
+| Connect        | the bridge, `dswd_4ps_api` and its route modules, the portal APIs, `integration`, `newgrs`, `ods`, `auth` | 19 to 26 |
+
+Under all of them sits OpenSPP: `spp_registry`, `spp_area`, `spp_vocabulary`, `spp_security`, `spp_programs`,
+`spp_change_request_v2`, `spp_event_data`, `spp_case_base`, `spp_api_v2`. You have their source in `upstream/openspp/`.
+
+**Three ways to install** (card 1). A deployment is chosen by which bundle module is installed:
+
+| Bundle               | Installs                                                                                      |
+| -------------------- | --------------------------------------------------------------------------------------------- |
+| `dswd_4ps_starter`   | Everything on one database, no bridge                                                         |
+| `dswd_4ps_instance1` | Registry and operations: change requests, compliance, FDS, payroll, the APIs, `bridge_server` |
+| `dswd_4ps_instance2` | Casework: SWDI, CMS, the casework portal API, `bridge_client`                                 |
+
+Area, registry, roles, the API and auth install on both instances; period and the approval modules only with starter or
+instance 1. Manifest `excludes` enforce the split: 26 modules exclude `dswd_4ps_bridge_client`, 8 exclude
+`dswd_4ps_bridge_server`. A manifest is the map of a deployment (3.6).
+
+### 5.4 Foundation: where, who, who may, when
+
+**`dswd_4ps_area`** (card 2) loads the PSGC geography, about 42,000 barangays, into `spp.area`, and limits what each
+user sees to their center areas.
+
+- The `post_init_hook` loads the barangays as job-worker batches at install, and runs only then: every later data fix is
+  a migration.
+- Area search is fail-closed: a user with no center areas sees no areas.
+- `area_scope_ids` replaced a `child_of` rule that took 15 to 20 seconds per dashboard tile at 7.4 million households;
+  it takes 99 ms. Do not simplify it back.
+
+**`dswd_4ps_registry`** (card 3) is the household and member record: `listahanan_id`, `client_status_id`, `grantee_id`,
+`member_id_4ps` and many more on `res.partner`.
+
+- 27 vocabularies, among them 32 client statuses in 9 categories: a status's `parent_id` is its category (4.4 at scale).
+- Writes go through `_4ps_write_hook`, which `_register_hook` wires into the audit decorator; a breakpoint in `write()`
+  may never be reached.
+- Status 3 is a permanent exit: a normal user's write cannot move a household out of it.
+- Three field-name styles: no prefix, `x_4ps_` and `dswd_export_`. Search all three before adding a field.
+
+**`dswd_4ps_roles`** (card 4) turns the 4Ps organisation into groups: 54 groups and 48 roles. The POO, RPMO and NPMO
+umbrella groups are the approval tiers; sub-roles such as MSWDO and SWO III imply them through `implied_ids`, the
+pattern of 3.11. Local roles take their areas from the identity provider. Every group, role and rule file is `noupdate`,
+so every change ships a migration: 20 so far.
+
+**`dswd_4ps_approval_multi_group` and `dswd_4ps_approval_flow_data`** (cards 5 and 6). The first lets a tier name
+several groups, any of which may approve; it replaces two upstream constraints without calling `super()`, so a check
+upstream adds later does not run here. The second is data only: 21 approval definitions, 19 linked to 6 change-request
+types and chosen by CEL conditions on the status transition. A transition no definition matches approves on submit.
+
+**`dswd_4ps_period`** (card 7): one compliance period per month, and the Philippine working-day calendar. It fails loud:
+a year not marked Seeded raises an error rather than give a deadline that is too early. Each December an administrator
+enters next year's holidays.
+
+### 5.5 Change requests: the Beneficiary Update System
+
+**`dswd_4ps_change_request`** (card 8, the largest module) adds the 4Ps types to OpenSPP's change requests, with
+`dswd_4ps_supporting_docs_data` (card 9) and `dswd_4ps_field_limit` (card 10). Learn the upstream shape first; 4Ps does
+not change it:
+
+| Part           | Is                                                                       |
+| -------------- | ------------------------------------------------------------------------ |
+| Type           | A data record, `spp.change.request.type`, in a `data/cr_type_*.xml` file |
+| Detail model   | The proposed values, one model per type (`models/cr_detail_*.py`)        |
+| Apply strategy | Validates, previews and applies the change                               |
+| Approval       | `spp.approval.mixin`, multi-tier, routed by the approval definitions     |
+
+- 20 new types. 9 are pure field mappings; 11 have a Python apply model.
+- Requests are batched under a ticket number, and a `cancelled` state is added to the approval mixin.
+- Some requests create others: a newborn's Add Member creates Update Pregnancy and Update Member Additional Information
+  requests for the parents.
+- Record access is checked in code (`models/cr_parent_access.py`), not by a record rule. Its docstring says why.
+- The module reads 14 context keys of its own; 11 skip or override a check (5.10).
+- `dswd_4ps_supporting_docs_data` says which documents each type needs; Add Member needs any one of seven.
+  `dswd_4ps_field_limit` caps how often a field may change, in a `write` override.
+
+**Adding a field to a request type touches more than one file**: the detail model and its view; the field mapping in the
+type's data file, which is `noupdate`, so a migration and a version bump; the API schema and service if the mobile app
+sends the field; the supporting-documents trigger path; and the tests.
+
+### 5.6 Compliance and Family Development Sessions
+
+**`dswd_4ps_compliance`** (card 11), the Compliance Verification System, turns monthly school attendance, health visits
+and deworming into compliance status rows that payroll reads.
+
+- Forms arrive through the `/cv` API (the router is in `dswd_4ps_api_compliance`) as `spp.event.data` events.
+- The event's `create` hands the work to a job with `with_delay` (3.17); the job takes a per-household lock, writes one
+  row and marks the household; a daily reconcile finishes the household. Status rows are a cache rebuilt from events.
+- When a submitted form changes nothing, look at the event and its job before the code.
+- The school threshold is the constant 85 in `models/compliance_pipeline.py`. A system parameter with a similar name
+  only feeds display fields.
+
+**`dswd_4ps_fds_operations`** (card 12): the session library, parent groups (up to `pg_max_members`, 30 by default),
+plans with approval, attendance and the FDS Accomplishment Report. FDS attendance arrives as session attendance, not as
+event data. An equivalency creates a synthetic session, so the compliance pipeline needs no special case.
+
+### 5.7 Payroll: what not to break
+
+**`dswd_4ps_payroll`** (card 13) is about 50,000 lines and the riskiest code in the repository; read before you touch.
+
+- The cycle run is a state machine (`STATE_SELECTION` in `models/payroll_cycle_run.py`). Once credit instructions exist,
+  cancel and rewind are refused: the point of no return.
+- The snapshot, which the code calls NAPA, is sealed: `models/snapshot_beneficiary.py` refuses writes, and every later
+  step reads it. A name corrected after the seal does not appear on that cycle's payroll list, by design.
+- Grant rates are never deleted. Five job channels; about 110 raw SQL calls.
+
+**`dswd_4ps_catchup_payroll`** (card 14) pays households a regular cycle left out, with the same state-machine pattern
+and its own point of no return. **`dswd_4ps_retro_payroll`** (card 15) keeps overpayment and underpayment ledgers and
+reuses the regular run.
+
+### 5.8 Casework and the bridge
+
+- **`dswd_4ps_swdi`** (card 16): the yearly well-being assessment. The level comes from the total score (level 3 from
+  2.83, level 2 from 1.83). This is the well-being level of Module 4, computed: in production the household's level is
+  copied from the latest assessment, not chosen from a dropdown.
+- **`dswd_4ps_cms`** (card 17): Kilos-Unlad case management on `spp_case_base`, with 117 record rules for six groups,
+  each scoped by the user's own center areas (3.12 at production scale).
+- **`dswd_4ps_swdi_cms`** (card 18): seven triggers, each a data record, turn assessment results into cases. Approving
+  an assessment queues an event; a job creates the case and retries after 5 minutes, 15 minutes and 1 hour. A failed
+  event stays as a row in state `failed`, with a Retry action.
+- **The bridge** (card 19): the registry instance is the master. Casework looks households up and imports them; case
+  events flow back through jobs.
+
+### 5.9 Integration
+
+**`dswd_4ps_api`** (card 20) adds the 4Ps endpoints to OpenSPP's API application. A router runs as the caller
+(`authenticated_env`), checks a scope, finds records by identifier, never by database id, and hands the work to a
+service. Record rules apply to API traffic while the system parameter `dswd_4ps_api.enforce_rbac` is on, as it is
+seeded.
+
+| Card | Module                                                                                        | In one line                                                 |
+| ---- | --------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| 21   | `api_change_request`, `api_compliance`, `api_fds`, `api_field_limit`, `retro_api`, `swdi_api` | Each adds its routers with a short `_inherit` and `super()` |
+| 22   | `portal_api_base`, `portal_api`, `portal_api_casework`, `payroll_api`                         | What the beneficiary portal reads                           |
+| 23   | `dswd_4ps_integration`                                                                        | An outbound event log the portal polls                      |
+| 24   | `dswd_4ps_newgrs`                                                                             | Grievance status in, profile updates out, three flags       |
+| 25   | `dswd_4ps_ods`                                                                                | A read-only client for the old Pantawid ODS                 |
+| 26   | `dswd_4ps_auth`                                                                               | Keycloak sign-in; a user gets their areas from the claims   |
+
+### 5.10 Reading production code
+
+_Reference: not presented in the session. Read it before your first change to a `dswd_4ps_\*` module.\_
+
+The production modules use everything in Modules 3 and 4, plus a few things a newcomer misreads. Recognise them before
+changing them.
+
+- **Context keys that skip checks.** Calls like `with_context(skip_some_check=True)` turn off checks inside overrides;
+  the change-request module alone reads 14 of its own. Removing one, or calling a method without it, can cause duplicate
+  records or endless recursion. Search for where the key is read before touching it, and never pass one to make a test
+  pass.
+- **The logic is not where you opened it.** Detail models inherit base classes and mixins; a write may go through a hook
+  registered by `_register_hook` rather than through `write()`. Follow `_inherit`, and search for the method name across
+  the repository.
+- **Field and model names.** Odoo reserves the `x_` prefix for fields created in the user interface; existing production
+  fields use `x_4ps_`, others have no prefix or `dswd_export_`, and some new models carry `spp.` names. New fields use
+  `dswd_`.
+- **Raw SQL in models.** Payroll and compliance use `cr.execute` for speed, with `flush_model()` before and
+  `invalidate_model()` after so the ORM sees the result. Do not "simplify" them into ORM loops over millions of rows,
+  and do not add raw SQL elsewhere.
+- **Data and hooks that run once.** `noupdate="1"` data and `post_init_hook` run at install only. Changing them changes
+  nothing on an existing database; ship a migration (4.13).
+- **Configuration in settings.** Thresholds and switches are read from `ir.config_parameter`
+  (`self.env["ir.config_parameter"].sudo().get_param("dswd_4ps.some_key")`), so "why does it behave like this" may be
+  answered in Settings > Technical > System Parameters. Check that the code reads the parameter where you think: a
+  parameter may feed only a display field while the rule uses a constant.
+- **Approval state.** Records with `spp.approval.mixin` keep their state consistent with review records; never set
+  `approval_state` directly.
+- **Help texts, docstrings and manifests drift.** A manifest may say six triggers where the data has seven. Trust the
+  data and the code.
+- **Tests are the specification.** Most production modules have hundreds of tests. Before changing behaviour, find the
+  test that describes it.
+
+### 5.11 How to approach a 4Ps ticket
+
+1. Read the symptom in the user's words, and reproduce it.
+2. Find the module on the map (5.3) and open its card.
+3. Read the strip: the shaded boxes are where its tickets land. Pick the first file.
+4. Before changing code, check what runs around it: `noupdate` data, context keys, jobs and their state, system
+   parameters.
+5. Write a failing test that reproduces the ticket, then fix, then run the module's tests.
+
+A worked example. "The list of reasons for a grantee change needs 'working abroad'." A list of reasons is a code list:
+**D**, a vocabulary (4.4). The grantee belongs to the registry (card 3), and its data files include
+`dswd_4ps_registry/data/vocabulary_grantee_change_reasons.xml`, which has `noupdate="1"`. Adding the code to the file is
+enough for a fresh database; an existing database also needs a migration that creates the code, and a version bump
+(4.13). Then a test that the code exists. One line of XML; three files for a release.
+
+### 5.12 Not today
+
+The modules on no card are in the catalogue index, for the post-training sessions: registry tools (`registry_import`,
+`export`, `ecr`, `hazard`, `account_creation`), operations (`theme`, `attachment_hardening`, `post_sql_repair`,
+`pg_partition`), dashboards (`swdi_dashboard`, `cms_nas`) and 17 sample-data, demo and test-only modules.
 
 ## 6. Module 6: Hands-on activity
 
@@ -1726,32 +1978,11 @@ runs the full set.
 | Vocabulary, code             | OpenSPP's code lists as data, with namespace URIs; `spp.vocabulary` and `spp.vocabulary.code`.                        |
 | Registrant, household, group | A `res.partner` with `is_registrant`; a household is also `is_group`.                                                 |
 | SWDI                         | Social Welfare and Development Indicators: the 4Ps yearly well-being assessment, levels 1 to 3.                       |
+| PSGC                         | Philippine Standard Geographic Code: region, province, city or municipality, barangay. `dswd_4ps_area` loads it.      |
+| Job, job worker              | Work queued with `with_delay()` and run later by a background worker, on a named channel (3.17).                      |
+| CEL                          | Common Expression Language: the conditions that pick an approval definition in OpenSPP.                               |
+| Install bundle               | A module with no models whose `depends` installs a deployment: `starter`, `instance1`, `instance2` (5.3).             |
 | `TransactionCase`            | The Odoo test base class: each test runs in a rolled-back transaction.                                                |
 
----
-
-## 8. Reading production code
-
-The production `dswd_4ps_*` modules use everything in Modules 3 and 4, plus a few things a newcomer misreads. Recognise
-them before changing them. Change requests and the API are covered in Module 5.
-
-- **Context switches.** Calls like `with_context(skip_some_check=True)` turn off checks inside overrides. Removing one,
-  or calling the method without it, can cause duplicate records or endless recursion. Search the code for where the key
-  is read before touching it.
-- **The logic is not where you opened it.** Detail models inherit base classes and mixins; the method you are looking
-  for is often in the base class or in a "strategy" class. Follow `_inherit`.
-- **`x_4ps_` field names.** Odoo reserves the `x_` prefix for fields created in the user interface. Existing production
-  fields use it; new fields must use `dswd_`.
-- **Raw SQL in models.** A few heavy computations (payroll, compliance) use `cr.execute` for speed, with `flush_model()`
-  before and `invalidate_model()` after so the ORM sees the result. Do not "simplify" them into ORM loops over millions
-  of rows, and do not add raw SQL elsewhere.
-- **Data and hooks that run once.** `noupdate="1"` data and `post_init_hook` run at install only. Changing them changes
-  nothing on an existing database; ship a migration (4.13).
-- **Configuration in settings.** Thresholds and switches are read from `ir.config_parameter`
-  (`self.env["ir.config_parameter"].sudo().get_param("dswd_4ps.some_key")`), so the answer to "why does it behave like
-  this" may be in Settings > Technical > System Parameters, not in the code.
-- **Approval state.** Records with `spp.approval.mixin` keep their state consistent with review records; never set
-  `approval_state` directly.
-
-When in doubt, the order of investigation is always the same: reproduce, read the log from the bottom up, find the first
-line in a `dswd_*` file, read that method and what it inherits, write a failing test, fix, run the tests.
+The 4Ps program terms (C/ML, FDS, CVS, BUS, POO, RPMO, NPMO, Kilos-Unlad and others) are in the glossary of
+`training/4ps-program-reference.md`, section 9.

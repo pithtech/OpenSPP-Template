@@ -188,3 +188,23 @@ groups (it provides only `group_spp_admin` and a self-restriction group); the sc
 3. Keep the planted Selection in the shipped module, with the note in its readme, as the before picture.
 4. One combined Day 2 pre-test (Module 3 and 4 items) at 8:30, separate post-tests.
 5. Access rows: system plus all internal users, no custom groups until Module 5.
+
+## 13. Additions decided on 2026-11-08 (evening)
+
+Edwin asked for four additions, all adopted:
+
+1. **What Odoo is**: a three-minute slide at the start of block 2 (platform, licence, release, module system,
+   OpenSPP on Odoo). Developers should know the platform they study.
+2. **MVC in Odoo terms**: a three-minute slide after it (model = `models.Model` and the ORM; view = XML and QWeb;
+   controller = actions, menus and model methods).
+3. **The ORM with examples in the demo module**: step 5 adds `action_assign_to_me` (a form button, `write` in one
+   line) and `find_warranty_expiring` (`@api.model`, a `search` with a domain), tested, plus a shell session in the
+   guide and the deck.
+4. **A PDF report**: step 6 adds `report/dswd_asset_report.xml`, an `ir.actions.report` bound to the Print menu and a
+   QWeb template, tested by rendering the HTML. The image carries wkhtmltopdf 0.12.6.1, so the PDF opens live.
+
+Run of show after the additions: block 2 grows to fifteen minutes (8:35 to 8:50), blocks 3 and 4 start two to three
+minutes later, the test block shrinks to six minutes, a new block 8b (9:40 to 9:48) covers steps 5 and 6, the hand-off
+runs 9:48 to 9:56. New drop order: the shell demo first, then the planted AccessError, then the participants' test
+run. Tags `m3-step-5` and `m3-step-6` are added after merge. The participant guide gains sections 3.2, 3.3, 3.11 and
+3.12.

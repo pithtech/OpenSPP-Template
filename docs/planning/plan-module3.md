@@ -3,7 +3,7 @@
 > **Status**: approved design ([module3-training-design.md](module3-training-design.md)); Edwin's decisions
 > 2026-11-08: IT asset register; top-level app menu; keep the planted Selection; no quiz for Module 3 (assessment is
 > Module 6); introduce custom groups in Module 3. Branch `feat/module3-dswd-asset`, one PR, one commit per demo step,
-> tags `m3-step-0` to `m3-step-4` after merge.
+> tags `m3-step-0` to `m3-step-6` after merge (steps 5 and 6 added 2026-11-08 evening).
 
 ## Steps (each installable, tests pass, test-first)
 
@@ -13,6 +13,8 @@
 | 1    | `models/__init__.py`, `models/dswd_asset.py` (8 fields, computed warranty flag, constraint)             | defaults; computed flag; constraint refuses warranty before purchase                                  | Technical > Models/Fields; log `has no access rules`                        |
 | 2    | `views/dswd_asset_views.xml` (list, form, search, action), `views/menus.xml` (top-level app menu)         | action and views resolve                                                                             | app tile appears; click: AccessError even as admin (the planted fault)      |
 | 3    | `security/groups.xml` (category, privilege, viewer/officer/manager, admin link into `spp_security.group_spp_admin`), access rows | viewer reads but cannot create; officer creates but cannot delete; manager deletes; admin sees it | the list opens; participants register their own laptop |
+| 5 | `models/dswd_asset.py` gains `action_assign_to_me` and `find_warranty_expiring`; a form header button | both methods | Assign to me; the shell |
+| 6 | `report/dswd_asset_report.xml` (action and QWeb template), manifest entry | HTML render shows the asset; report bound to the Print menu | Print > Asset Sheet |
 | 4    | `readme/DESCRIPTION.md` completed                                                                        | none                                                                                                 | `./odoo-project test dswd_asset` summary line                               |
 
 Conventions: model `dswd.asset`; xml ids `view_dswd_asset_{list,form,search}`, `action_dswd_asset`,

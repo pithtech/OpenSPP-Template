@@ -33,13 +33,39 @@ Then wait. Nothing in the next twenty minutes needs your laptop.
 
 ## By ten you can
 
-1. Say what a module is, name the role of each file in one, and say why a file not in the manifest does not exist.
-2. Write a model with Char, Selection, Date, Many2one and Boolean fields, and say "model = table, field = column".
-3. Write a list view, a form view, an action and a menu, and explain menu, action, view, model.
-4. Write the access row a new model needs, and recognise its absence in the log and on screen.
-5. Run `./odoo-project test dswd_asset` and read the summary line.
+1. Say what Odoo is and name the three parts of MVC in Odoo terms.
+2. Say what a module is and name the role of each file in one.
+3. Write a model with Char, Selection, Date, Many2one and Boolean fields: "model = table, field = column".
+4. Write a list view, a form view, an action and a menu: menu, action, view, model.
+5. Write the access row a new model needs, and recognise its absence in the log and on screen.
+6. Use the ORM from a method and from the shell; add a PDF report.
+7. Run `./odoo-project test dswd_asset` and read the summary line.
 
 And at ten you learn why you will almost never build a module this way for 4Ps.
+
+---
+
+## What Odoo is
+
+- Python on PostgreSQL, web client in JavaScript. 2005 TinyERP, 2008 OpenERP, 2014 Odoo.
+- One major release a year. This training: **Odoo 19** (2025).
+- **Community** edition, LGPL v3: what OpenSPP builds on and what you run. Enterprise: proprietary modules on top.
+- Everything is a module, including the core. A module adds tables, columns, screens, menus, reports and rules to other
+  modules **without changing their code**.
+- OpenSPP: about a hundred `spp_*` modules on Odoo. Your `dswd_*` modules: on top of those.
+
+---
+
+## MVC, in Odoo terms
+
+| MVC        | In Odoo                                                              | You write it in               |
+| ---------- | -------------------------------------------------------------------- | ----------------------------- |
+| Model      | `models.Model` classes and fields; the ORM maps them to tables       | `models/*.py`                 |
+| View       | XML on `ir.ui.view` (list, form, search), QWeb templates for reports | `views/*.xml`, `report/*.xml` |
+| Controller | actions and menus route clicks; model methods run the logic          | `views/*.xml`, `models/*.py`  |
+
+Data and rules in the model. Drawing in the view. The controller stays thin: a button calls a method, the method uses
+the ORM, the view only says where the button sits.
 
 ---
 
@@ -241,12 +267,92 @@ class TestDswdAsset(TransactionCase):
 
 ```
 $ ./odoo-project test dswd_asset
-0 failed, 0 error(s) of 8 tests
+0 failed, 0 error(s) of 12 tests
 ```
 
 The access tests log in as a viewer, an officer and a manager. The rows are proven, not assumed.
 
 **Start yours now** and read the summary line at 9:54.
+
+---
+
+## Step 5: the ORM, in a method
+
+```python
+    def action_assign_to_me(self):
+        self.write({"custodian_id": self.env.user.id})
+
+    @api.model
+    def find_warranty_expiring(self, days=30):
+        today = fields.Date.context_today(self)
+        return self.search(
+            [("is_in_use", "=", True), ("warranty_end_date", ">=", today),
+             ("warranty_end_date", "<=", fields.Date.add(today, days=days))],
+            order="warranty_end_date",
+        )
+```
+
+```xml
+<header>
+    <button name="action_assign_to_me" type="object" string="Assign to me" class="btn-primary" />
+</header>
+```
+
+No decorator: `self` is the record. `@api.model`: works on the whole table. `search`, `create`, `write`, `unlink`.
+
+---
+
+## Step 5: the ORM, in the shell
+
+```
+$ ./odoo-project shell
+>>> Asset = env["dswd.asset"]
+>>> Asset.search_count([])
+2
+>>> Asset.search([("asset_type", "=", "laptop")]).mapped("name")
+['LT-0001']
+>>> a = Asset.create({"name": "LT-0099"})
+>>> a.write({"model_name": "Lenovo ThinkPad T14"})
+>>> a.custodian_id.name
+'OdooBot'
+>>> Asset.find_warranty_expiring(365).mapped("name")
+['LT-0001']
+>>> a.unlink(); env.cr.commit()
+```
+
+A Many2one is itself a record: `a.custodian_id.name` walks the link. Nothing is saved until `env.cr.commit()`.
+
+---
+
+## Step 6: a PDF report
+
+```xml
+<record id="action_report_dswd_asset" model="ir.actions.report">
+    <field name="name">Asset Sheet</field>
+    <field name="model">dswd.asset</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">dswd_asset.report_dswd_asset</field>
+    <field name="binding_model_id" ref="model_dswd_asset" />
+</record>
+
+<template id="report_dswd_asset">
+    <t t-call="web.html_container">
+        <t t-foreach="docs" t-as="asset">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h2>Asset Sheet: <span t-field="asset.name" /></h2>
+                    <table class="table table-sm">
+                        <tr><th>Custodian</th><td><span t-field="asset.custodian_id" /></td></tr>
+                        <tr><th>Warranty End</th><td><span t-field="asset.warranty_end_date" /></td></tr>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </t>
+</template>
+```
+
+`binding_model_id` puts it in the Print menu. `docs` is what is being printed. HTML, then PDF.
 
 ---
 

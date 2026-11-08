@@ -2,8 +2,8 @@
 
 Day 2, 8:30 to 10:00, immediately before Module 4. The design is in
 [docs/planning/module3-training-design.md](../../docs/planning/module3-training-design.md); the demo module is
-[`dswd_asset`](../../dswd_asset/) at the repo root, an IT asset register built from scratch in five tagged steps
-(`m3-step-0` to `m3-step-4`, in the trainer's clone of the template; a participant's copy holds the finished module and
+[`dswd_asset`](../../dswd_asset/) at the repo root, an IT asset register built from scratch in seven tagged steps
+(`m3-step-0` to `m3-step-6`, in the trainer's clone of the template; a participant's copy holds the finished module and
 no tags).
 
 | File                                     | For                | Use                                                                                                                                   |
@@ -17,12 +17,12 @@ No quiz: assessment is Module 6.
 
 ## Preparing the demo machine
 
-1. `git fetch --tags && git checkout m3-step-4 && ./odoo-project start`, then `./odoo-project install dswd_asset` once
+1. `git fetch --tags && git checkout m3-step-6 && ./odoo-project start`, then `./odoo-project install dswd_asset` once
    so the database knows the module. Before the session, uninstall it in Apps and `git checkout m3-step-0`: the live
    build installs it again step by step.
 2. Developer mode on. Terminal and editor at 20pt, light theme, at most 25 lines per screen.
 3. Editor tabs in order: `__manifest__.py`, `models/dswd_asset.py`, `views/dswd_asset_views.xml`, `views/menus.xml`,
-   `security/groups.xml`, `security/ir.model.access.csv`, `tests/test_dswd_asset.py`.
+   `security/groups.xml`, `security/ir.model.access.csv`, `report/dswd_asset_report.xml`, `tests/test_dswd_asset.py`.
 4. `./odoo-project test dswd_asset` once so the image is warm (about 20 s after that).
 5. Print the handout and the command card for every participant.
 

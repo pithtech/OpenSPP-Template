@@ -2,7 +2,14 @@
 
 Fill in the blanks during the session. The back of this page is the bridge to Module 4.
 
-## 1. Five words
+## 1. Odoo and MVC in one breath
+
+Odoo: a Python and PostgreSQL platform, Community edition under LGPL, one release a year, Odoo 19 here; OpenSPP is a
+hundred modules on top of it, your `dswd_*` modules sit on top of those. MVC in Odoo: the **model** is `models.Model`
+and the ORM, the **view** is XML (`ir.ui.view`, QWeb), the **controller** is actions, menus and the methods on the
+model.
+
+## 2. Five words
 
 | Word   | Means                                                | Where you see it              |
 | ------ | ---------------------------------------------------- | ----------------------------- |
@@ -12,7 +19,7 @@ Fill in the blanks during the session. The back of this page is the bridge to Mo
 | View   | how the table is drawn: list, form, search           | Settings > Technical > Views  |
 | Menu   | menu, then action, then view, then model             | the top bar and the app tiles |
 
-## 2. The file map (fill in the role of each file)
+## 3. The file map (fill in the role of each file)
 
 ```
 dswd_asset/
@@ -21,13 +28,14 @@ dswd_asset/
 ├── models/dswd_asset.py            ______________________________________
 ├── views/dswd_asset_views.xml      ______________________________________
 ├── views/menus.xml                 ______________________________________
+├── report/dswd_asset_report.xml    ______________________________________
 ├── security/groups.xml             ______________________________________
 ├── security/ir.model.access.csv    ______________________________________
 ├── tests/test_dswd_asset.py        ______________________________________
 └── readme/DESCRIPTION.md           ______________________________________
 ```
 
-## 3. The loop
+## 4. The loop
 
 | You changed                                              | Run                                                           |
 | -------------------------------------------------------- | ------------------------------------------------------------- |
@@ -37,7 +45,7 @@ dswd_asset/
 | An existing view's XML                                   | `./odoo-project update` (nothing with `start --profile dev`)  |
 | A test                                                   | `./odoo-project test dswd_asset`, then read the summary line  |
 
-## 4. The field types you saw
+## 5. The field types you saw
 
 | Field               | Type                    | Why that type                                                                                |
 | ------------------- | ----------------------- | -------------------------------------------------------------------------------------------- |
@@ -50,7 +58,7 @@ dswd_asset/
 | `is_in_use`         | Boolean                 | a filter in the search view                                                                  |
 | `is_under_warranty` | Boolean, computed       | derived from another field, never typed in; not stored, so it cannot be searched or filtered |
 
-## 5. The four mistakes of a new module
+## 6. The four mistakes of a new module
 
 | Mistake                                       | Symptom                                                        | Where to look                                  |
 | --------------------------------------------- | -------------------------------------------------------------- | ---------------------------------------------- |
@@ -59,7 +67,7 @@ dswd_asset/
 | A view field that is not on the model         | update fails: `Field "x" does not exist in model "dswd.asset"` | compare with Technical > Fields                |
 | `_name` versus `model_id` in the access file  | `No matching record found for external id 'model_dswd_...'`    | `model_` plus `_name` with dots as underscores |
 
-## 6. The code, step by step
+## 7. The code, step by step
 
 ### Step 0: the manifest
 
@@ -194,9 +202,52 @@ class TestDswdAsset(TransactionCase):
 `./odoo-project test dswd_asset` builds a fresh database, installs the module, runs the tests and prints
 `0 failed, 0 error(s) of N tests`.
 
+### Step 5: the ORM in a method, and in the shell
+
+```python
+    def action_assign_to_me(self):
+        self.write({"custodian_id": self.env.user.id})        # self = the record the button was pressed on
+
+    @api.model
+    def find_warranty_expiring(self, days=30):
+        today = fields.Date.context_today(self)
+        return self.search([("is_in_use", "=", True), ("warranty_end_date", ">=", today),
+                            ("warranty_end_date", "<=", fields.Date.add(today, days=days))])
+```
+
+`<button name="action_assign_to_me" type="object" string="Assign to me" />` in the form header calls the first. From
+`./odoo-project shell`: `env["dswd.asset"].search([...])`, `.create({...})`, `.write({...})`, `.unlink()`,
+`.mapped("name")`; nothing is saved until `env.cr.commit()`.
+
+### Step 6: a PDF report
+
+```xml
+<record id="action_report_dswd_asset" model="ir.actions.report">
+    <field name="name">Asset Sheet</field>
+    <field name="model">dswd.asset</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">dswd_asset.report_dswd_asset</field>
+    <field name="binding_model_id" ref="model_dswd_asset" />
+</record>
+
+<template id="report_dswd_asset">
+    <t t-call="web.html_container">
+        <t t-foreach="docs" t-as="asset">
+            <t t-call="web.external_layout">
+                <div class="page"><h2>Asset Sheet: <span t-field="asset.name" /></h2></div>
+            </t>
+        </t>
+    </t>
+</template>
+```
+
+`binding_model_id` puts it in the Print menu; `docs` is what is being printed; `t-field` draws a field the way the form
+does. Test it by rendering the HTML:
+`env["ir.actions.report"]._render_qweb_html("dswd_asset.action_report_dswd_asset", ids)`.
+
 ---
 
-## 7. Today and at 10:00: the same files, three swaps
+## 8. Today and at 10:00: the same files, three swaps
 
 | Today, `dswd_asset`                           | Next, `dswd_wellbeing`                                              |
 | --------------------------------------------- | ------------------------------------------------------------------- |

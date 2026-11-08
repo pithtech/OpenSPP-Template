@@ -6,9 +6,9 @@ reference for the module development and support work that follows the training.
 and every error message the sessions use. It contains no screenshots: everything in it can be reproduced on your own
 laptop with your own repository.
 
-Modules 1, 2 and 6 are added as their sessions are prepared. This edition covers the three sessions of Day 2: Module 3,
-Introduction to Odoo, and Module 4, Developing Custom Modules and Extending Odoo Models, in the morning; Module 5,
-DSWD-specific implementation of OpenSPP, in the afternoon.
+Modules 1 and 2 are added as their sessions are prepared. This edition covers Modules 3 to 6: on Day 2, Module 3,
+Introduction to Odoo, and Module 4, Developing Custom Modules and Extending Odoo Models, in the morning, and Module 5,
+DSWD-specific implementation of OpenSPP, in the afternoon; on Day 3, Module 6, the hands-on activity.
 
 Contents:
 
@@ -16,7 +16,7 @@ Contents:
 - [Module 3: Introduction to Odoo](#module-3-introduction-to-odoo)
 - [Module 4: Developing Custom Modules and Extending Odoo Models](#module-4-developing-custom-modules-and-extending-odoo-models)
 - [Module 5: DSWD-specific implementation of OpenSPP](#module-5-dswd-specific-implementation-of-openspp)
-- [6. Module 6: Hands-on activity](#6-module-6-hands-on-activity)
+- [Module 6: Hands-on Activity](#module-6-hands-on-activity)
 - [7. Reference](#7-reference), with the glossary in 7.6
 
 ---
@@ -1750,7 +1750,7 @@ def migrate(cr, version):
 
 On Day 3 you build three modules of your own, each from a Day 2 pattern: a new module like `dswd_asset`, an extension of
 the household like `dswd_wellbeing`, and a customization of OpenSPP through data. The sheets are in `training/module6/`;
-chapter 6 of this guide describes the session. Before Day 3: `./odoo-project start` and
+the Module 6 chapter of this guide describes the session. Before Day 3: `./odoo-project start` and
 `./odoo-project test dswd_wellbeing` at 5 passed.
 
 ---
@@ -2014,9 +2014,85 @@ The modules on no card are in the catalogue index, for the post-training session
 `export`, `ecr`, `hazard`, `account_creation`), operations (`theme`, `attachment_hardening`, `post_sql_repair`,
 `pg_partition`), dashboards (`swdi_dashboard`, `cms_nas`) and 17 sample-data, demo and test-only modules.
 
-## 6. Module 6: Hands-on activity
+## Module 6: Hands-on Activity
 
-To be added. The exercise sheets are in `training/module6/`.
+Day 3, 8:30 to 10:30. You build three modules of your own on your own stack, one for each skill of Day 2: a new module
+(development), an extension of an OpenSPP model (extending), and OpenSPP configured through data (customization). Each
+is a 4Ps request, and each starts from a module you already have: `dswd_asset` from Module 3 or `dswd_wellbeing` from
+Module 4. The last 30 minutes are a discussion of the work done in the room.
+
+The exercise sheets are in `training/module6/`. They give what to build, which file to copy, the command after each step
+and what you should see. They do not print the finished files: writing them is the exercise.
+
+### 6.1 What you can do after this module
+
+1. Create an Odoo module from scratch, install it on your stack and find it on screen.
+2. Extend an OpenSPP model with a new field and show it on an OpenSPP view, without touching `upstream/openspp/`.
+3. Customize OpenSPP through data, and prove the configuration with a test.
+4. Run the loop on your own and read the output when something fails.
+
+### 6.2 Before 8:30
+
+```powershell
+.\odoo-project start
+.\odoo-project test dswd_wellbeing
+```
+
+Log in and wait for `0 failed, 0 error(s) of 5 tests`. The first test run of the day is the slowest; doing it before the
+session keeps it out of the exercises. If your laptop cannot start the stack, sit with a pair whose laptop can: every
+exercise is done in pairs, one person typing and one reading the sheet and the output, swapping at each exercise.
+
+### 6.3 The three exercises
+
+| #   | Skill         | Module             | The 4Ps request                                                       | Copy from        | Sheet                                          | Time   |
+| --- | ------------- | ------------------ | --------------------------------------------------------------------- | ---------------- | ---------------------------------------------- | ------ |
+| 1   | Development   | `dswd_fds_session` | A register of Family Development Sessions held in each barangay       | `dswd_asset`     | `training/module6/exercise-1-development.md`   | 40 min |
+| 2   | Extending     | `dswd_listahanan`  | A Listahanan ID on every household, never shared by two households    | `dswd_wellbeing` | `training/module6/exercise-2-extending.md`     | 30 min |
+| 3   | Customization | `dswd_id_types`    | PhilSys as an ID type in OpenSPP, with a check of the number's format | `dswd_wellbeing` | `training/module6/exercise-3-customization.md` | 20 min |
+
+What each one practises, and where this guide explains it:
+
+- **Exercise 1** is Module 3 again with a new subject: manifest (3.6), model and fields (3.7, 3.8), views, action and
+  menu (3.9), access rows (3.11), a constraint (3.8) and tests (3.13). It uses OpenSPP's own registry groups for access
+  instead of new ones, and an OpenSPP model, `spp.area`, for the barangay.
+- **Exercise 2** is Module 4 with a plain field instead of a vocabulary: `_inherit` (4.6), the `dswd_` prefix (4.2), one
+  XPath on a named anchor (4.7), and a database constraint, `models.Constraint` (3.8), so that two households can never
+  share an ID even if two users save at the same moment.
+- **Exercise 3** has no model and no view: one record in a vocabulary OpenSPP already has (4.4), and OpenSPP's own code
+  does the checking. This is how most 4Ps requirements are met: configuration through data, not new code.
+
+If the session ends before you finish exercise 3, finish it afterwards: the sheet is complete on its own.
+
+### 6.4 Done means three proofs
+
+For every exercise:
+
+1. `.\odoo-project install <module>` ends with `Install complete. Restarting Odoo...`
+2. `.\odoo-project test <module>` ends with `0 failed`
+3. You can show the result on screen
+
+Read every command's output to the end. If it does not end with the "complete" line, the command failed, and the browser
+still shows the old screens: a failed `install` or `update` leaves the previous version of the server running.
+
+### 6.5 When something goes wrong
+
+Each sheet ends with a table of the errors you are most likely to meet. Three habits cover most of them:
+
+- **Find the first line that names your module.** In a long traceback, read from the bottom up to the first line with a
+  path in your module folder (4.11).
+- **`CRITICAL` is the symptom.** When `test` prints only `CRITICAL: ... Failed to load registry` or
+  `Couldn't load module`, open the full log it names on its last lines and search for `Error`. The line you need is
+  there, for example `FileNotFoundError` for a file the manifest lists but that does not exist.
+- **A module copied from another keeps its names.** After copying `dswd_asset` or `dswd_wellbeing`, search the new
+  folder for the old name (VS Code: right-click the folder, Find in Folder). Leftover ids, model names and imports cause
+  most first errors.
+
+### 6.6 After the training
+
+The three modules are yours: commit them (7.4). They are small, working examples of the three kinds of change you will
+make to the 4Ps system, and each one has a production counterpart you can now read: the FDS operations module (Module 5,
+card 12), the Listahanan ID on the registry (card 3), and the PhilSys, 4Ps ID card and PhilHealth ID types in the
+registry module's data (card 3).
 
 ---
 

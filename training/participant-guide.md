@@ -1748,9 +1748,9 @@ def migrate(cr, version):
 
 ### 4.14 Exercises (Module 6, Day 3)
 
-On Day 3 you build three modules of your own, each from a Day 2 pattern: a new module like `dswd_asset`, an extension
-of the household like `dswd_wellbeing`, and a customization of OpenSPP through data. The sheets are in
-`training/module6/`; chapter 6 of this guide describes the session. Before Day 3: `./odoo-project start` and
+On Day 3 you build three modules of your own, each from a Day 2 pattern: a new module like `dswd_asset`, an extension of
+the household like `dswd_wellbeing`, and a customization of OpenSPP through data. The sheets are in `training/module6/`;
+chapter 6 of this guide describes the session. Before Day 3: `./odoo-project start` and
 `./odoo-project test dswd_wellbeing` at 5 passed.
 
 ---

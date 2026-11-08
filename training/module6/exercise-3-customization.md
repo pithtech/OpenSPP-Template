@@ -25,16 +25,16 @@ Remove-Item dswd_id_types\data\vocabulary_well_being_level.xml
 Rename-Item dswd_id_types\tests\test_wellbeing.py test_id_types.py
 ```
 
-The module's own `__init__.py` must no longer import `models` (the folder is gone): leave only the header comment.
-Fix `tests/__init__.py` to import the renamed file.
+The module's own `__init__.py` must no longer import `models` (the folder is gone): leave only the header comment. Fix
+`tests/__init__.py` to import the renamed file.
 
 ## Step 2: the manifest (2 min)
 
-| Key       | Value                                                                  |
-| --------- | ---------------------------------------------------------------------- |
-| `name`    | DSWD 4Ps: Philippine ID Types                                          |
-| `depends` | `spp_registry` (registrant IDs), `spp_vocabulary` (the ID Type list)   |
-| `data`    | the access file (header only, as before) and `data/id_types.xml`       |
+| Key       | Value                                                                |
+| --------- | -------------------------------------------------------------------- |
+| `name`    | DSWD 4Ps: Philippine ID Types                                        |
+| `depends` | `spp_registry` (registrant IDs), `spp_vocabulary` (the ID Type list) |
+| `data`    | the access file (header only, as before) and `data/id_types.xml`     |
 
 ## Step 3: the data (7 min)
 
@@ -86,17 +86,17 @@ Change the value to `1234-5678-9012-3456`: it saves.
 
 ## If something goes wrong
 
-`test` may print only `CRITICAL: ... Failed to load registry` or `Couldn't load module`. The cause is in the full log
-it names on its last lines: open that file and search for `Error`.
+`test` may print only `CRITICAL: ... Failed to load registry` or `Couldn't load module`. The cause is in the full log it
+names on its last lines: open that file and search for `Error`.
 
-| You see                                                                     | Look at                                                                                         |
-| --------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| `ImportError: cannot import name 'models' from partially initialized module 'odoo.addons.dswd_id_types'` (it suggests a circular import; it is not one) | the module's `__init__.py` still imports `models`, and the folder is gone |
-| `Code 'philsys' already exists in vocabulary 'ID Type'.`                     | someone added PhilSys by hand in Settings > Vocabularies; remove that manual code, or use a fresh database |
-| `test` says `No tests were executed`                                                    | `tests/__init__.py` does not import your test file                                              |
-| `External ID not found in the system: dswd_id_types.code_id_type_philsys`   | the record id, or the data file missing from the manifest                                       |
-| PhilSys is not in the ID type list                                          | `target_type`; and use the Identity page of an individual, not a household                      |
-| You added PhilSys under **Studio > Settings > Registry > ID Types** and it never shows on the Identity page | that screen edits a different model (`spp.id.type`); the Identity page uses the ID Type vocabulary, which is what this module adds to |
+| You see                                                                                                                                                 | Look at                                                                                                                               |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `ImportError: cannot import name 'models' from partially initialized module 'odoo.addons.dswd_id_types'` (it suggests a circular import; it is not one) | the module's `__init__.py` still imports `models`, and the folder is gone                                                             |
+| `Code 'philsys' already exists in vocabulary 'ID Type'.`                                                                                                | someone added PhilSys by hand in Settings > Vocabularies; remove that manual code, or use a fresh database                            |
+| `test` says `No tests were executed`                                                                                                                    | `tests/__init__.py` does not import your test file                                                                                    |
+| `External ID not found in the system: dswd_id_types.code_id_type_philsys`                                                                               | the record id, or the data file missing from the manifest                                                                             |
+| PhilSys is not in the ID type list                                                                                                                      | `target_type`; and use the Identity page of an individual, not a household                                                            |
+| You added PhilSys under **Studio > Settings > Registry > ID Types** and it never shows on the Identity page                                             | that screen edits a different model (`spp.id.type`); the Identity page uses the ID Type vocabulary, which is what this module adds to |
 
 ## Stretch
 

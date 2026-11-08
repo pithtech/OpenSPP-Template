@@ -27,10 +27,10 @@ This module has no vocabulary, so the `data` folder goes. Fix `tests/__init__.py
 
 ## Step 2: the manifest (2 min)
 
-| Key       | Value                                                    |
-| --------- | -------------------------------------------------------- |
-| `name`    | DSWD 4Ps: Listahanan Household ID                        |
-| `depends` | `spp_registry` only: no vocabulary this time             |
+| Key       | Value                                                      |
+| --------- | ---------------------------------------------------------- |
+| `name`    | DSWD 4Ps: Listahanan Household ID                          |
+| `depends` | `spp_registry` only: no vocabulary this time               |
 | `data`    | the access file and the views file (the data file is gone) |
 
 The access file stays as it is: header only. You add a field to an existing model, not a new model, so there is no new
@@ -40,14 +40,14 @@ access row.
 
 `models/res_partner.py` keeps `_inherit = "res.partner"` and gets one field instead of the well-being level:
 
-| Field                | Type | Label         | Notes                                                                 |
-| -------------------- | ---- | ------------- | --------------------------------------------------------------------- |
+| Field                | Type | Label         | Notes                                                                                 |
+| -------------------- | ---- | ------------- | ------------------------------------------------------------------------------------- |
 | `dswd_listahanan_id` | Char | Listahanan ID | `index=True` (it is searched); `copy=False` (a duplicated household must not keep it) |
 
-Then the rule: no two households may have the same Listahanan ID. Here the right tool is a **database constraint**, not a
-Python check: the database refuses the duplicate even if two users save at the same moment. Participant guide 3.8 shows
-the Odoo 19 form, `models.Constraint("UNIQUE(...)", "message")`, as a class attribute next to the fields. Write a message
-the user can read.
+Then the rule: no two households may have the same Listahanan ID. Here the right tool is a **database constraint**, not
+a Python check: the database refuses the duplicate even if two users save at the same moment. Participant guide 3.8
+shows the Odoo 19 form, `models.Constraint("UNIQUE(...)", "message")`, as a class attribute next to the fields. Write a
+message the user can read.
 
 Delete the well-being constant, the old field and its `@api.constrains` method.
 
@@ -86,8 +86,8 @@ with mute_logger("odoo.sql_db"), self.assertRaises(IntegrityError), self.cr.save
     other.flush_recordset()
 ```
 
-`flush_recordset()` sends the write to the database now, so the error happens inside the `with`; the savepoint keeps
-the test's transaction usable; `mute_logger` hides the expected error from the log.
+`flush_recordset()` sends the write to the database now, so the error happens inside the `with`; the savepoint keeps the
+test's transaction usable; `mute_logger` hides the expected error from the log.
 
 ## Step 6: install, test, look (4 min)
 
@@ -107,16 +107,16 @@ Open an individual: no Listahanan section.
 
 ## If something goes wrong
 
-`test` may print only `CRITICAL: ... Failed to load registry` or `Couldn't load module`. The cause is in the full log
-it names on its last lines: open that file and search for `Error`.
+`test` may print only `CRITICAL: ... Failed to load registry` or `Couldn't load module`. The cause is in the full log it
+names on its last lines: open that file and search for `Error`.
 
-| You see                                                                           | Look at                                                                    |
-| --------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| `Element '<xpath expr=...>' cannot be located in parent view`                     | the anchor: compare it letter by letter with step 4                        |
-| `Field "dswd_listahanan_id" does not exist in model "res.partner"`                | `models/__init__.py` imports the model file; the field name in the view    |
-| `install` errors on `data/vocabulary_well_being_level.xml`                        | the manifest still lists the data file you deleted                         |
-| The second test fails with `IntegrityError not raised`                            | the constraint line, or `flush_recordset()` missing inside the `with`      |
-| A test still mentions the well-being level                                        | delete the tests copied from `dswd_wellbeing` that are not yours           |
+| You see                                                            | Look at                                                                 |
+| ------------------------------------------------------------------ | ----------------------------------------------------------------------- |
+| `Element '<xpath expr=...>' cannot be located in parent view`      | the anchor: compare it letter by letter with step 4                     |
+| `Field "dswd_listahanan_id" does not exist in model "res.partner"` | `models/__init__.py` imports the model file; the field name in the view |
+| `install` errors on `data/vocabulary_well_being_level.xml`         | the manifest still lists the data file you deleted                      |
+| The second test fails with `IntegrityError not raised`             | the constraint line, or `flush_recordset()` missing inside the `with`   |
+| A test still mentions the well-being level                         | delete the tests copied from `dswd_wellbeing` that are not yours        |
 
 ## Stretch
 

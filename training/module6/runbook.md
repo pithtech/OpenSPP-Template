@@ -16,15 +16,15 @@ minutes of discussion. The trainer walks the room; the sheets carry the steps.
 
 ## 8:00 to 8:30: at the door
 
-Door slide: "Open PowerShell in your repository. `.\odoo-project start`, log in, then `.\odoo-project test dswd_wellbeing`
-and wait for `0 failed`." The first test of the day is the slowest; it must not happen inside the exercises. Laptops that
-cannot start: their owners pair with a working laptop now.
+Door slide: "Open PowerShell in your repository. `.\odoo-project start`, log in, then
+`.\odoo-project test dswd_wellbeing` and wait for `0 failed`." The first test of the day is the slowest; it must not
+happen inside the exercises. Laptops that cannot start: their owners pair with a working laptop now.
 
 ## Block 1, 8:30 to 8:35: launch
 
 1. "Three modules this morning, one per skill: development, extending, customization. Each is a 4Ps request."
-2. "Done means three proofs: the install line, the test line with `0 failed`, and the screen. That is what we discuss
-   at ten."
+2. "Done means three proofs: the install line, the test line with `0 failed`, and the screen. That is what we discuss at
+   ten."
 3. Rules: pairs at one laptop, one types and one reads; swap at each exercise. Ask your pair, then your row, then a
    helper, then me. "Read every command's output to the end: if it does not say complete, it failed."
 
@@ -54,15 +54,15 @@ cannot start: their owners pair with a working laptop now.
 
 ## 10:00 to 10:30: discussion
 
-The pair narrates from its laptop or sheet; you reproduce on the demo laptop (copy the solution in, `install`, show).
-Do not switch laptops on the projector.
+The pair narrates from its laptop or sheet; you reproduce on the demo laptop (copy the solution in, `install`, show). Do
+not switch laptops on the projector.
 
-| Time        | Segment                                                                                                               |
-| ----------- | --------------------------------------------------------------------------------------------------------------------- |
-| 10:00-10:10 | Exercise 1: one pair shows its register. "Which error did you meet first?" The hidden menu without access rows; the manifest listing a deleted file. |
-| 10:10-10:18 | Exercise 2: the section on a household, absent on an individual (why, without an `invisible`); the duplicate message. Why a database constraint and not a Python check. |
+| Time        | Segment                                                                                                                                                                                              |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 10:00-10:10 | Exercise 1: one pair shows its register. "Which error did you meet first?" The hidden menu without access rows; the manifest listing a deleted file.                                                 |
+| 10:10-10:18 | Exercise 2: the section on a household, absent on an individual (why, without an `invisible`); the duplicate message. Why a database constraint and not a Python check.                              |
 | 10:18-10:26 | Exercise 3: the refusal on the Identity page. OpenSPP checked the number with no Python from them: customization through data. Production does the same for PhilSys, the 4Ps ID card and PhilHealth. |
-| 10:26-10:30 | Close: development, extending, customization. For 4Ps, extending and data are the everyday work; a new model is rare. |
+| 10:26-10:30 | Close: development, extending, customization. For 4Ps, extending and data are the everyday work; a new model is rare.                                                                                |
 
 ## If something fails
 

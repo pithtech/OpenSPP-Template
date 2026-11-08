@@ -31,18 +31,18 @@ Rename-Item dswd_fds_session\views\dswd_asset_views.xml dswd_fds_session_views.x
 Rename-Item dswd_fds_session\tests\test_dswd_asset.py test_dswd_fds_session.py
 ```
 
-(Or copy, delete and rename in the VS Code Explorer.) Every file still says `dswd_asset` or `dswd.asset` inside. Steps
-2 to 6 replace all of it; at the end, search the folder for `asset` (VS Code: right-click the folder, Find in Folder)
-and nothing should be left.
+(Or copy, delete and rename in the VS Code Explorer.) Every file still says `dswd_asset` or `dswd.asset` inside. Steps 2
+to 6 replace all of it; at the end, search the folder for `asset` (VS Code: right-click the folder, Find in Folder) and
+nothing should be left.
 
 ## Step 2: the manifest (3 min)
 
-| Key       | Value                                                                    |
-| --------- | ------------------------------------------------------------------------ |
-| `name`    | DSWD 4Ps: FDS Session Register                                           |
-| `summary` | one sentence of your own                                                 |
-| `depends` | `base`, `spp_area` (the barangay is an OpenSPP area), `spp_registry`     |
-| `data`    | the access file, the views file, the menus file, in that order           |
+| Key       | Value                                                                |
+| --------- | -------------------------------------------------------------------- |
+| `name`    | DSWD 4Ps: FDS Session Register                                       |
+| `summary` | one sentence of your own                                             |
+| `depends` | `base`, `spp_area` (the barangay is an OpenSPP area), `spp_registry` |
+| `data`    | the access file, the views file, the menus file, in that order       |
 
 Keep `application`, `installable` and `auto_install` as `dswd_asset` has them. Remove the lines for files you deleted.
 
@@ -50,19 +50,19 @@ Keep `application`, `installable` and `auto_install` as `dswd_asset` has them. R
 
 In `models/dswd_fds_session.py` (and fix the import in `models/__init__.py`), one model:
 
-| Name                 | Value                                                              |
-| -------------------- | ------------------------------------------------------------------ |
-| `_name`              | `dswd.fds.session`                                                 |
-| `_description`       | FDS Session                                                        |
-| `_order`             | newest sessions first, then by topic                               |
+| Name           | Value                                |
+| -------------- | ------------------------------------ |
+| `_name`        | `dswd.fds.session`                   |
+| `_description` | FDS Session                          |
+| `_order`       | newest sessions first, then by topic |
 
-| Field            | Type      | Label       | Notes                                              |
-| ---------------- | --------- | ----------- | -------------------------------------------------- |
-| `name`           | Char      | Topic       | required                                           |
-| `session_date`   | Date      |             | required; defaults to today                        |
-| `area_id`        | Many2one  | Barangay    | to `spp.area`                                      |
-| `facilitator_id` | Many2one  | Facilitator | to `res.users`; defaults to the current user       |
-| `attendee_count` | Integer   | Attendees   |                                                    |
+| Field            | Type     | Label       | Notes                                        |
+| ---------------- | -------- | ----------- | -------------------------------------------- |
+| `name`           | Char     | Topic       | required                                     |
+| `session_date`   | Date     |             | required; defaults to today                  |
+| `area_id`        | Many2one | Barangay    | to `spp.area`                                |
+| `facilitator_id` | Many2one | Facilitator | to `res.users`; defaults to the current user |
+| `attendee_count` | Integer  | Attendees   |                                              |
 
 One rule: the number of attendees cannot be negative. Raise a `ValidationError` with a sentence the user can read.
 
@@ -71,8 +71,8 @@ Hints:
 - `dswd_asset` already has a Many2one to `res.users` with the current user as default, and a constraint with
   `@api.constrains`. Copy their shape.
 - A date that defaults to today: `default=fields.Date.context_today`.
-- Delete everything from `dswd_asset` you do not need: the Selection, the computed field, the button method, the
-  search method.
+- Delete everything from `dswd_asset` you do not need: the Selection, the computed field, the button method, the search
+  method.
 
 ## Step 4: who may use it (3 min)
 
@@ -109,8 +109,8 @@ Hint: the action must be defined before a menu that uses it; the manifest loads 
 1. A new session (create it with only a topic) is dated today, has the current user as facilitator, and 0 attendees.
 2. Setting the attendee count to -1 raises `ValidationError`.
 
-Hint: `dswd_asset`'s `test_defaults` and `test_warranty_before_purchase_is_refused` are the two shapes. Today, the way the
-model computes it: `fields.Date.context_today(record)`.
+Hint: `dswd_asset`'s `test_defaults` and `test_warranty_before_purchase_is_refused` are the two shapes. Today, the way
+the model computes it: `fields.Date.context_today(record)`.
 
 ## Step 7: install, test, look (4 min)
 
@@ -124,17 +124,17 @@ attendees to `-3` and save: the dialog shows your sentence.
 
 ## If something goes wrong
 
-`test` may print only `CRITICAL: ... Failed to load registry` or `Couldn't load module`. The cause is in the full log
-it names on its last lines: open that file and search for `Error`.
+`test` may print only `CRITICAL: ... Failed to load registry` or `Couldn't load module`. The cause is in the full log it
+names on its last lines: open that file and search for `Error`.
 
-| You see                                                                         | Look at                                                                          |
-| ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| `install` ends with an error naming a file in `dswd_fds_session`                | that file and line; the last lines of the output say what is wrong               |
-| `FileNotFoundError: [Errno 2] No such file or directory: '.../security/groups.xml'` | the manifest still lists a file you deleted or renamed |
-| `Field "..." does not exist in model "dswd.fds.session"`                        | a view still uses a field from `dswd_asset`                                      |
-| `No matching record found for external id`                                     | an id in the access file or a menu (`model_dswd_fds_session`, the action's id)   |
-| Install completes but there is no tile                                          | the access file: a model nobody may read has its menu hidden (Module 3, step 2)  |
-| `test` says `No tests were executed`                                                        | `tests/__init__.py` does not import your test file                               |
+| You see                                                                             | Look at                                                                         |
+| ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `install` ends with an error naming a file in `dswd_fds_session`                    | that file and line; the last lines of the output say what is wrong              |
+| `FileNotFoundError: [Errno 2] No such file or directory: '.../security/groups.xml'` | the manifest still lists a file you deleted or renamed                          |
+| `Field "..." does not exist in model "dswd.fds.session"`                            | a view still uses a field from `dswd_asset`                                     |
+| `No matching record found for external id`                                          | an id in the access file or a menu (`model_dswd_fds_session`, the action's id)  |
+| Install completes but there is no tile                                              | the access file: a model nobody may read has its menu hidden (Module 3, step 2) |
+| `test` says `No tests were executed`                                                | `tests/__init__.py` does not import your test file                              |
 
 ## Stretch
 

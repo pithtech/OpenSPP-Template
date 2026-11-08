@@ -37,11 +37,11 @@ Log in. Wait for `0 failed`. No working laptop? Sit with a pair that has one.
 
 ## Three modules, one per skill
 
-| #   | Skill         | Module             | The 4Ps request                                  | Copy from        |
-| --- | ------------- | ------------------ | ------------------------------------------------ | ---------------- |
-| 1   | Development   | `dswd_fds_session` | A register of Family Development Sessions        | `dswd_asset`     |
-| 2   | Extending     | `dswd_listahanan`  | A unique Listahanan ID on every household         | `dswd_wellbeing` |
-| 3   | Customization | `dswd_id_types`    | PhilSys as an ID type, with a format check        | `dswd_wellbeing` |
+| #   | Skill         | Module             | The 4Ps request                            | Copy from        |
+| --- | ------------- | ------------------ | ------------------------------------------ | ---------------- |
+| 1   | Development   | `dswd_fds_session` | A register of Family Development Sessions  | `dswd_asset`     |
+| 2   | Extending     | `dswd_listahanan`  | A unique Listahanan ID on every household  | `dswd_wellbeing` |
+| 3   | Customization | `dswd_id_types`    | PhilSys as an ID type, with a format check | `dswd_wellbeing` |
 
 ---
 

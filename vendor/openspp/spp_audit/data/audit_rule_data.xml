@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Registry Rule -->
+    <function model="spp.audit.rule" name="create_rules">
+        <value name="rule_name">Registry Rule</value>
+        <value name="model">res.partner</value>
+        <value
+            name="fields_to_log"
+            eval="['name', 'registration_date', 'active_group', 'address', 'age', 'area_center_id', 'area_id', 'birth_place', 'birthdate', 'email', 'gender', 'group_member_names', 'grp_member_uid', 'individual_status', 'lang', 'molsa_vulnerability_level', 'mother_name', 'phone', 'phone_number_ids', 'relation_to_head', 'service_point_ids', 'unified_id']"
+        />
+    </function>
+
+    <!-- Service Point Rule -->
+    <function model="spp.audit.rule" name="create_rules">
+        <value name="rule_name">Service Point Rule</value>
+        <value name="model">spp.service.point</value>
+        <value
+            name="fields_to_log"
+            eval="['name', 'agent_home_address', 'agent_number', 'area_id', 'country_id', 'disabled_date', 'disabled_reason', 'display_name', 'dms_directory_ids', 'final_agent_number', 'id', 'individual_ids', 'is_contract_active', 'is_disabled', 'is_tamawwon_onboarded', 'message_attachment_count', 'message_follower_ids', 'message_has_error', 'message_has_error_counter', 'message_has_sms_error', 'message_is_follower', 'message_main_attachment_id', 'message_needaction', 'message_needaction_counter', 'message_partner_ids', 'message_unread', 'message_unread_counter', 'phone_no', 'phone_sanitized', 'res_partner_company_id', 'service_type_id', 'service_type_ids', 'shop_address', 'write_uid', 'website_message_ids', ]"
+        />
+    </function>
+</odoo>

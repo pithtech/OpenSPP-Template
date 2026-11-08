@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+    Demo Currencies for SP-MIS Demo V2
+
+    Activates specific currencies needed for demo/testing scenarios.
+    This ensures that regional currencies like Philippine Peso are available
+    for testing financial workflows.
+-->
+<odoo>
+    <!-- Activate Philippine Peso (PHP) -->
+    <function model="res.currency" name="write">
+        <value eval="[ref('base.PHP')]" />
+        <value eval="{'active': True}" />
+    </function>
+
+    <!-- Activate Sri Lankan Rupee (LKR) -->
+    <function model="res.currency" name="write">
+        <value eval="[ref('base.LKR')]" />
+        <value eval="{'active': True}" />
+    </function>
+
+    <!-- Activate West African CFA Franc (XOF) -->
+    <function model="res.currency" name="write">
+        <value eval="[ref('base.XOF')]" />
+        <value eval="{'active': True}" />
+    </function>
+</odoo>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+    <!-- No ListView/FormView slot replacement here.
+         The generic customListCreateButton pattern lives in spp_base_common.
+         See spp_base_common/static/src/xml/custom_list_create_template.xml -->
+
+</templates>

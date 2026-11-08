@@ -29,7 +29,7 @@ dropped.
 1. Slide: the file tree. One sentence per file, in the order Odoo reads them.
 2. Participants fill in section 2 of the handout while you talk. Ask two people to read their line for `__manifest__.py`
    and `views/`.
-3. The three rules, read aloud: never edit `vendor/`; inherit, do not redefine; a file not in the manifest does not
+3. The three rules, read aloud: never edit `upstream/`; inherit, do not redefine; a file not in the manifest does not
    exist.
 
 ## Switch to the live build (during block 2, 1 minute)
@@ -58,7 +58,7 @@ Developer mode is on (Settings > Activate the developer mode) so Apps > Update A
    ValueError: Wrong value for spp.vocabulary.domain: 'administrative'
    odoo.tools.convert.ParseError: while parsing /mnt/extra-addons/custom/dswd_wellbeing/data/vocabulary_well_being_level.xml:10
    ```
-   Open `vendor/openspp/spp_vocabulary/models/vocabulary.py` at the `domain` selection. Fix. `update`. Show the
+   Open `upstream/openspp/spp_vocabulary/models/vocabulary.py` at the `domain` selection. Fix. `update`. Show the
    vocabulary and its three System codes. Say: "A failed update rolls back; a `noupdate` record that did load is never
    reloaded. Fix values before the first load, or delete the record."
 5. Say what `get_code("urn:dswd:4ps:well-being-level", "survival")` means; it is what the tests use.
@@ -80,8 +80,8 @@ relation) and where `help=` shows up.
 
 ## Block 6, 10:55 to 11:10: step 3, the view (demo, predict)
 
-1. Open the upstream form first: `vendor/openspp/spp_registry/views/individual_views.xml`, search `group_tags_section`.
-   "One form serves individuals and households; household sections are `group_*`."
+1. Open the upstream form first: `upstream/openspp/spp_registry/views/individual_views.xml`, search
+   `group_tags_section`. "One form serves individuals and households; household sections are `group_*`."
 2. `git checkout m4-step-3`. Show the view file: `inherit_id`, one XPath on a named anchor, a "4Ps" group, `no_create`,
    `no_open`. Ask: "Where will it appear?" Do not update yet.
 3. **Breakage 4** (drop if late: then just `update` and open a household): change `group_tags_section` to

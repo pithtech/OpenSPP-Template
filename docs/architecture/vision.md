@@ -10,7 +10,7 @@ our modules must survive each upgrade with no more than a version bump.
 
 ## Architecture Principles
 
-- **Extend, never fork.** OpenSPP source lives in the Docker image and in the read-only `vendor/openspp/` checkout.
+- **Extend, never fork.** OpenSPP source lives in the Docker image and in the read-only `upstream/openspp/` checkout.
   Changes to upstream behaviour go through `_inherit`, hooks, inherited views, and configuration. Upstream bugs go
   to OpenSPP as pull requests.
 - **One concern per module.** `dswd_attendance` does attendance; it does not also do grievances.

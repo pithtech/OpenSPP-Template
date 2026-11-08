@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <!-- Exclusion Criteria Pack: Common exclusion rules -->
+    <record id="pack_exclusion_criteria" model="spp.studio.pack">
+        <field name="name">Exclusion Criteria</field>
+        <field name="code">exclusion_criteria</field>
+        <field
+            name="description"
+        >Common exclusion criteria and categorical filters used across social protection programs. Includes asset-based, employment-based, and administrative exclusions.</field>
+        <field name="category">other</field>
+        <field name="version">1.0</field>
+        <field name="author">OpenSPP</field>
+        <field name="state">available</field>
+    </record>
+
+    <!-- Exclusion: Land Ownership -->
+    <record id="pack_excl_item_land" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_exclusion_criteria" />
+        <field name="name">Land Ownership Exclusion</field>
+        <field name="context_type">group</field>
+        <field
+            name="description"
+        >Exclude households with agricultural land above threshold.</field>
+        <field name="expression_type">filter</field>
+        <field name="logic_data">{"cel_expression": "land_hectares &lt;= 2"}</field>
+        <field name="sequence">40</field>
+    </record>
+
+    <!-- Exclusion: Institutional Residence -->
+    <record id="pack_excl_item_institutional" model="spp.studio.pack.item">
+        <field name="pack_id" ref="pack_exclusion_criteria" />
+        <field name="name">Institutional Residence Exclusion</field>
+        <field name="context_type">individual</field>
+        <field
+            name="description"
+        >Exclude individuals residing in institutions (prisons, care homes with full support).</field>
+        <field name="expression_type">filter</field>
+        <field name="logic_data">{"cel_expression": "!in_institutional_care"}</field>
+        <field name="sequence">120</field>
+    </record>
+</odoo>

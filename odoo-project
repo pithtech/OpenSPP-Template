@@ -160,7 +160,10 @@ ODOO_IMAGE_REMOTE = DOTENV.get("ODOO_IMAGE_REMOTE", "ghcr.io/pithtech/openspp-te
 OPENSPP_TARBALL_URL = "https://github.com/OpenSPP/OpenSPP2/archive/refs/tags/{ref}.tar.gz"
 
 # Read-only OpenSPP source checkout, for reading and searching (gitignored)
-VENDOR_DIR = PROJECT_ROOT / "vendor" / "openspp"
+VENDOR_DIR = PROJECT_ROOT / "upstream" / "openspp"
+# A top-level "vendor" folder in the mounted repo root hijacks Bootstrap's SCSS
+# import "vendor/rfs" (Odoo resolves it against any addons root that has a
+# "vendor" dir), so the checkout must not live under that name.
 
 # Demo profiles available (modules installed on a fresh database)
 DEMO_PROFILES = {
@@ -793,6 +796,8 @@ def cmd_start(args):
     # Determine profile: dev (dynamic port) vs ui (fixed 8069)
     profile = args.profile
 
+    _warn_stale_vendor_dir()
+
     # Check if Docker image needs rebuilding (unless --no-build)
     if not getattr(args, "no_build", False):
         _check_image_freshness(profile, auto_rebuild=args.yes)
@@ -1225,6 +1230,25 @@ def _download_file(url: str, dest: Path):
     urllib.request.urlretrieve(url, dest)  # nosec B310 - fixed https URL built from the pinned tag
 
 
+def _stale_vendor_dir():
+    """Return the old vendor/ checkout folder if it still exists, else None.
+
+    Its presence breaks every stylesheet build inside the container.
+    """
+    stale = PROJECT_ROOT / "vendor"
+    return stale if stale.is_dir() else None
+
+
+def _warn_stale_vendor_dir():
+    stale = _stale_vendor_dir()
+    if stale:
+        warn(
+            f"Stale checkout folder {stale.name}/ found at the repo root: Odoo stylesheet builds fail while it "
+            "exists. Move it to upstream/ (mv vendor upstream) or delete it, then run ./odoo-project vendor."
+        )
+    return stale
+
+
 def _vendor_status() -> tuple:
     """Return ("ok" | "stale" | "missing", ref found in the checkout)."""
     ref_file = VENDOR_DIR / ".ref"
@@ -1235,17 +1259,17 @@ def _vendor_status() -> tuple:
 
 
 def cmd_vendor(args):
-    """Download the OpenSPP source at OPENSPP_REF into vendor/openspp (gitignored)."""
+    """Download the OpenSPP source at OPENSPP_REF into upstream/openspp (gitignored)."""
     if not OPENSPP_REF:
         error("OPENSPP_REF is not set in .env")
         sys.exit(1)
 
     status, ref = _vendor_status()
     if status == "ok" and not getattr(args, "force", False):
-        success(f"vendor/openspp is already at {ref}")
+        success(f"upstream/openspp is already at {ref}")
         return
     if status == "stale":
-        info(f"vendor/openspp is at {ref}, refreshing to {OPENSPP_REF}")
+        info(f"upstream/openspp is at {ref}, refreshing to {OPENSPP_REF}")
 
     url = OPENSPP_TARBALL_URL.format(ref=OPENSPP_REF)
     print(f"Downloading OpenSPP {OPENSPP_REF} ...")
@@ -1298,7 +1322,7 @@ def cmd_help(_args):
     print("  install, i <mod>   Install new modules into the running database")
     print("  build, b           Build the Docker image locally (slow)")
     print("  pull               Pull the published Docker image (fast)")
-    print("  vendor             Download OpenSPP source to vendor/openspp (read-only)")
+    print("  vendor             Download OpenSPP source to upstream/openspp (read-only)")
     print("  logs, l            View container logs")
     print("  shell, sh          Open Odoo shell")
     print("  sql                Open PostgreSQL shell or run SQL")
@@ -1473,13 +1497,16 @@ def cmd_doctor(_args):
         success(f"Docker image: {ODOO_IMAGE} present")
     else:
         warn(f"Docker image: {ODOO_IMAGE} not found (run: ./odoo-project pull)")
+    _warn_stale_vendor_dir()
     vendor_state, vendor_ref = _vendor_status()
     if vendor_state == "ok":
-        success(f"OpenSPP source: vendor/openspp at {vendor_ref}")
+        success(f"OpenSPP source: upstream/openspp at {vendor_ref}")
     elif vendor_state == "stale":
-        warn(f"OpenSPP source: vendor/openspp is at {vendor_ref}, expected {OPENSPP_REF} (run: ./odoo-project vendor)")
+        warn(
+            f"OpenSPP source: upstream/openspp is at {vendor_ref}, expected {OPENSPP_REF} (run: ./odoo-project vendor)"
+        )
     else:
-        warn("OpenSPP source: vendor/openspp missing (run: ./odoo-project vendor)")
+        warn("OpenSPP source: upstream/openspp missing (run: ./odoo-project vendor)")
 
     # Check config file
     print("")
@@ -1764,7 +1791,7 @@ def build_parser():
     subparsers.add_parser("pull", help="Pull the published Docker image for the pinned OpenSPP release")
 
     # vendor
-    p = subparsers.add_parser("vendor", help="Download OpenSPP source to vendor/openspp (read-only reference)")
+    p = subparsers.add_parser("vendor", help="Download OpenSPP source to upstream/openspp (read-only reference)")
     p.add_argument("--force", action="store_true", help="Re-download even if already present")
 
     # activate

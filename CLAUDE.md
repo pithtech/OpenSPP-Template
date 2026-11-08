@@ -5,17 +5,17 @@ Extension modules for the DSWD Pantawid Pamilyang Pilipino Program (4Ps) on **Op
 
 ## Where Things Are
 
-| What                             | Where                                                    |
-| -------------------------------- | -------------------------------------------------------- |
-| Your modules                     | `dswd_*/` at the repo root                               |
-| OpenSPP source (read-only)       | `vendor/openspp/` — run `./odoo-project vendor` to fetch |
-| Upstream conventions             | `vendor/openspp/AGENTS.md`                               |
-| Principles                       | `docs/principles/`                                       |
-| Guides (CLI, extending, testing) | `docs/guides/`                                           |
-| Architecture and decisions       | `docs/architecture/`, `docs/architecture/decisions/`     |
+| What                             | Where                                                      |
+| -------------------------------- | ---------------------------------------------------------- |
+| Your modules                     | `dswd_*/` at the repo root                                 |
+| OpenSPP source (read-only)       | `upstream/openspp/` — run `./odoo-project vendor` to fetch |
+| Upstream conventions             | `upstream/openspp/AGENTS.md`                               |
+| Principles                       | `docs/principles/`                                         |
+| Guides (CLI, extending, testing) | `docs/guides/`                                             |
+| Architecture and decisions       | `docs/architecture/`, `docs/architecture/decisions/`       |
 
-**Never edit anything under `vendor/openspp/`.** Read it to learn models, hooks, views, groups, and test helpers before
-extending them. Upstream changes belong in a pull request to OpenSPP, not here.
+**Never edit anything under `upstream/openspp/`.** Read it to learn models, hooks, views, groups, and test helpers
+before extending them. Upstream changes belong in a pull request to OpenSPP, not here.
 
 ## Auto-Loaded Rules (`.claude/rules/`)
 
@@ -69,7 +69,7 @@ Layer 0: ODOO CORE + OCA       (base, mail, web; base_user_role, job_worker, fas
 - [ ] No `cr.commit()` in loops - use the job worker
 - [ ] No PII in log messages
 - [ ] Tests exist for core functionality
-- [ ] Nothing under `vendor/openspp/` changed
+- [ ] Nothing under `upstream/openspp/` changed
 
 ## Known Pitfalls (from recurring issues)
 
@@ -85,7 +85,7 @@ Layer 0: ODOO CORE + OCA       (base, mail, web; base_user_role, job_worker, fas
 
 ### Extending OpenSPP
 
-- Read the upstream module in `vendor/openspp/` first; do not guess field or method names
+- Read the upstream module in `upstream/openspp/` first; do not guess field or method names
 - Registrant searches must include `is_registrant=True`; households also `is_group=True`
 - Depend on the specific upstream module (`spp_programs`), not a starter bundle (`spp_starter_sp_mis`)
 - Do not redefine upstream groups or categories; link into them
@@ -130,6 +130,13 @@ Layer 0: ODOO CORE + OCA       (base, mail, web; base_user_role, job_worker, fas
 - The CI and pre-commit workflows run only on pull requests against `main`. A PR stacked on a feature branch gets no
   checks until it is retargeted to `main`; `gh run watch` in a pipe reports the pipe's exit status, not the run's.
 
+### Repo Layout
+
+- No top-level directory in this repo may be called `vendor`. The repo root is mounted as an addons root and Odoo's SCSS
+  importer resolves Bootstrap's `@import "vendor/rfs"` against any addons root that contains a `vendor` directory, which
+  breaks every stylesheet build. The OpenSPP checkout therefore lives in `upstream/openspp`; `doctor` and `start` warn
+  if a stale `vendor/` is still present.
+
 ### Docs and Markdown
 
 - Prettier reads a run of underscores in a table cell as emphasis and rewrites it differently on every pass, so the hook
@@ -149,7 +156,7 @@ After every correction or PR, propose updates to this Known Pitfalls section.
 ```bash
 ./odoo-project doctor                   # Check prerequisites
 ./odoo-project pull                     # Get the Docker image (or: build, 10-25 min)
-./odoo-project vendor                   # Get OpenSPP source into vendor/openspp
+./odoo-project vendor                   # Get OpenSPP source into upstream/openspp
 ./odoo-project start                    # http://localhost:8069 (admin/admin)
 ./odoo-project stop                     # Stop
 ./odoo-project stop -v -y               # Clean restart (fresh DB)

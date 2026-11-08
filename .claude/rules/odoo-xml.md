@@ -16,7 +16,7 @@ paths:
 
 ## Extending OpenSPP Views
 
-- Find the upstream view in `vendor/openspp/<module>/views/` and inherit it with `inherit_id="<module>.<view_id>"`.
+- Find the upstream view in `upstream/openspp/<module>/views/` and inherit it with `inherit_id="<module>.<view_id>"`.
 - Target **named** elements (`//group[@name='...']`, `//page[@name='...']`, `//field[@name='...']`), never positional
   paths. OpenSPP registrant and program forms expose named groups and placeholder `<div name="..."/>` sections for
   exactly this purpose.

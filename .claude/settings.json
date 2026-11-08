@@ -23,7 +23,7 @@
       "Bash(ruff check:*)",
       "WebSearch"
     ],
-    "deny": ["Edit(vendor/**)", "Write(vendor/**)"]
+    "deny": ["Edit(upstream/**)", "Write(upstream/**)", "Edit(vendor/**)", "Write(vendor/**)"]
   },
   "extraKnownMarketplaces": {
     "openspp-plugins": {

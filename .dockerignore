@@ -89,4 +89,4 @@ Makefile
 *.sqlite3
 
 # Read-only OpenSPP checkout (the image downloads its own copy)
-vendor/
+upstream/

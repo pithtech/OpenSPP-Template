@@ -22,7 +22,7 @@ but the vocabulary is not in Settings > Vocabularies. What is the most likely ca
 - a) A new model with `_name = "res.partner"`
 - b) `_inherit = "res.partner"` and a field named `dswd_well_being_level_id`
 - c) A new model `dswd.household` with the field, linked to the registrant
-- d) Add the field to `vendor/openspp/spp_registry/models/res_partner.py`
+- d) Add the field to `upstream/openspp/spp_registry/models/res_partner.py`
 
 **3.** (Objective 2) In one sentence: why does the field point to `spp.vocabulary.code` instead of being a
 `fields.Selection` with three fixed values?

@@ -6,7 +6,7 @@ Debrief order: C first (the silent one teaches the most), then A, then B, then D
 
 - **File**: `data/vocabulary_well_being_level.xml`, line 10 (the `ParseError` names the file and line; the `ValueError`
   names the field, `spp.vocabulary.domain`, and the bad value).
-- **Compare against**: the `domain` field's allowed values in `vendor/openspp/spp_vocabulary/models/vocabulary.py`
+- **Compare against**: the `domain` field's allowed values in `upstream/openspp/spp_vocabulary/models/vocabulary.py`
   (`core`, `social_assistance`, `social_insurance`, `labor`, `disability`, `agriculture`, `health`, `education`).
 - **Fix**: `<field name="domain">social_assistance</field>`.
 - Teaching point: read from the bottom of the traceback up; the first line that names a file in your module is where you
@@ -16,7 +16,7 @@ Debrief order: C first (the silent one teaches the most), then A, then B, then D
 
 - **File**: `views/res_partner_views.xml`, the `xpath` line. The context block even gives the xml id of your view.
 - **Compare against**: the named groups in the upstream form,
-  `grep -n 'name="group_' vendor/openspp/spp_registry/views/individual_views.xml`.
+  `grep -n 'name="group_' upstream/openspp/spp_registry/views/individual_views.xml`.
 - **Fix**: `group_tag_section` to `group_tags_section`.
 - Teaching point: anchors are names, and names live upstream. Always open the upstream view before writing the XPath.
 

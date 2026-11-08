@@ -800,7 +800,7 @@ OpenSPP's `spp_vocabulary` ships standard vocabularies, among them:
 | Group type        | `urn:openspp:vocab:group-type`            |
 | Disability status | `urn:openspp:vocab:disability-status`     |
 
-See `vendor/openspp/spp_vocabulary/data/` for the full list. Use `urn:dswd:4ps:{name}` for vocabularies you add; the production 4Ps modules use the same pattern.
+See `upstream/openspp/spp_vocabulary/data/` for the full list. Use `urn:dswd:4ps:{name}` for vocabularies you add; the production 4Ps modules use the same pattern.
 
 ### Adding a Vocabulary via XML Data
 

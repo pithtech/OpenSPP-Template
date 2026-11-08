@@ -19,7 +19,7 @@ paths:
 - Use `TransactionCase` for unit tests (rolled back per test). Tag with `@tagged("post_install", "-at_install")`.
 - `setUp()` calls `super().setUp()` then creates test data.
 - For registrant fixtures, reuse upstream helpers: `from odoo.addons.spp_registry.tests.common import RegistryCommon`
-  (see `vendor/openspp/spp_registry/tests/common.py`); `spp_programs/tests/common.py` has program fixtures.
+  (see `upstream/openspp/spp_registry/tests/common.py`); `spp_programs/tests/common.py` has program fixtures.
 - Test names: `test_{what_it_tests}` — descriptive, not generic.
 - Docstrings explain the expected behavior, not the implementation.
 

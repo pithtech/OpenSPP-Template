@@ -30,7 +30,7 @@ By 12:00 a participant can:
 | # | Objective | Post-test form |
 | --- | --- | --- |
 | 1 | Name the role of each file in a `dswd_*` module (manifest, data, model, view, security, test) and state that a file not listed in the manifest does not exist to Odoo. | Multiple choice |
-| 2 | Given a 4Ps requirement, pick the right pattern: `_inherit` on the upstream model, a `dswd_` field, a Many2one to a vocabulary code; never a new model for an attribute, never a static Selection for a code list, never an edit under `vendor/openspp/`. | Multiple choice plus one sentence |
+| 2 | Given a 4Ps requirement, pick the right pattern: `_inherit` on the upstream model, a `dswd_` field, a Many2one to a vocabulary code; never a new model for an attribute, never a static Selection for a code list, never an edit under `upstream/openspp/`. | Multiple choice plus one sentence |
 | 3 | Explain view inheritance (`inherit_id` plus one XPath on a named upstream anchor) and recognise the error when the anchor does not exist. | Short answer |
 | 4 | Given a log excerpt (file missing from manifest, invalid vocabulary `domain`, bad XPath, failed assertion), say which step failed and which file to open. | Short answer, also the drill |
 | 5 | Run the tests of a module and read the pass/fail summary. | Command plus one sentence |
@@ -76,7 +76,7 @@ never dropped.
 | 10:15 | 3. Step 0 and 1: manifest, data | Demo, predict | Install the empty module through Apps (developer mode, Update Apps List). Add the vocabulary file **without** the manifest line, update, nothing appears (**breakage 1**). Add the line, update, show Settings > Vocabularies. **Breakage 2**: `domain="administrative"`, read the traceback, fix to `social_assistance`. | Predict before each run |
 | 10:35 | 4. Step 2: model | Demo, predict | `_inherit` versus `_name`, the `dswd_` prefix, Many2one with namespace domain, why not `Selection` (32 statuses, 2,000 IP groups, deployment profiles). Forget the import in `models/__init__.py` (**breakage 3**): no error, no field. Show Settings > Technical > Fields. | Spot the missing line on the printed diff |
 | 10:50 | 5. Buffer | | Absorb overrun or take questions. | |
-| 10:55 | 6. Step 3: view | Demo, predict | Open the upstream form in `vendor/` first, find `group_tags_section`. Inherit, one XPath, a "4Ps" group. Misspell the anchor (**breakage 4**): "cannot be located in parent view". Fix, open a household, set a value. | Predict where the field appears |
+| 10:55 | 6. Step 3: view | Demo, predict | Open the upstream form in `upstream/` first, find `group_tags_section`. Inherit, one XPath, a "4Ps" group. Misspell the anchor (**breakage 4**): "cannot be located in parent view". Fix, open a household, set a value. | Predict where the field appears |
 | 11:10 | 7. Step 4: test | Demo, predict | The test run was started in a second terminal at 10:55 (it builds a fresh database). Walk the test file while it runs; read the log path and the summary line. Flip an assertion if time allows. | Find the failing line on the handout |
 | 11:25 | 8. Step 5: Claude Code | Demo | Ask it for the constraint plus a failing-first test; review the diff together; rerun. The point is "review the diff", not "the AI did it". | Watch |
 | 11:35 | 9. Troubleshooting drill | Pairs, paper | Three log excerpts on a sheet; each pair names the file to open and the fix; three pairs report. This produces the observation-checklist evidence. | Work in pairs |
@@ -132,7 +132,7 @@ Teach these, each tied to the file a participant will open when something breaks
 | Module not in Apps (folder typo, no manifest, list not refreshed) | Search finds nothing | Developer mode on, Update Apps List; `./odoo-project logs` has no `dswd_` line |
 | File written but not in manifest `data` | Update clean, UI unchanged | `grep vocabulary_ dswd_wellbeing/__manifest__.py` |
 | Restart instead of update, or edited `noupdate` data | Change never shows | New field, view or data: `update`; changed `noupdate` record: delete it under Technical > External Identifiers, or `stop -v -y` |
-| Wrong XPath anchor (`group_tag_section`, `@class=`) | `Element '<xpath ...>' cannot be located in parent view` | `grep -n 'name="group_' vendor/openspp/spp_registry/views/individual_views.xml` |
+| Wrong XPath anchor (`group_tag_section`, `@class=`) | `Element '<xpath ...>' cannot be located in parent view` | `grep -n 'name="group_' upstream/openspp/spp_registry/views/individual_views.xml` |
 | New model without ACL, or import missing | `have no access rules` warning, `AccessError`, or field silently absent | Technical > Fields, search `dswd_` |
 
 ## 9. Materials to produce
@@ -190,7 +190,7 @@ Teach these, each tied to the file a participant will open when something breaks
    `tests/__init__.py`. Answer: b.
 2. (Obj 2) 4Ps needs a well-being level on households. Correct approach? a) `_name = "res.partner"` b)
    `_inherit = "res.partner"` with `dswd_well_being_level_id` c) a new model `dswd.household` d) edit
-   `vendor/openspp/spp_registry`. Answer: b.
+   `upstream/openspp/spp_registry`. Answer: b.
 3. (Obj 2) In one sentence, why a Many2one to `spp.vocabulary.code` instead of `fields.Selection`? Expected: codes can
    be added or varied per deployment through the Vocabularies UI without a code change.
 4. (Obj 3 and 4) An update fails with `Element '<xpath expr="//group[@name='group_tag_section']">' cannot be located in

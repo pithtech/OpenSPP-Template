@@ -3,7 +3,7 @@
 > **Status**: research, awaiting Edwin's review (2026-11-08). No code written yet.
 > **Purpose**: pick the simplest `dswd_*` module that customises `spp_vocabulary` for 4Ps, to be presented as the first
 > topic of Module 4 ("Developing Custom Modules and Extending Odoo Models").
-> **Sources**: `vendor/openspp/` at `OPENSPP_REF=2026.09`; the production repo
+> **Sources**: `upstream/openspp/` at `OPENSPP_REF=2026.09`; the production repo
 > `~/OpenSPP/dswd-4ps-dp-openspp-v2-module` (Newlogic, proprietary, read for reference only); the DSWD program of
 > activities PDF (`~/Documents/DSWD-4PS-Training-11-2026/`).
 
@@ -30,7 +30,7 @@ views, and the module concept. The first module must therefore show the **comple
 data, model extension, view extension, security, test) on something they recognise from their own program, in a form
 that fits on one or two screens per file.
 
-## 2. What `spp_vocabulary` provides (verified in `vendor/openspp/spp_vocabulary`, 2026.09)
+## 2. What `spp_vocabulary` provides (verified in `upstream/openspp/spp_vocabulary`, 2026.09)
 
 | Model                            | Role                                                                                                       |
 | -------------------------------- | ---------------------------------------------------------------------------------------------------------- |

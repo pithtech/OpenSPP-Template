@@ -152,7 +152,7 @@ class TestVendor:
     @pytest.fixture
     def project(self, cli, monkeypatch, tmp_path):
         monkeypatch.setattr(cli, "PROJECT_ROOT", tmp_path)
-        monkeypatch.setattr(cli, "VENDOR_DIR", tmp_path / "vendor" / "openspp")
+        monkeypatch.setattr(cli, "VENDOR_DIR", tmp_path / "upstream" / "openspp")
         tarball = tmp_path / "fixture.tar.gz"
         _make_tarball(tarball, cli.OPENSPP_REF)
         downloads = []
@@ -166,7 +166,7 @@ class TestVendor:
 
     def test_vendor_downloads_tag_and_extracts_without_top_folder(self, cli, project):
         cli.cmd_vendor(SimpleNamespace(force=False))
-        vendor = project.root / "vendor" / "openspp"
+        vendor = project.root / "upstream" / "openspp"
         assert (vendor / "spp_base" / "__manifest__.py").exists()
         assert (vendor / "README.md").exists()
         assert (vendor / ".ref").read_text().strip() == cli.OPENSPP_REF
@@ -179,11 +179,35 @@ class TestVendor:
         cli.cmd_vendor(SimpleNamespace(force=True))
         assert len(project.downloads) == 2
 
+    def test_checkout_folder_is_not_named_vendor(self, cli):
+        """Odoo's SCSS importer resolves Bootstrap's `vendor/rfs` against any addons root that has a `vendor` dir."""
+        assert cli.VENDOR_DIR == cli.PROJECT_ROOT / "upstream" / "openspp"
+        assert "vendor" not in cli.VENDOR_DIR.relative_to(cli.PROJECT_ROOT).parts
+
+    def test_stale_vendor_dir_is_detected(self, cli, monkeypatch, tmp_path):
+        monkeypatch.setattr(cli, "PROJECT_ROOT", tmp_path)
+        assert cli._stale_vendor_dir() is None
+        (tmp_path / "vendor").mkdir()
+        assert cli._stale_vendor_dir() == tmp_path / "vendor"
+
+    def test_start_warns_about_a_stale_vendor_dir(self, cli, monkeypatch, tmp_path, capsys):
+        monkeypatch.setattr(cli, "PROJECT_ROOT", tmp_path)
+        (tmp_path / "vendor").mkdir()
+        monkeypatch.setattr(cli, "_check_image_freshness", lambda *a, **k: True)
+        monkeypatch.setattr(cli, "_database_exists", lambda name: True)
+        monkeypatch.setattr(cli, "run", Recorder())
+        monkeypatch.setattr(cli, "_wait_for_module_installed", lambda *a, **k: (True, None))
+        args = SimpleNamespace(demo=None, profile="ui", no_build=False, no_watch=True, wipe=False, yes=True)
+        cli.cmd_start(args)
+        captured = capsys.readouterr()
+        assert "vendor" in captured.out + captured.err
+        assert "stylesheet" in captured.out + captured.err
+
     def test_vendor_status(self, cli, project):
         assert cli._vendor_status() == ("missing", None)
         cli.cmd_vendor(SimpleNamespace(force=False))
         assert cli._vendor_status() == ("ok", cli.OPENSPP_REF)
-        (project.root / "vendor" / "openspp" / ".ref").write_text("2020.01\n")
+        (project.root / "upstream" / "openspp" / ".ref").write_text("2020.01\n")
         assert cli._vendor_status() == ("stale", "2020.01")
 
 

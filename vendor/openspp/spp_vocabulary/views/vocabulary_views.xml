@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Vocabulary List View -->
+    <record id="view_vocabulary_list" model="ir.ui.view">
+        <field name="name">spp.vocabulary.list</field>
+        <field name="model">spp.vocabulary</field>
+        <field name="arch" type="xml">
+            <list string="Vocabularies" default_order="name">
+                <field name="name" />
+                <field name="namespace_uri" optional="show" />
+                <field name="domain" optional="show" />
+                <field name="version" optional="hide" />
+                <field name="code_count" string="Codes" />
+                <!-- Read-only in the list: system status is set by the
+                     module's data files, not user-toggleable; and
+                     archiving a vocabulary should go through the form
+                     (where it's already gated to non-system vocabs).
+                     Conditional readonly per row would be ideal here but
+                     is not in scope for this round — see OP#954. -->
+                <field name="is_system" widget="boolean_toggle" readonly="1" />
+                <field name="is_hierarchical" optional="hide" />
+                <field name="active" widget="boolean_toggle" readonly="1" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Vocabulary Form View -->
+    <record id="view_vocabulary_form" model="ir.ui.view">
+        <field name="name">spp.vocabulary.form</field>
+        <field name="model">spp.vocabulary</field>
+        <field name="arch" type="xml">
+            <form string="Vocabulary">
+                <header>
+                    <!-- Header area for workflow buttons - extension point -->
+                    <div name="header_buttons" invisible="1" />
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            type="object"
+                            name="action_view_codes"
+                            class="oe_stat_button"
+                            icon="fa-code"
+                        >
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="code_count" />
+                                </span>
+                                <span class="o_stat_text">Codes</span>
+                            </div>
+                        </button>
+                        <!-- Extension point for additional stat buttons -->
+                        <div name="stat_buttons_extension" invisible="1" />
+                    </div>
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="text-bg-danger"
+                        invisible="active"
+                    />
+                    <widget
+                        name="web_ribbon"
+                        title="System"
+                        bg_color="text-bg-warning"
+                        invisible="not is_system"
+                    />
+                    <!-- Hidden: needed by readonly expressions on identifying
+                         fields below. SYSTEM vocabularies are loaded via XML
+                         (modules + data files) and aren't user-toggleable —
+                         see OP#954. -->
+                    <field name="is_system" invisible="1" />
+                    <div class="oe_title">
+                        <h1>
+                            <field
+                                name="name"
+                                placeholder="Vocabulary Name"
+                                required="1"
+                                readonly="is_system"
+                            />
+                        </h1>
+                    </div>
+
+                    <notebook>
+                        <page string="Details" name="details">
+                            <group name="details_section">
+                                <group name="basic_info" string="Basic Information">
+                                    <field
+                                        name="namespace_uri"
+                                        required="1"
+                                        readonly="is_system"
+                                    />
+                                    <field
+                                        name="domain"
+                                        required="1"
+                                        readonly="is_system"
+                                    />
+                                    <field name="version" readonly="is_system" />
+                                </group>
+                                <group name="settings" string="Settings">
+                                    <field
+                                        name="is_hierarchical"
+                                        readonly="is_system"
+                                    />
+                                    <field name="active" readonly="is_system" />
+                                </group>
+                            </group>
+                            <group name="reference_section" string="Reference">
+                                <field
+                                    name="reference_url"
+                                    widget="url"
+                                    placeholder="https://..."
+                                    readonly="is_system"
+                                />
+                            </group>
+                            <separator string="Description" />
+                            <field
+                                name="description"
+                                nolabel="1"
+                                placeholder="Description of this vocabulary..."
+                                class="oe_inline"
+                                readonly="is_system"
+                            />
+                            <!-- Extension point for additional details -->
+                            <group name="details_extension" invisible="1" />
+                        </page>
+
+                        <page string="Codes" name="codes">
+                            <!-- Non-system vocabulary: full editable list,
+                                 admins can add / delete / edit any column. -->
+                            <field
+                                name="code_ids"
+                                nolabel="1"
+                                context="{'default_vocabulary_id': id}"
+                                invisible="is_system"
+                            >
+                                <list editable="bottom" default_order="sequence,code">
+                                    <field name="sequence" widget="handle" />
+                                    <field name="code" />
+                                    <field name="display" />
+                                    <field name="definition" optional="hide" />
+                                    <field
+                                        name="parent_id"
+                                        optional="hide"
+                                        invisible="not parent.is_hierarchical"
+                                        domain="[('vocabulary_id', '=', parent.id)]"
+                                    />
+                                    <field
+                                        name="deprecated"
+                                        widget="boolean_toggle"
+                                        optional="hide"
+                                    />
+                                    <field name="active" widget="boolean_toggle" />
+                                </list>
+                            </field>
+
+                            <!-- SYSTEM vocabulary: codes are loaded via XML
+                                 by modules / data files. The embedded list
+                                 disables inline create/delete because that
+                                 path can't pre-set is_local=True; use the
+                                 explicit "Add Manual Code" button below
+                                 instead. Identifying columns
+                                 (code/display/definition/parent_id) are
+                                 readonly for system codes; manual codes
+                                 (`is_local=True`) keep them editable inline.
+                                 Operational toggles (sequence, deprecated,
+                                 active) stay editable for all rows so admins
+                                 can still archive, deprecate, or reorder a
+                                 system code. Deletion goes through the code
+                                 form (backend blocks system-code deletion,
+                                 allows manual). See OP#954 — matches the
+                                 allowed_fields set in the Python guard at
+                                 models/vocabulary_code.py:279. -->
+                            <div invisible="not is_system">
+                                <button
+                                    name="action_add_manual_code"
+                                    string="Add Manual Code"
+                                    type="object"
+                                    icon="fa-plus"
+                                    class="btn-primary mb-2"
+                                />
+                            </div>
+                            <field
+                                name="code_ids"
+                                nolabel="1"
+                                invisible="not is_system"
+                            >
+                                <list
+                                    editable="bottom"
+                                    default_order="sequence,code"
+                                    create="false"
+                                    delete="false"
+                                >
+                                    <field name="is_local" column_invisible="1" />
+                                    <field name="sequence" widget="handle" />
+                                    <field
+                                        name="code_source"
+                                        widget="badge"
+                                        decoration-success="code_source == 'manual'"
+                                        decoration-info="code_source == 'system'"
+                                    />
+                                    <field
+                                        name="code"
+                                        readonly="parent.is_system and not is_local"
+                                    />
+                                    <field
+                                        name="display"
+                                        readonly="parent.is_system and not is_local"
+                                    />
+                                    <field
+                                        name="definition"
+                                        optional="hide"
+                                        readonly="parent.is_system and not is_local"
+                                    />
+                                    <field
+                                        name="parent_id"
+                                        optional="hide"
+                                        invisible="not parent.is_hierarchical"
+                                        domain="[('vocabulary_id', '=', parent.id)]"
+                                        readonly="parent.is_system and not is_local"
+                                    />
+                                    <field
+                                        name="deprecated"
+                                        widget="boolean_toggle"
+                                        optional="hide"
+                                    />
+                                    <field name="active" widget="boolean_toggle" />
+                                </list>
+                            </field>
+                        </page>
+
+                        <page
+                            string="Technical"
+                            name="technical"
+                            groups="base.group_no_one"
+                        >
+                            <group name="technical_section" col="4">
+                                <group>
+                                    <field name="create_uid" readonly="1" />
+                                    <field name="create_date" readonly="1" />
+                                </group>
+                                <group>
+                                    <field name="write_uid" readonly="1" />
+                                    <field name="write_date" readonly="1" />
+                                </group>
+                            </group>
+                            <!-- Extension point for technical info -->
+                            <group name="technical_extension" invisible="1" />
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <!-- Vocabulary Search View -->
+    <record id="view_vocabulary_search" model="ir.ui.view">
+        <field name="name">spp.vocabulary.search</field>
+        <field name="model">spp.vocabulary</field>
+        <field name="arch" type="xml">
+            <search string="Search Vocabularies">
+                <field name="name" />
+                <field name="namespace_uri" />
+                <field name="domain" />
+                <field
+                    name="description"
+                    filter_domain="[('description', 'ilike', self)]"
+                />
+                <separator />
+                <filter
+                    string="System"
+                    name="filter_system"
+                    domain="[('is_system', '=', True)]"
+                />
+                <filter
+                    string="Custom"
+                    name="filter_custom"
+                    domain="[('is_system', '=', False)]"
+                />
+                <filter
+                    string="Hierarchical"
+                    name="filter_hierarchical"
+                    domain="[('is_hierarchical', '=', True)]"
+                />
+                <separator />
+                <filter
+                    string="Archived"
+                    name="filter_archived"
+                    domain="[('active', '=', False)]"
+                />
+                <separator />
+                <filter
+                    string="Core"
+                    name="filter_domain_core"
+                    domain="[('domain', '=', 'core')]"
+                />
+                <filter
+                    string="Social Assistance"
+                    name="filter_domain_social_assistance"
+                    domain="[('domain', '=', 'social_assistance')]"
+                />
+                <filter
+                    string="Social Insurance"
+                    name="filter_domain_social_insurance"
+                    domain="[('domain', '=', 'social_insurance')]"
+                />
+                <filter
+                    string="Labor"
+                    name="filter_domain_labor"
+                    domain="[('domain', '=', 'labor')]"
+                />
+                <filter
+                    string="Disability"
+                    name="filter_domain_disability"
+                    domain="[('domain', '=', 'disability')]"
+                />
+                <filter
+                    string="Agriculture"
+                    name="filter_domain_agriculture"
+                    domain="[('domain', '=', 'agriculture')]"
+                />
+                <filter
+                    string="Health"
+                    name="filter_domain_health"
+                    domain="[('domain', '=', 'health')]"
+                />
+                <filter
+                    string="Education"
+                    name="filter_domain_education"
+                    domain="[('domain', '=', 'education')]"
+                />
+                <group>
+                    <filter
+                        string="Domain"
+                        name="group_domain"
+                        context="{'group_by': 'domain'}"
+                    />
+                    <filter
+                        string="System/Custom"
+                        name="group_system"
+                        context="{'group_by': 'is_system'}"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Vocabulary Action -->
+    <record id="action_vocabulary" model="ir.actions.act_window">
+        <field name="name">Vocabularies</field>
+        <field name="res_model">spp.vocabulary</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_group_domain': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new vocabulary
+            </p>
+            <p>
+                Vocabularies are collections of codes with global namespace URIs.
+                They provide standardized terminology for use across OpenSPP modules,
+                supporting international standards like ISO, WHO ICF, and ILO ISCO.
+            </p>
+        </field>
+    </record>
+</odoo>

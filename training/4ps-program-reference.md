@@ -157,7 +157,7 @@ RA 11310 sec. 11 [2], as detailed in the Operations Manual [1] and DSWD field of
 
 ## 8. Where each concept lives in OpenSPP
 
-This is the bridge between the program and the code. Upstream models are in `vendor/openspp/`; the production
+This is the bridge between the program and the code. Upstream models are in `upstream/openspp/`; the production
 `dswd_4ps_*` modules are the Newlogic implementation that the training examples simplify.
 
 | 4Ps concept                                                 | OpenSPP model or module                                             | Production 4Ps module                                                    |

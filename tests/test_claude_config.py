@@ -31,9 +31,9 @@ class TestContent:
 
     def test_claude_md_points_at_vendor_and_dswd(self):
         text = (ROOT / "CLAUDE.md").read_text()
-        assert "vendor/openspp/" in text
+        assert "upstream/openspp/" in text
         assert "dswd_" in text
-        assert "Never edit anything under `vendor/openspp/`" in text
+        assert "Never edit anything under `upstream/openspp/`" in text
 
     @pytest.mark.parametrize("path", sorted((CLAUDE_DIR / "rules").glob("*.md")), ids=lambda p: p.name)
     def test_rules_have_path_frontmatter(self, path):
@@ -79,7 +79,7 @@ def settings():
 class TestSettings:
     def test_vendor_is_protected_from_edits(self, settings):
         deny = settings["permissions"]["deny"]
-        assert "Edit(vendor/**)" in deny and "Write(vendor/**)" in deny
+        assert "Edit(upstream/**)" in deny and "Write(upstream/**)" in deny
 
     def test_cli_invocations_are_allowed(self, settings):
         allow = settings["permissions"]["allow"]
@@ -119,7 +119,7 @@ class TestHook:
         assert self._run_hook("{}").returncode == 0
 
     def test_hook_skips_vendor_files(self, monkeypatch):
-        payload = json.dumps({"tool_input": {"file_path": "vendor/openspp/spp_base/__manifest__.py"}})
+        payload = json.dumps({"tool_input": {"file_path": "upstream/openspp/spp_base/__manifest__.py"}})
         result = self._run_hook(payload)
         assert result.returncode == 0
         assert result.stdout.strip() == ""

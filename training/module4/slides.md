@@ -84,7 +84,7 @@ Fill in section 2 of your handout as we go.
 
 ## The three rules
 
-1. **Never edit `vendor/openspp/`.** Read it. Extend it from your module. The next release overwrites it.
+1. **Never edit `upstream/openspp/`.** Read it. Extend it from your module. The next release overwrites it.
 
 2. **Inherit, do not redefine.** `_inherit = "res.partner"` adds to the household. `_name` would create a new table. New
    fields on upstream models start with `dswd_`.
@@ -225,7 +225,7 @@ A field without a view is invisible, not broken.
 </record>
 ```
 
-Find the anchor first: `grep -n 'name="group_' vendor/openspp/spp_registry/views/individual_views.xml`
+Find the anchor first: `grep -n 'name="group_' upstream/openspp/spp_registry/views/individual_views.xml`
 
 ---
 

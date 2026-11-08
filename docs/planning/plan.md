@@ -43,7 +43,7 @@ OpenSPP-Template/
 │   ├── requirements-dev.txt
 │   └── README.md
 ├── requirements.txt              # generated from dswd_* manifests (empty until modules exist)
-├── vendor/                       # gitignored; vendor/openspp = read-only OpenSPP source at OPENSPP_REF
+├── vendor/                       # gitignored; upstream/openspp = read-only OpenSPP source at OPENSPP_REF
 ├── CLAUDE.md
 ├── .claude/
 │   ├── settings.json             # permissions + OpenSPP/claude-plugins marketplace (odoo-lsp)
@@ -140,7 +140,7 @@ Changes to `odoo-project` (keep style; no rewrite):
 - **New `pull`**: `docker pull ${ODOO_IMAGE_REMOTE}:${OPENSPP_REF}`, tag it as `${ODOO_IMAGE}`, write the
   build-freshness marker. `start`/`test` with no local image print "run `odoo-project pull` (fast) or
   `odoo-project build` (slow)" instead of auto-building.
-- **New `vendor`**: download the same tarball to `vendor/openspp/` (gitignored), write `vendor/openspp/.ref`;
+- **New `vendor`**: download the same tarball to `upstream/openspp/` (gitignored), write `upstream/openspp/.ref`;
   `--force` re-downloads; `doctor` warns when `.ref` differs from `OPENSPP_REF`. Uses `urllib` + `tarfile`
   only (no git, no curl), so it works on Windows.
 - **`doctor`** additions: Python ≥ 3.11, Node present (pre-commit prettier), Docker Desktop memory ≥ 4 GB
@@ -160,7 +160,7 @@ Changes to `odoo-project` (keep style; no rewrite):
 Content rewrite, same file set:
 
 - **`CLAUDE.md`**: Template-Project skeleton + OpenSPP2 `AGENTS.md` substance. Sections: what this repo is
-  (extension modules for DSWD 4Ps on OpenSPP `2026.09`), where upstream source lives (`vendor/openspp/`,
+  (extension modules for DSWD 4Ps on OpenSPP `2026.09`), where upstream source lives (`upstream/openspp/`,
   read-only, never edit), layers (OpenSPP foundation → capabilities → `dswd_*` extensions), naming
   (`dswd_{domain}`, `dswd.{model}`, `group_dswd_*`), quick checklist, OpenSPP pitfalls (ACLs, demo data,
   Odoo 19 XML, tests never weakened, approval mixin state), running/testing/linting with the CLI,
@@ -170,7 +170,7 @@ Content rewrite, same file set:
   `security.md` (OpenSPP three-tier groups and how `dswd_` groups attach to them), `testing.md`
   (OpenSPP test base classes, registrant fixtures), `module-setup.md` (manifest template with
   `depends` on `spp_*`, category `DSWD 4Ps/...`).
-- **Agents**: same five, prompts updated to OpenSPP vocabulary and to read `vendor/openspp/<module>` before
+- **Agents**: same five, prompts updated to OpenSPP vocabulary and to read `upstream/openspp/<module>` before
   extending it.
 - **Commands**: unchanged except paths and CLI names.
 - **Hooks**: `hooks/post-edit-lint.py` replaces the bash hook (same behaviour: ruff/ruff-format/prettier/
@@ -187,7 +187,7 @@ Content rewrite, same file set:
   Windows commands shown first, macOS/Linux second.
 - **`docs/guides/windows-setup.md`**: Docker Desktop with WSL 2, clone location advice (inside WSL for speed,
   Windows path supported), PowerShell vs Git Bash, line endings, common errors.
-- **`docs/guides/extending-openspp.md`**: how to find the right `spp_*` module in `vendor/openspp/`, inherit
+- **`docs/guides/extending-openspp.md`**: how to find the right `spp_*` module in `upstream/openspp/`, inherit
   models/views, add fields to registrants, hook into program enrolment, where OpenSPP docs live
   (docs.openspp.org), what not to do (edit vendor, use `spp_` prefix, expose DB ids).
 - **`docs/guides/odoo-project-cli.md`, `module-development.md`, `testing-guide.md`, `claude-code-for-developers.md`**: adapted.

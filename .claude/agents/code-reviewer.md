@@ -13,7 +13,7 @@ maintainability, and adherence to project principles.
 ## Context
 
 This is a DSWD 4Ps extension project on OpenSPP (Odoo 19). Modules use `dswd_*` naming and extend upstream `spp_*`
-modules whose read-only source is in `vendor/openspp/`. You ensure code quality and alignment with project standards.
+modules whose read-only source is in `upstream/openspp/`. You ensure code quality and alignment with project standards.
 
 ## When Invoked
 
@@ -34,7 +34,7 @@ modules whose read-only source is in `vendor/openspp/`. You ensure code quality 
 
 ### 1b. OpenSPP Extension Hygiene (docs/guides/extending-openspp.md)
 
-- [ ] Nothing under `vendor/openspp/` was modified
+- [ ] Nothing under `upstream/openspp/` was modified
 - [ ] Extensions use `_inherit`; no copy of upstream code or models
 - [ ] Fields added to upstream models carry the `dswd_` prefix
 - [ ] Inherited views target named upstream elements, not positional XPath

@@ -70,7 +70,7 @@ Full command reference: [docs/guides/odoo-project-cli.md](docs/guides/odoo-proje
 ## Working with Claude Code
 
 Run `claude` from the repo root. It loads `CLAUDE.md`, the path-scoped rules in `.claude/rules/`, and can read the
-OpenSPP source in `vendor/openspp/` (it is blocked from editing it).
+OpenSPP source in `upstream/openspp/` (it is blocked from editing it).
 
 1. Start in **Plan mode** (shift+tab twice) and describe the feature
 2. `/implement` runs the TDD workflow with subagents and expert review
@@ -92,7 +92,7 @@ See [docs/guides/claude-code-for-developers.md](docs/guides/claude-code-for-deve
 
 - Prefix: `dswd_` for modules, `dswd.` for models, `dswd_` for fields added to OpenSPP models
   ([ADR-001](docs/architecture/decisions/ADR-001-dswd-module-prefix.md))
-- Extend OpenSPP with `_inherit`, inherited views, and hooks; never edit `vendor/openspp/`
+- Extend OpenSPP with `_inherit`, inherited views, and hooks; never edit `upstream/openspp/`
   ([Extending OpenSPP](docs/guides/extending-openspp.md))
 - Every module ships security groups under OpenSPP's categories, an ACL file, and tests
   ([Module Development](docs/guides/module-development.md), [Testing](docs/guides/testing-guide.md))
@@ -104,7 +104,7 @@ See [docs/guides/claude-code-for-developers.md](docs/guides/claude-code-for-deve
 ├── .env                             # OPENSPP_REF and image names (the single pin)
 ├── docker/                          # Dockerfile, entrypoint, Odoo config template
 ├── docker-compose.yml               # db, odoo-app, odoo-dev, jobworker, test
-├── vendor/openspp/                  # OpenSPP source, read-only, gitignored (odoo-project vendor)
+├── upstream/openspp/                  # OpenSPP source, read-only, gitignored (odoo-project vendor)
 ├── dswd_*/                          # Your modules
 ├── dswd_wellbeing/                  # Training module (Module 4): well-being level on households
 ├── docs/                            # Guides, principles, architecture, ADRs

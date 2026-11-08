@@ -4,14 +4,14 @@
 
 **2.** b. Attributes of an existing OpenSPP record go on the upstream model with `_inherit`, with a `dswd_` prefix.
 `_name = "res.partner"` would redefine the model; a separate `dswd.household` model duplicates the registrant; editing
-`vendor/openspp/` is never allowed (it is overwritten on the next release).
+`upstream/openspp/` is never allowed (it is overwritten on the next release).
 
 **3.** Codes can be added, renamed, deprecated or limited per deployment through Settings > Vocabularies without a code
 change or a new release, and each code has a namespace URI other systems can match. Accept any answer with "without
 changing code" or "configurable per deployment".
 
 **4.** Open `views/res_partner_views.xml` in your module and compare the anchor in the XPath against the group names in
-the upstream form, `vendor/openspp/spp_registry/views/individual_views.xml` (the household groups are named `group_*`;
+the upstream form, `upstream/openspp/spp_registry/views/individual_views.xml` (the household groups are named `group_*`;
 here `group_tags_section` was misspelled).
 
 **5.** `./odoo-project test dswd_wellbeing`. The summary line reads like `0 failed, 0 error(s) of 5 tests`; the

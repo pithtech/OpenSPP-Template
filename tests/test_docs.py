@@ -6,7 +6,7 @@ import pytest
 
 from tests.conftest import ROOT
 
-SKIP_DIRS = {".git", ".venv", "vendor", "__pycache__", ".pytest_cache", ".ruff_cache", "node_modules"}
+SKIP_DIRS = {".git", ".venv", "vendor", "upstream", "__pycache__", ".pytest_cache", ".ruff_cache", "node_modules"}
 LINK_RE = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
 
 # Paths removed from the template; nothing outside docs/planning may still point at them.
@@ -39,6 +39,9 @@ class TestLinks:
             if link.startswith(("http://", "https://", "mailto:", "#")):
                 continue
             target = link.split("#")[0]
+            if "upstream/openspp" in target:
+                # The checkout is gitignored and fetched by `odoo-project vendor`; a fresh clone does not have it.
+                continue
             if target:
                 assert (path.parent / target).resolve().exists(), f"{path.relative_to(ROOT)} -> {link}"
 
@@ -105,3 +108,17 @@ class TestSecurityPolicy:
             assert "@" in contributors.replace(
                 "[@", ""
             ), "SECURITY.md asks for an email that CONTRIBUTORS.md does not list"
+
+
+def test_no_file_points_at_the_old_vendor_checkout_path():
+    """A top-level `vendor/` breaks Odoo's SCSS build; the checkout lives in `upstream/openspp`."""
+    offenders = []
+    for path in ROOT.rglob("*"):
+        rel = path.relative_to(ROOT)
+        if not path.is_file() or SKIP_DIRS & set(rel.parts) or rel.parts[0] == "tests":
+            continue
+        if path.suffix not in {".md", ".py", ".json", ".yaml", ".yml", ".toml", ".cfg"} and path.name != "odoo-project":
+            continue
+        if "vendor/openspp" in path.read_text(encoding="utf-8", errors="ignore"):
+            offenders.append(str(path.relative_to(ROOT)))
+    assert offenders == []

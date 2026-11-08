@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Split Household Detail Form View (OP#877 redesign) -->
+    <record id="spp_cr_detail_split_household_form" model="ir.ui.view">
+        <field name="name">spp.cr.detail.split_household.form</field>
+        <field name="model">spp.cr.detail.split_household</field>
+        <field name="arch" type="xml">
+            <form
+                string="Split Household Details"
+                readonly="not is_cr_manager or approval_state not in ('draft', 'revision')"
+            >
+                <header>
+                    <field name="is_cr_manager" invisible="1" />
+                    <button
+                        name="action_next_documents"
+                        string="Next: Upload Documents"
+                        type="object"
+                        class="btn-primary"
+                        icon="fa-arrow-right"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    />
+                    <button
+                        name="action_skip_to_review"
+                        string="Review &amp; Submit"
+                        type="object"
+                        class="btn-success"
+                        icon="fa-check-circle"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    />
+                    <button
+                        name="action_save_and_go_to_list"
+                        string="Save as Draft"
+                        type="object"
+                        class="btn-outline-secondary"
+                        invisible="approval_state not in ('draft', 'revision')"
+                        groups="spp_change_request_v2.group_cr_manager"
+                    />
+                    <field
+                        name="stage"
+                        widget="statusbar"
+                        statusbar_visible="details,documents,review"
+                    />
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" icon="fa-sign-out">
+                            <field
+                                name="members_to_split_count"
+                                widget="statinfo"
+                                string="Moving"
+                            />
+                        </button>
+                        <button class="oe_stat_button" icon="fa-home">
+                            <field
+                                name="remaining_members_count"
+                                widget="statinfo"
+                                string="Remaining"
+                            />
+                        </button>
+                    </div>
+
+                    <!-- Source household (prefilled) + reason, no section headers. -->
+                    <group>
+                        <field
+                            name="source_group_id"
+                            options="{'no_create': True, 'no_open': True}"
+                            readonly="1"
+                        />
+                        <field name="split_reason" />
+                        <field name="change_request_id" invisible="1" />
+                        <field name="available_member_ids" invisible="1" />
+                    </group>
+
+                    <!-- New household information (same fields as Create Group). -->
+                    <group string="New Household Information">
+                        <group>
+                            <field name="new_group_name" required="1" />
+                            <field
+                                name="new_group_type_id"
+                                options="{'no_create': True, 'no_open': True}"
+                            />
+                            <field name="new_area_id" options="{'no_create': True}" />
+                            <field name="new_address" />
+                        </group>
+                        <group>
+                            <field name="new_email" widget="email" />
+                            <field name="new_latitude" />
+                            <field name="new_longitude" />
+                        </group>
+                    </group>
+                    <!-- OP#877: map below the coordinates — drop a pin to set the
+                         location, or type the Latitude/Longitude above. -->
+                    <group>
+                        <field name="new_coordinates" nolabel="1" colspan="2" />
+                    </group>
+                    <group>
+                        <field name="new_phone_line_ids" string="Phone Numbers">
+                            <list editable="bottom">
+                                <field name="phone_no" />
+                                <field
+                                    name="country_id"
+                                    options="{'no_create': True}"
+                                />
+                                <field name="is_primary" widget="boolean_toggle" />
+                            </list>
+                        </field>
+                        <field name="new_bank_line_ids" string="Bank Accounts">
+                            <list editable="bottom">
+                                <field name="acc_number" />
+                                <field name="acc_holder_name" />
+                                <field name="bank_id" options="{'no_create': True}" />
+                            </list>
+                        </field>
+                        <field name="new_id_doc_line_ids" string="Identity Documents">
+                            <list editable="bottom">
+                                <field
+                                    name="id_type_id"
+                                    options="{'no_create': True}"
+                                />
+                                <field name="value" />
+                                <field name="expiry_date" />
+                            </list>
+                        </field>
+                    </group>
+
+                    <!-- Members to move: relational-only table (member + role). -->
+                    <separator string="Members to Move to New Household" />
+                    <div class="text-muted mb-2">
+                        Only members that are not head of the source household can be moved.
+                        Select each member to move and their role in the new household.
+                    </div>
+                    <field name="member_line_ids" nolabel="1">
+                        <list editable="bottom">
+                            <field
+                                name="individual_id"
+                                domain="[('id', 'in', parent.available_member_ids)]"
+                                options="{'no_create': True, 'no_open': True}"
+                                required="1"
+                            />
+                            <field
+                                name="membership_type_id"
+                                string="Role"
+                                options="{'no_create': True, 'no_open': True}"
+                            />
+                        </list>
+                    </field>
+
+                    <group string="Additional Information">
+                        <field
+                            name="remarks"
+                            placeholder="Enter any additional notes..."
+                        />
+                    </group>
+
+                    <group invisible="1">
+                        <field name="created_group_id" />
+                    </group>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+</odoo>

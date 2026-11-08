@@ -44,7 +44,7 @@ def main():
         return 0
 
     # Never lint the read-only OpenSPP checkout
-    if "vendor" in path.relative_to(project_dir).parts:
+    if {"upstream", "vendor"} & set(path.relative_to(project_dir).parts):
         return 0
 
     rel = str(path)

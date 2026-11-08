@@ -21,7 +21,7 @@ exclude: |
   # You don't usually want a bot to modify your legal texts
   (LICENSE.*|COPYING.*)|
   # Exclude full docs tree and archived modules from all hooks
-  ^docs/|^archived_modules/|^vendor/|
+  ^docs/|^archived_modules/|^upstream/|^vendor/|
   # Deliberately broken training copy: hooks must neither flag nor repair it
   ^training/module4/dswd_wellbeing_broken/
 default_language_version:

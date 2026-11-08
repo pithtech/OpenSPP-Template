@@ -359,6 +359,6 @@ test("Inventory manager sees all records", async () => {
 ---
 
 **Authoritative Sources:**
-- OpenSPP security module: `vendor/openspp/spp_security/readme/DESCRIPTION.md` (after `./odoo-project vendor`)
+- OpenSPP security module: `upstream/openspp/spp_security/readme/DESCRIPTION.md` (after `./odoo-project vendor`)
 
 **See also:** [Naming Conventions](naming-conventions.md), [Module Architecture](module-architecture.md)

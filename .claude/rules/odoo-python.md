@@ -21,8 +21,8 @@ paths:
 
 ## Extending OpenSPP
 
-- **Read the upstream module first.** The source is in `vendor/openspp/<module>/` (read-only; never edit it). Check the
-  upstream model, its hooks, and its tests before adding anything.
+- **Read the upstream module first.** The source is in `upstream/openspp/<module>/` (read-only; never edit it). Check
+  the upstream model, its hooks, and its tests before adding anything.
 - Prefer `_inherit` over new models. Registrants are `res.partner` records with `is_registrant=True`; groups
   (households) also have `is_group=True`. Programs are `spp.program`, membership `spp.program.membership`, cycles
   `spp.cycle`, entitlements `spp.entitlement`, change requests `spp.change.request`, areas `spp.area`.

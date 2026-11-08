@@ -33,7 +33,7 @@ one of them. Which one, and which hook? (Hint: the OCA module checks compare the
 The level shows on the household form but not on the list. Add it as an optional column.
 
 1. Find the upstream list view:
-   `grep -n 'record id="view_groups_list' vendor/openspp/spp_registry/views/group_views.xml`. You want
+   `grep -n 'record id="view_groups_list' upstream/openspp/spp_registry/views/group_views.xml`. You want
    `view_groups_list_tree_base`; note the field names inside its `<list>`.
 2. Add a second record to `dswd_wellbeing/views/res_partner_views.xml` that inherits it and puts
    `<field name="dswd_well_being_level_id" optional="show" />` after `registration_date`.
@@ -58,6 +58,6 @@ pattern, and proves the pattern with a test. Step 1 of `dswd_wellbeing` is your 
 
 Checkpoint: both tests pass; an invalid number is refused in the UI.
 
-Hints: read `vendor/openspp/spp_vocabulary/data/vocabulary_id_type.xml` for the record shape and
-`vendor/openspp/spp_registry/models/reg_id.py` for the constraint. The production 4Ps module uses the same pattern for
+Hints: read `upstream/openspp/spp_vocabulary/data/vocabulary_id_type.xml` for the record shape and
+`upstream/openspp/spp_registry/models/reg_id.py` for the constraint. The production 4Ps module uses the same pattern for
 PhilSys, the 4Ps ID card and PhilHealth.

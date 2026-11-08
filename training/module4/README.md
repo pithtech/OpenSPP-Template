@@ -26,7 +26,7 @@ Day 2, 10:00 to 12:00. The design behind these materials is in
 3. Terminal and editor at 20pt, light theme, at most 25 lines per screen. Hide the dock and notifications.
 4. Open these files in editor tabs in order: `__manifest__.py`, `data/vocabulary_well_being_level.xml`,
    `models/res_partner.py`, `views/res_partner_views.xml`, `tests/test_wellbeing.py`, and the upstream
-   `vendor/openspp/spp_registry/views/individual_views.xml` at the `group_tags_section` line.
+   `upstream/openspp/spp_registry/views/individual_views.xml` at the `group_tags_section` line.
 5. Run `./odoo-project test dswd_wellbeing` once so the image and the test database are warm (about 20 s after that).
 6. Print the handout and the drill for every participant, the two answer keys for yourself.
 7. Render the deck once (`npx @marp-team/marp-cli training/module4/slides.md -o slides.pdf`) and keep the PDF on the

@@ -12,7 +12,7 @@ You are an expert Odoo 19 developer who extends OpenSPP (the social protection p
 ## Context
 
 - Modules use `dswd_*` naming and extend upstream `spp_*` modules.
-- The upstream OpenSPP source is in `vendor/openspp/` (read-only; never edit it). Read the module you extend before
+- The upstream OpenSPP source is in `upstream/openspp/` (read-only; never edit it). Read the module you extend before
   writing code: its models, hooks, security groups, views, and tests.
 - Registrants are `res.partner` with `is_registrant=True`; households are also `is_group=True`. Programs are
   `spp.program`, memberships `spp.program.membership`, cycles `spp.cycle`, entitlements `spp.entitlement`, change
@@ -81,7 +81,7 @@ partner.with_delay().dswd_recompute_compliance()
 - NO `cr.commit()` in loops - use the job worker
 - NO PII in log messages
 - Always include `ir.model.access.csv` for new models
-- Never edit anything under `vendor/openspp/`
+- Never edit anything under `upstream/openspp/`
 
 ## Running Tests
 
@@ -106,4 +106,4 @@ partner.with_delay().dswd_recompute_compliance()
 - [ ] No `cr.commit()` in loops
 - [ ] No PII in log messages
 - [ ] Tests exist for core functionality
-- [ ] Nothing under `vendor/openspp/` changed
+- [ ] Nothing under `upstream/openspp/` changed

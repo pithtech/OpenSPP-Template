@@ -60,7 +60,7 @@ The image is private. Before the first `pull`, log Docker in to GitHub once with
 # ... edit dswd_* modules ...
 ./odoo-project install dswd_wellbeing # install a new module into the running instance
 ./odoo-project update                # upgrade changed modules in the running instance
-./odoo-project test dswd_attendance  # run one module's tests on a clean database
+./odoo-project test dswd_wellbeing   # run one module's tests on a clean database
 ./odoo-project lint                  # ruff, ruff-format, prettier on changed files
 git commit                           # pre-commit hooks run the full lint set
 ```
@@ -106,10 +106,11 @@ See [docs/guides/claude-code-for-developers.md](docs/guides/claude-code-for-deve
 ├── docker-compose.yml               # db, odoo-app, odoo-dev, jobworker, test
 ├── vendor/openspp/                  # OpenSPP source, read-only, gitignored (odoo-project vendor)
 ├── dswd_*/                          # Your modules
+├── dswd_wellbeing/                  # Training module (Module 4): well-being level on households
 ├── docs/                            # Guides, principles, architecture, ADRs
 ├── scripts/                         # Lint, compliance, and test helpers used by the CLI and CI
 ├── tests/                           # Tests for the CLI and repo configuration
-├── training/                        # Pre-training setup guide
+├── training/                        # Pre-training setup guide and 4Ps program reference
 ├── .claude/                         # Claude Code rules, agents, commands, hooks, settings
 ├── .github/                         # CI workflows and issue/PR templates
 └── CLAUDE.md                        # Claude Code project instructions

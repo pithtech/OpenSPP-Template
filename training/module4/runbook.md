@@ -123,8 +123,9 @@ relation) and where `help=` shows up.
 1. Objectives slide: read the five, ask for a thumbs up on each.
 2. What moves to Module 5: new models and menus, groups and record rules, hierarchical vocabularies, programs and
    cycles, change requests, the production module map.
-3. Hand out [exercise-day3.md](exercise-day3.md). "Before Module 6: `git checkout m4-step-5` and `./odoo-project start`.
-   If your laptop does not run Docker, Tier 1 needs only the folder and your eyes."
+3. Hand out [exercise-day3.md](exercise-day3.md). "Your repository already has the finished module; before Module 6:
+   `./odoo-project start` and `install dswd_wellbeing`. If your laptop does not run Docker, Tier 1 needs only the folder
+   and your eyes."
 4. Point to the lunch triage table.
 
 ## If the demo machine fails

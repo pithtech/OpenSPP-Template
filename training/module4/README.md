@@ -2,7 +2,9 @@
 
 Day 2, 10:00 to 12:00. The design behind these materials is in
 [docs/planning/module4-training-design.md](../../docs/planning/module4-training-design.md); the module itself is
-[`dswd_wellbeing`](../../dswd_wellbeing/) at the repo root, built in six tagged steps (`m4-step-0` to `m4-step-5`).
+[`dswd_wellbeing`](../../dswd_wellbeing/) at the repo root, built in six tagged steps (`m4-step-0` to `m4-step-5`). The
+tags exist only in a clone of the template repository (yours); a participant's repository is a template copy with one
+commit, no history and no tags, and already holds the finished module.
 
 | File                                             | For                 | Use                                                                                                                                                                 |
 | ------------------------------------------------ | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

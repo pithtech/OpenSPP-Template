@@ -57,7 +57,7 @@ Every subdirectory that contains Python files needs an `__init__.py`. Every dire
         "spp_registry",
         "spp_vocabulary",
     ],
-    "external_dependencies": {"python": ["somelib"]},  # only when needed
+    # "external_dependencies": {"python": ["somelib"]},  # only when the module needs a Python package
     "data": [
         "security/ir.model.access.csv",
         "views/dswd_attendance_views.xml",
@@ -281,7 +281,12 @@ access_dswd_attendance_officer,dswd.attendance officer,model_dswd_attendance,dsw
 access_dswd_attendance_manager,dswd.attendance manager,model_dswd_attendance,dswd_attendance.group_dswd_attendance_manager,1,1,1,1
 ```
 
-> **Note:** The `spp_security` module provides cross-project security groups. If your project has not created this module yet, define module-specific groups (see the [Security groups template](#security-groups-securitysecurity_groupsxml) below) and reference those instead.
+> **Note:** OpenSPP's `spp_security` provides only the admin group (`spp_security.group_spp_admin`) and the
+> categories; it has no officer or manager groups for your models. The `group_{domain}_officer` and
+> `group_{domain}_manager` rows above refer to groups your own module defines in `security/groups.xml` (named
+> `security_groups.xml` in the template below; either name works), listed in the manifest **before** the access file. See the
+> [Security groups template](#security-groups-securitysecurity_groupsxml) below, and link the manager group into
+> `spp_security.group_spp_admin`. `dswd_asset` is a complete example.
 
 ### Step 5: Run the test — confirm it passes
 
@@ -601,7 +606,12 @@ access_dswd_{domain}_officer,dswd.{domain} / Officer,model_dswd_{domain},group_{
 access_dswd_{domain}_manager,dswd.{domain} / Manager,model_dswd_{domain},group_{domain}_manager,1,1,1,1
 ```
 
-> **Note:** The `spp_security` module provides cross-project security groups. If your project has not created this module yet, define module-specific groups (see the [Security groups template](#security-groups-securitysecurity_groupsxml) below) and reference those instead.
+> **Note:** OpenSPP's `spp_security` provides only the admin group (`spp_security.group_spp_admin`) and the
+> categories; it has no officer or manager groups for your models. The `group_{domain}_officer` and
+> `group_{domain}_manager` rows above refer to groups your own module defines in `security/groups.xml` (named
+> `security_groups.xml` in the template below; either name works), listed in the manifest **before** the access file. See the
+> [Security groups template](#security-groups-securitysecurity_groupsxml) below, and link the manager group into
+> `spp_security.group_spp_admin`. `dswd_asset` is a complete example.
 
 #### `dswd_{domain}/tests/__init__.py`
 
@@ -612,11 +622,11 @@ from . import test_{domain}
 #### `dswd_{domain}/tests/test_{domain}.py`
 
 ```python
-from odoo.tests import TransactionCase
+from odoo.tests import TransactionCase, tagged
 
 
+@tagged("post_install", "-at_install")
 class TestPrefix{Domain}(TransactionCase):
-
     def setUp(self):
         super().setUp()
         self.record = self.env["dswd.{domain}"].create({

@@ -46,6 +46,6 @@ class TestDswdAssetAccess(TransactionCase):
         self.assertEqual(assets.search_count([("name", "=", "LT-0003")]), 0)
 
     def test_admin_is_a_manager_through_the_openspp_admin_group(self):
-        """The admin link in groups.xml is what lets the admin user open the app without extra setup."""
+        """The link in groups.xml makes every OpenSPP administrator, the admin user included, an asset manager."""
         admin = self.env.ref("base.user_admin")
         self.assertIn(self.env.ref("dswd_asset.group_asset_manager"), admin.all_group_ids)

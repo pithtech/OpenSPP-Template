@@ -10,7 +10,7 @@ selections"): it is the before picture. Module 4 shows the OpenSPP way, a vocabu
 - Compute whether an asset is still under warranty from its warranty end date
 - Refuse a warranty end date earlier than the purchase date
 - Three-tier access: viewer reads, officer creates and edits, manager also deletes; the manager tier is linked into
-  the OpenSPP admin group so the `admin` user sees the app
+  the OpenSPP admin group, so every OpenSPP administrator is an asset manager
 
 ## Key Models
 

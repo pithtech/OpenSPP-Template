@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Three tiers: viewer reads, officer edits, manager deletes. The manager is linked into the OpenSPP admin
-         group so the admin user sees the app without being added to each group by hand. -->
+         group, so every OpenSPP administrator is an asset manager without being added by hand. (The admin user
+         opens the app through the base.group_system access row; this link is what gives it the manager tier.) -->
     <record id="category_dswd_asset" model="ir.module.category">
         <field name="name">DSWD Training: IT Assets</field>
         <field name="sequence">60</field>

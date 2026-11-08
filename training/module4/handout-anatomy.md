@@ -178,6 +178,6 @@ The field's `domain` only filters the dropdown. The constraint guards writes fro
 
 ## 7. Where this lives in production
 
-The production 4Ps registry module ships 26 vocabularies the same way (`urn:dswd:4ps:client-status`,
-`urn:dswd:4ps:set-group`, `urn:dswd:4ps:ip-group` with about 2,000 codes), and its household fields are `Many2one` to
-`spp.vocabulary.code` exactly like this one. Module 5 shows them.
+The production 4Ps registry module ships 27 vocabularies the same way (`urn:dswd:4ps:client-status`,
+`urn:dswd:4ps:set-group`, `urn:dswd:4ps:ip-group` with 394 codes), and household fields such as client status are
+`Many2one` to `spp.vocabulary.code` exactly like this one. Module 5 shows them.

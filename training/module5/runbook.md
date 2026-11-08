@@ -32,8 +32,9 @@ requests, the triage and the closing.
    box is a part this module uses in a way you must know."
 3. The category cards: "M, V, D, S, W, J, A, T. I read a symptom; your pair holds up the card for the file you would
    open first, not the file the fix ends in."
-4. Warm-up: "A user says: the list of reasons for a grantee change is missing 'deceased'." Count to three. Answer: D, a
-   vocabulary data file. "Module 4, block 2."
+4. Warm-up: "A user says: the list of reasons for a grantee change needs 'working abroad'." Count to three. Answer: D, a
+   vocabulary data file, `dswd_4ps_registry/data/vocabulary_grantee_change_reasons.xml`. "Module 4, block 2. And the
+   file is `noupdate`: on production, a new code also needs a migration."
 
 ## Block 2, 1:10 to 1:25: the map (card 1)
 

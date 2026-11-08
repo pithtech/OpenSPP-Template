@@ -48,6 +48,12 @@ Since EO 120 (July 2026) the level decides whether a household stays past seven 
 
 ---
 
+## What you will see at noon
+
+![w:1180](images/step3-household-dropdown.png)
+
+---
+
 ## Where this lives in production
 
 The production 4Ps registry module ships **26 vocabularies** the same way:
@@ -114,6 +120,12 @@ Installable, does nothing. **Predict**: where will it appear after we install it
 
 ---
 
+## After step 0: Apps knows the module
+
+![w:1180](images/step0-apps-installed.png)
+
+---
+
 ## The loop
 
 | You changed                                       | Run                                     |
@@ -149,6 +161,12 @@ Installable, does nothing. **Predict**: where will it appear after we install it
 ```
 
 **Predict**: after `update`, where will the three codes show?
+
+---
+
+## After step 1: Settings > Vocabularies
+
+![w:1180](images/step1-vocabulary-codes.png)
 
 ---
 
@@ -208,6 +226,12 @@ A field without a view is invisible, not broken.
 
 ---
 
+## Where a field without a view shows up
+
+![w:1180](images/step2-technical-fields.png)
+
+---
+
 ## Step 3: the view
 
 ```xml
@@ -226,6 +250,12 @@ A field without a view is invisible, not broken.
 ```
 
 Find the anchor first: `grep -n 'name="group_' vendor/openspp/spp_registry/views/individual_views.xml`
+
+---
+
+## After step 3: the household Profile page
+
+![w:1180](images/step3-household-saved.png)
 
 ---
 

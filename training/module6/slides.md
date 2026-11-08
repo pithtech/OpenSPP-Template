@@ -24,14 +24,17 @@ Edwin Gonzales, OpenSPP
 
 ## Before 8:30
 
-Open PowerShell in your repository.
+Open PowerShell in your repository. Log in once the stack is up; wait for `0 failed`; then create the morning's branch.
 
 ```powershell
 .\odoo-project start
 .\odoo-project test dswd_wellbeing
+git switch main
+git pull
+git switch -c module6
 ```
 
-Log in. Wait for `0 failed`. No working laptop? Sit with a pair that has one.
+No working laptop? Sit with a pair that has one.
 
 ---
 
@@ -52,6 +55,8 @@ Log in. Wait for `0 failed`. No working laptop? Sit with a pair that has one.
 3. You can show it on screen
 
 Read every output to the end. If it does not say complete, it failed, and the browser still shows the old screens.
+
+After each exercise: `git add <module>`, `git status`, `git commit -m "feat(...): ..."`.
 
 Pairs: one types, one reads. Swap at each exercise. Ask your pair, your row, a helper, then me.
 
@@ -84,6 +89,20 @@ Done: install complete, `0 failed, 0 error(s) of 3 tests`, a duplicate refused o
 Done: install complete, `0 failed, 0 error(s) of 2 tests`, `12345678` refused on the Identity page.
 
 Finish it afterwards if time runs out: the sheet is complete.
+
+---
+
+## 9:55: push and open the pull request
+
+Whatever exercise you are on: commit what works, then
+
+```powershell
+git push -u origin module6
+```
+
+Open the link it prints, create the pull request, answer the template's headings.
+
+CI builds the image first, so it ends after the session. When it is green: merge, then `git switch main`, `git pull` (guide 7.4).
 
 ---
 

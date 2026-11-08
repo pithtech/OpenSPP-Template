@@ -1664,6 +1664,9 @@ $ ./odoo-project test dswd_wellbeing
 Passed: 5 | Failed: 0 | Errors: 0
 ```
 
+Green tests on your laptop are where a change starts its way to `main`: a branch, a commit, a pull request, CI on
+GitHub, a review, a merge. Section 7.4 gives the whole path.
+
 ### 4.11 The five mistakes of an extension
 
 | Mistake                                                           | Symptom                                                                                   | One-line diagnostic                                                                                                                       |
@@ -2042,6 +2045,18 @@ Log in and wait for `0 failed, 0 error(s) of 5 tests`. The first test run of the
 session keeps it out of the exercises. If your laptop cannot start the stack, sit with a pair whose laptop can: every
 exercise is done in pairs, one person typing and one reading the sheet and the output, swapping at each exercise.
 
+Then create the branch for the morning's work:
+
+```powershell
+git switch main
+git pull
+git switch -c module6
+```
+
+All three exercises go on this one branch, with a commit at the end of each. (Normally each change has its own branch,
+7.4. Here the three modules stay on one branch because your stack runs what is on disk: switching to another branch
+would take an installed module's folder away from under it.)
+
 ### 6.3 The three exercises
 
 | #   | Skill         | Module             | The 4Ps request                                                       | Copy from        | Sheet                                          | Time   |
@@ -2074,6 +2089,19 @@ For every exercise:
 Read every command's output to the end. If it does not end with the "complete" line, the command failed, and the browser
 still shows the old screens: a failed `install` or `update` leaves the previous version of the server running.
 
+Then commit the exercise (7.4, steps 8 and 9): `git add` the module's files by name, `git status`, and
+`git commit -m "feat(fds): register FDS sessions"` (or `feat(listahanan): ...`, `feat(id-types): ...`). The hooks run;
+if one changes a file, add it and commit again.
+
+At the end of the session, push the branch and open a pull request (7.4, steps 10 and 11):
+
+```powershell
+git push -u origin module6
+```
+
+CI starts on GitHub. Its first run builds the image, so it finishes after the session; check it later in the pull
+request's **Checks** tab and, when it is green, merge it (steps 12 to 15). A review is not required for this exercise.
+
 ### 6.5 When something goes wrong
 
 Each sheet ends with a table of the errors you are most likely to meet. Three habits cover most of them:
@@ -2089,10 +2117,10 @@ Each sheet ends with a table of the errors you are most likely to meet. Three ha
 
 ### 6.6 After the training
 
-The three modules are yours: commit them (7.4). They are small, working examples of the three kinds of change you will
-make to the 4Ps system, and each one has a production counterpart you can now read: the FDS operations module (Module 5,
-card 12), the Listahanan ID on the registry (card 3), and the PhilSys, 4Ps ID card and PhilHealth ID types in the
-registry module's data (card 3).
+The three modules are yours: once CI is green, merge the pull request and bring your laptop up to date (7.4, steps 14
+and 15). They are small, working examples of the three kinds of change you will make to the 4Ps system, and each one has
+a production counterpart you can now read: the FDS operations module (Module 5, card 12), the Listahanan ID on the
+registry (card 3), and the PhilSys, 4Ps ID card and PhilHealth ID types in the registry module's data (card 3).
 
 ---
 
@@ -2142,14 +2170,66 @@ runs the full set.
 - `./odoo-project update` cannot install a new module; `install` can. A first `start` on a fresh database installs
   OpenSPP and waits; do not run `install` until it has printed the URL.
 
-### 7.4 Before you commit
+### 7.4 From a change to a merge
 
-1. `./odoo-project test <module>`: the summary line reads `0 failed, 0 error(s)`.
-2. `./odoo-project lint`: clean.
-3. `./odoo-project audit-security`: 0 errors, 0 warnings.
-4. `git commit -m "..."`: the hooks pass. Without `-m`, Git opens its default editor, which on Git for Windows is Vim
-   unless you chose another when installing (type `:q!` and Enter to leave it). Commit messages follow
-   `feat(scope): ...`, `fix(scope): ...`, `docs(scope): ...`.
+Every change to a module, during the training and after it, takes the same path. Your laptop proves the change works;
+GitHub proves it again on a clean machine, lets someone else read it, and keeps the history.
+
+| #   | Step                              | Command or place                                                             |
+| --- | --------------------------------- | ---------------------------------------------------------------------------- |
+| 1   | Start from an up-to-date `main`   | `git switch main`, then `git pull`                                           |
+| 2   | Create a branch for the change    | `git switch -c feat/fds-session`                                             |
+| 3   | Write the test, then the code     | VS Code                                                                      |
+| 4   | Deploy it on your own stack       | `.\odoo-project install <module>` (new) or `.\odoo-project update` (changed) |
+| 5   | Check it on screen                | the browser                                                                  |
+| 6   | Run the module's tests            | `.\odoo-project test <module>`: `0 failed, 0 error(s)`                       |
+| 7   | Lint and check the security files | `.\odoo-project lint`, `.\odoo-project audit-security`                       |
+| 8   | Stage the files, by name          | `git add <files>`, then `git status`                                         |
+| 9   | Commit; the pre-commit hooks run  | `git commit -m "feat(fds): register FDS sessions"`                           |
+| 10  | Push the branch                   | `git push -u origin feat/fds-session`                                        |
+| 11  | Open a pull request               | GitHub: the link `git push` prints, or **Compare & pull request**            |
+| 12  | Read CI                           | the pull request's **Checks** tab                                            |
+| 13  | Review                            | a second person reads the diff                                               |
+| 14  | Merge                             | **Merge pull request**, then **Delete branch**                               |
+| 15  | Bring your laptop up to date      | `git switch main`, `git pull`, `git branch -d feat/fds-session`              |
+
+**One change, one branch.** Never commit to `main` directly. Name the branch after the change (`feat/...` for something
+new, `fix/...` for a correction, `docs/...` for text) and write commit messages the same way: `feat(scope): ...`,
+`fix(scope): ...`, `docs(scope): ...`, in the imperative ("add", not "added").
+
+**Stage before the hooks run.** pre-commit checks what is staged, not what is on disk: run it, or commit, after
+`git add`. If a hook changes a file (Prettier reformats a table, for example), the commit stops: `git add` the file
+again and commit again. Add files by name rather than whole folders, and read `git status` before every commit. Without
+`-m`, Git opens its default editor, which on Git for Windows is Vim unless you chose another when installing (type `:q!`
+and Enter to leave it).
+
+**The pull request.** Its base is `main`. Your repository has a pull request template: answer its headings (why the
+change is needed, how it was done, which tests you added and ran). One pull request per change.
+
+**CI.** Every pull request to `main` runs two workflows on GitHub's machines:
+
+- **pre-commit**: the same hooks as on your laptop, on every file.
+- **CI**: builds the OpenSPP image, then installs each module the pull request changed into a fresh database and runs
+  its tests, with a coverage check (at least 85% of the module's Python lines, `fail_under` in `pyproject.toml`). The
+  first run builds the image from scratch, 10 to 25 minutes; later runs reuse the cache.
+
+A pull request is ready when every check is green. Private repositories have a monthly allowance of GitHub Actions
+minutes; if runs stop starting, look at your account's billing settings.
+
+**When CI is red.** Open the failed check, then **Details**: the log of the step that failed. Read it bottom up, as you
+read an Odoo log (4.11); the test job also uploads the full test log as an artefact. Reproduce it on your laptop with
+the same command (`.\odoo-project test <module>`, or `pre-commit run --all-files`), fix it, commit and push again: the
+pull request updates itself and CI runs again. Never merge red.
+
+**Review.** Before a merge, a second person reads the diff: are there tests, and do they test the change? Is every new
+file in the manifest? Is nothing edited under `upstream/openspp/`? Do names follow 7.1? No passwords or keys? The
+reviewer comments on lines in the **Files changed** tab and approves when satisfied; the author answers by pushing new
+commits. In your own repository, add the reviewer under **Settings > Collaborators**. A project can also protect `main`
+(**Settings > Branches**): merges only through a pull request, only with green checks, only after an approval.
+
+**Merge, then sync.** **Merge pull request** puts the change on `main` on GitHub; delete the branch there. Your laptop
+does not know yet: step 15 brings it up to date. If the merge changed a module installed on your stack, run
+`.\odoo-project update`. The next change starts again at step 1.
 
 ### 7.5 Where to read more
 

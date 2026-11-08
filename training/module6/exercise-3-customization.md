@@ -84,6 +84,32 @@ The provided PhilSys ID '12345678' is invalid.
 
 Change the value to `1234-5678-9012-3456`: it saves.
 
+## Step 6: commit (1 min)
+
+On the `module6` branch you created before the session (participant guide 6.2):
+
+```powershell
+git add dswd_id_types
+git status
+git commit -m "feat(id-types): add PhilSys as an ID type"
+```
+
+`git add dswd_id_types` adds this module's folder only. The pre-commit hooks run; if one changes a file, run `git add`
+again and commit again.
+
+## Step 7: push and open the pull request (2 min)
+
+This was the last exercise. Send the branch with all three modules to GitHub:
+
+```powershell
+git push -u origin module6
+```
+
+Open the link it prints and create the pull request (base `main`), answering the template's headings. CI starts: its
+first run builds the image and finishes after the session. Later, in the pull request's **Checks** tab, wait for green,
+then **Merge pull request** and bring your laptop up to date (participant guide 7.4, steps 12 to 15). A review is not
+required for this exercise.
+
 ## If something goes wrong
 
 `test` may print only `CRITICAL: ... Failed to load registry` or `Couldn't load module`. The cause is in the full log it

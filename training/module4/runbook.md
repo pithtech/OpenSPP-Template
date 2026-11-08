@@ -4,8 +4,9 @@ Day 2, 10:10 to 12:00, after the ten-minute break that follows Module 3. Trainer
 rationale are in [docs/planning/module4-training-design.md](../../docs/planning/module4-training-design.md); this page
 is only what to do and say, with the commands and the real error lines.
 
-**Cut-offs are hard, and there is no buffer.** Drop order if late: block 8 (Claude Code), then breakage 4 in block 6.
-Blocks 9 and 10 are never dropped. Block numbers follow the design; there is no block 5.
+**Cut-offs are hard, and there is no buffer.** Drop order if late: the Claude Code part of block 8 (keep the workflow
+slides, 5 minutes), then breakage 4 in block 6. Blocks 9 and 10 are never dropped. Block numbers follow the design;
+there is no block 5.
 
 ## Before the session
 
@@ -117,12 +118,23 @@ reproduce.) Developer mode is on (Settings > Activate the developer mode) so App
 4. If time: flip `"Subsistence"` to `"Survival"` in `test_household_stores_a_level`, run again, read the
    `AssertionError` and the file:line. Restore.
 
-## Block 8, 11:25 to 11:35: Claude Code (demo only; first block to drop)
+## Block 8, 11:25 to 11:35: from a change to a merge (demo only)
 
-1. In the module folder: ask Claude Code to "add a fourth well-being level, `graduated`, with sequence 40, and a test
-   that it resolves". Review the diff on screen: is the file in the manifest? Is the code in the right namespace?
-2. Run the tests. Say: "The review is the job. The tool types."
-3. `git checkout -- .` to discard, or keep it as a stretch example.
+Prepare the evening before, in a repository of your own created from the template: a pull request for a small change
+(for example the `graduated` level below) whose CI has already run green, so the room does not wait for the image build.
+
+1. **Claude Code makes a change** (3 min). In the module folder: ask Claude Code to "add a fourth well-being level,
+   `graduated`, with sequence 40, and a test that it resolves". Review the diff on screen: is the file in the manifest?
+   Is the code in the right namespace? Run the tests. Say: "The review is the job. The tool types."
+2. **The path to `main`** (4 min), slide "From a change to a merge": on the demo laptop, `git switch -c feat/graduated`,
+   `git add` the two files by name, `git commit -m "feat(wellbeing): add the graduated level"` (the hooks run on
+   screen), `git push -u origin feat/graduated`. Open the link it prints: the pull request, the template headings. Say:
+   "CI starts now; its first run builds the image, so we look at the one I opened yesterday."
+3. **CI, review, merge** (3 min), slides "CI" and "Review, then merge", on the prepared pull request: the **Checks** tab
+   (pre-commit, build, the module's test job), a failed run's **Details** if you have one, then **Files changed**: leave
+   one review comment, approve, **Merge pull request**, delete the branch. Back on the laptop: `git switch main`,
+   `git pull`. "Tomorrow you do steps 1 to 11 yourselves; the review is not required in the exercise."
+4. Close the demo branch's pull request without merging, or keep it as an example.
 
 ## Block 9, 11:35 to 11:50: troubleshooting drill (pairs, paper)
 

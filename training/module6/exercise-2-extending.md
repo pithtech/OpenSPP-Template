@@ -105,6 +105,19 @@ The operation cannot be completed: <your message>
 
 Open an individual: no Listahanan section.
 
+## Step 7: commit (1 min)
+
+On the `module6` branch you created before the session (participant guide 6.2):
+
+```powershell
+git add dswd_listahanan
+git status
+git commit -m "feat(listahanan): add the Listahanan household ID"
+```
+
+`git add dswd_listahanan` adds this module's folder only. The pre-commit hooks run; if one changes a file, run `git add`
+again and commit again.
+
 ## If something goes wrong
 
 `test` may print only `CRITICAL: ... Failed to load registry` or `Couldn't load module`. The cause is in the full log it

@@ -18,6 +18,7 @@ docs/
 | Need to...                                   | Go to...                                                                   |
 | -------------------------------------------- | -------------------------------------------------------------------------- |
 | Set up Windows for the training              | [guides/windows-setup.md](guides/windows-setup.md)                         |
+| Review the training as a participant        | [../training/participant-guide.md](../training/participant-guide.md)         |
 | Learn what 4Ps is and how it maps to OpenSPP | [../training/4ps-program-reference.md](../training/4ps-program-reference.md) |
 | Teach or follow Module 3                     | [../training/module3/](../training/module3/README.md)                        |
 | Teach or follow Module 4                     | [../training/module4/](../training/module4/README.md)                        |

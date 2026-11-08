@@ -18,7 +18,8 @@ pre-commit, Claude Code. Windows users: read [docs/guides/windows-setup.md](docs
 
 ## Get Your Own Repository
 
-1. Open this repository on GitHub and click **Use this template > Create a new repository**.
+1. Open the template repository, <https://github.com/pithtech/OpenSPP-Template>, and click
+   **Use this template > Create a new repository**.
 2. Choose your own account as **Owner**, name it (for example `dswd-4ps-modules`), keep it **Private**, and create it.
 3. Clone it:
 

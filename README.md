@@ -127,6 +127,7 @@ Change `OPENSPP_REF` in `.env`, then `odoo-project pull` (or `build`), `odoo-pro
 | -------------------------- | ---------------------------------------------------------------------------- |
 | Pre-training setup         | [training/SETUP.md](training/SETUP.md)                                       |
 | 4Ps program reference      | [training/4ps-program-reference.md](training/4ps-program-reference.md)       |
+| Module 4 training materials | [training/module4/](training/module4/)                                      |
 | Windows notes              | [docs/guides/windows-setup.md](docs/guides/windows-setup.md)                 |
 | CLI reference              | [docs/guides/odoo-project-cli.md](docs/guides/odoo-project-cli.md)           |
 | Extending OpenSPP          | [docs/guides/extending-openspp.md](docs/guides/extending-openspp.md)         |

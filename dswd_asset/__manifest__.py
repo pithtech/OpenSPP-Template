@@ -15,6 +15,8 @@
     ],
     "data": [
         "security/ir.model.access.csv",
+        "views/dswd_asset_views.xml",
+        "views/menus.xml",
     ],
     "application": False,
     "installable": True,

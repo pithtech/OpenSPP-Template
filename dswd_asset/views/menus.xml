@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- A top-level menu: the app tile. An asset register is a new application area, not part of the Registry. -->
+    <menuitem
+        id="menu_dswd_asset_root"
+        name="IT Assets"
+        web_icon="dswd_asset,static/description/icon.png"
+        sequence="95"
+    />
+    <menuitem id="menu_dswd_asset" name="Assets" parent="menu_dswd_asset_root" action="action_dswd_asset" sequence="10" />
+</odoo>

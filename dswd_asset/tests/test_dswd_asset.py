@@ -31,3 +31,11 @@ class TestDswdAsset(TransactionCase):
         """A warranty that ends before the purchase date is a data-entry error and is refused."""
         with self.assertRaises(ValidationError):
             self.asset.write({"purchase_date": date(2026, 1, 10), "warranty_end_date": date(2025, 12, 31)})
+
+    def test_menu_action_and_views_resolve(self):
+        """The menu opens an action on the model whose form shows the custodian."""
+        action = self.env.ref("dswd_asset.action_dswd_asset")
+        self.assertEqual(action.res_model, "dswd.asset")
+        self.assertEqual(self.env.ref("dswd_asset.menu_dswd_asset").action.id, action.id)
+        arch = self.Asset.get_view(view_type="form")["arch"]
+        self.assertIn('name="custodian_id"', arch)

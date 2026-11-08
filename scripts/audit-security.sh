@@ -253,25 +253,14 @@ check_security_groups() {
             log_issue "ERROR" "$module" "MENU-GROUPS-FIELD" "$xml_file" "Uses 'groups_id' instead of 'group_ids' (Odoo 19)"
         fi
 
-        # Check if module defines ir.module.category (should only be in the project's security module)
-        # Replace dswd_security with your project's security module name
-        if [[ "$module" != "dswd_security" ]]; then
-            if grep -q 'model="ir.module.category"' "$xml_file"; then
-                log_issue "WARNING" "$module" "GROUPS-CATEGORY-DEF" "$xml_file" "Defines ir.module.category (should only be in dswd_security)"
-            fi
-        fi
     done
 
-    # Check if module depends on the project's security module
-    # Replace dswd_security with your project's security module name
+    # A module that defines groups must depend on OpenSPP's spp_security (groups link into group_spp_admin)
     local manifest="$module_path/__manifest__.py"
     if [[ -f "$manifest" ]]; then
-        if [[ "$module" != "dswd_security" ]]; then
-            if ! grep -q "dswd_security" "$manifest"; then
-                # Check if it has security files
-                if ls "$module_path"/security/*.xml 2>/dev/null | head -1 | grep -q .; then
-                    log_issue "WARNING" "$module" "GROUPS-DEPENDENCY" "$manifest" "Has security files but doesn't depend on dswd_security"
-                fi
+        if ! grep -q "spp_security" "$manifest"; then
+            if grep -lq 'model="res.groups"' "$module_path"/security/*.xml 2>/dev/null; then
+                log_issue "WARNING" "$module" "GROUPS-DEPENDENCY" "$manifest" "Defines groups but doesn't depend on spp_security"
             fi
         fi
     fi

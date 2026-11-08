@@ -1,0 +1,30 @@
+# Module 5 Checkpoint Bank
+
+Trainer copy. Two standing checkpoints of five minutes. Read the symptom, count to three, pairs hold up a category card,
+then one pair names the module. Three items per checkpoint; the spares replace an item the class has already seen. Every
+symptom comes from a card's "a ticket usually lands in" list, checked at production commit `ad98dac9`.
+
+## Set 1: after foundation (2:05)
+
+| Symptom                                                                                   | Card answer | Module and first file                                                     |
+| ----------------------------------------------------------------------------------------- | ----------- | ------------------------------------------------------------------------- |
+| "My areas reset every time I log in."                                                     | M           | `dswd_4ps_roles`, `models/res_users.py` (card 4)                          |
+| "This barangay is listed under the wrong municipality."                                   | D           | `dswd_4ps_area`, `psgc_corrections.py` and a migration (card 2)           |
+| "Saving a definition says: Please select at least one approval group."                    | M           | `dswd_4ps_approval_multi_group`, `models/approval_definition.py` (card 5) |
+| Spare: "A household at status 3 cannot be reinstated."                                    | M           | `dswd_4ps_registry`, `models/res_partner.py` (card 3)                     |
+| Spare: "We changed the approver in the XML but production still routes to the old group." | D           | `dswd_4ps_approval_flow_data`, `migrations/` (card 6)                     |
+
+Point to make after set 1: two of these end in a migration, because the data is `noupdate`.
+
+## Set 2: after payroll (3:55)
+
+| Symptom                                                                       | Card answer | Module and first file                                                                             |
+| ----------------------------------------------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------- |
+| "Birthdate should be correctable twice, not once."                            | D           | `dswd_4ps_field_limit`, `data/field_limit_one_time_fields.xml` and a migration (card 10)          |
+| "The school form was submitted but nothing changed for the child."            | J           | `dswd_4ps_compliance`, `models/event_data.py` (card 11)                                           |
+| "We updated the grantee's name but the payroll list still shows the old one." | M           | `dswd_4ps_payroll`, `models/snapshot_beneficiary.py`: by design, the snapshot is sealed (card 13) |
+| Spare: "The document type we need is not in the dropdown."                    | D           | `dswd_4ps_supporting_docs_data`, `data/vocabulary_canonical_docs.xml` (card 9)                    |
+| Spare: "The run has been on Running Entitlement for hours."                   | J           | `dswd_4ps_payroll`, `data/queue_data.xml` and the job queue (card 13)                             |
+
+Point to make after set 2: the payroll item is not a bug. "Sometimes the answer to a ticket is: this is how it must
+work, and here is why."

@@ -256,10 +256,35 @@ def _pull_image() -> bool:
     sys.stdout.flush()
     result = run(["docker", "pull", remote], check=False)
     if result.returncode != 0:
+        # A pull that fails on the manifest (wrong platform, no access) fails before
+        # downloading anything, so repeating it captured is cheap and gives the reason.
+        retry = run(["docker", "pull", remote], check=False, capture=True)
+        _pull_image.last_error = (retry.stderr or "") + (retry.stdout or "")
         return False
     run(["docker", "tag", remote, ODOO_IMAGE])
     _mark_image_fresh()
     return True
+
+
+def _explain_pull_failure(message: str):
+    """Say why the pull failed in terms the setup guide uses, and what to do."""
+    text = message.lower()
+    if "no matching manifest" in text:
+        wanted = re.search(r"for (linux/[a-z0-9/]+)", text)
+        platform = wanted.group(1) if wanted else "this machine's architecture"
+        error(
+            f"The published image exists only for linux/amd64 (Windows and Intel machines); this machine is "
+            f"{platform} (Apple Silicon or another ARM processor), so there is nothing to pull."
+        )
+        info("Build the image locally instead (10 to 25 minutes): ./odoo-project build")
+        return
+    if "unauthorized" in text or "denied" in text:
+        info("The image is private: run `docker login ghcr.io` with a GitHub token that has read:packages")
+        info("(see training/SETUP.md step 8). Otherwise build it locally with: ./odoo-project build")
+        return
+    if message.strip():
+        info("Docker said: " + message.strip().splitlines()[-1])
+    info("Check the network and `docker login ghcr.io`, or build the image locally with: ./odoo-project build")
 
 
 def _build_image(service: str, profile: str):
@@ -1268,8 +1293,7 @@ def cmd_pull(_args):
         return
 
     error(f"Could not pull {ODOO_IMAGE_REMOTE}:{OPENSPP_REF}")
-    info("The image is private: run `docker login ghcr.io` with a GitHub token that has read:packages")
-    info("(see training/SETUP.md step 8). Otherwise build it locally with: ./odoo-project build")
+    _explain_pull_failure(getattr(_pull_image, "last_error", ""))
     sys.exit(1)
 
 

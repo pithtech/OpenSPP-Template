@@ -32,15 +32,16 @@ def cli():
 class Recorder:
     """Stands in for cli.run: records commands and returns canned results."""
 
-    def __init__(self, returncodes=None, stdout=""):
+    def __init__(self, returncodes=None, stdout="", stderr=""):
         self.calls = []
         self.returncodes = list(returncodes or [])
         self.stdout = stdout
+        self.stderr = stderr
 
     def __call__(self, cmd, check=True, capture=False, **kwargs):
         self.calls.append(list(cmd) if not isinstance(cmd, str) else cmd)
         code = self.returncodes.pop(0) if self.returncodes else 0
-        return SimpleNamespace(returncode=code, stdout=self.stdout, stderr="")
+        return SimpleNamespace(returncode=code, stdout=self.stdout, stderr=self.stderr)
 
 
 class TestConstants:
@@ -108,13 +109,37 @@ class TestPull:
         assert {m.name.split("-")[3] for m in markers} == {"dev", "ui"}
 
     def test_pull_failure_exits_with_build_hint(self, cli, monkeypatch, capsys):
-        rec = Recorder(returncodes=[1])
+        rec = Recorder(returncodes=[1, 1], stderr="Error response from daemon: unauthorized")
         monkeypatch.setattr(cli, "run", rec)
         with pytest.raises(SystemExit) as exc:
             cli.cmd_pull(SimpleNamespace())
         assert exc.value.code == 1
-        assert "build" in capsys.readouterr().err + capsys.readouterr().out or True
-        assert len(rec.calls) == 1  # no tag after a failed pull
+        captured = capsys.readouterr()
+        text = captured.out + captured.err
+        assert "build" in text and "docker login" in text
+        assert all(c[:2] == ["docker", "pull"] for c in rec.calls)  # no tag after a failed pull
+
+    def test_pull_platform_mismatch_explains_the_architecture(self, cli, monkeypatch, capsys):
+        """Apple Silicon: the published image is linux/amd64 only; blaming the login would send people in circles."""
+        rec = Recorder(
+            returncodes=[1, 1], stderr="no matching manifest for linux/arm64/v8 in the manifest list entries"
+        )
+        monkeypatch.setattr(cli, "run", rec)
+        with pytest.raises(SystemExit):
+            cli.cmd_pull(SimpleNamespace())
+        captured = capsys.readouterr()
+        text = captured.out + captured.err
+        assert "arm64" in text and "linux/amd64" in text and "build" in text
+        assert "docker login" not in text
+
+    def test_pull_other_failure_shows_docker_message(self, cli, monkeypatch, capsys):
+        rec = Recorder(returncodes=[1, 1], stderr="dial tcp: lookup ghcr.io: no such host")
+        monkeypatch.setattr(cli, "run", rec)
+        with pytest.raises(SystemExit):
+            cli.cmd_pull(SimpleNamespace())
+        captured = capsys.readouterr()
+        text = captured.out + captured.err
+        assert "no such host" in text and "build" in text
 
     def test_missing_image_is_pulled_when_confirmed(self, cli, monkeypatch, tmp_path):
         monkeypatch.setattr(cli, "_image_exists", lambda: False)

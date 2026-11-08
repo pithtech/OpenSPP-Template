@@ -39,3 +39,24 @@ class DswdAsset(models.Model):
         for asset in self:
             if asset.purchase_date and asset.warranty_end_date and asset.warranty_end_date < asset.purchase_date:
                 raise ValidationError(_("The warranty end date must be on or after the purchase date."))
+
+    def action_assign_to_me(self):
+        """Form button: the ORM write in one line. ``self`` is the asset(s) the button was pressed on."""
+        self.write({"custodian_id": self.env.user.id})
+
+    @api.model
+    def find_warranty_expiring(self, days=30):
+        """Assets still in use whose warranty ends within ``days``: a search with a domain.
+
+        ``@api.model`` means the method works on the model, not on records:
+        ``env["dswd.asset"].find_warranty_expiring(30)``.
+        """
+        today = fields.Date.context_today(self)
+        return self.search(
+            [
+                ("is_in_use", "=", True),
+                ("warranty_end_date", ">=", today),
+                ("warranty_end_date", "<=", fields.Date.add(today, days=days)),
+            ],
+            order="warranty_end_date",
+        )

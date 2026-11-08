@@ -8,13 +8,13 @@
 > payroll, casework and integration. This design names modules, models, fields and files; the session shows code from
 > the production checkout on the trainer's screen.
 > **Slot**: Day 2, 1:00 to 5:00 pm, after Modules 3 and 4. About 87 participants. No user-interface demonstration:
-> the NL training team covers the screens. The trainer shows code in an editor only.
+> the trainer shows code in an editor only.
 
 ---
 
 ## 1. The strategy
 
-1. **A discussion of modules, not a tutorial of the system.** For each module: what it is for, which 4Ps process it
+1. **A discussion of modules.** For each module: what it is for, which 4Ps process it
    serves, and the important points about its components. The question every block answers: "if a ticket lands here,
    which file would I open?" Nothing is clicked in the running system; the screen shows the production code in an
    editor, at the file each point is about.
@@ -252,7 +252,7 @@ Taken by Edwin on 2026-11-08:
 1. **Production code**: may be shown; participants already have access to the production repository.
 2. **Where the material lives**: in this repository, like Modules 3 and 4 (`training/module5/`, this design in
    `docs/planning/`).
-3. **Environment**: no user-interface demonstration (the NL training team covers the screens) and no production
+3. **Environment**: no user-interface demonstration and no production
    modules in the Docker image. The session reads code in an editor (the code moments in section 3). Adding the
    production modules to the template image would add install risk on 87 Windows laptops (the PSGC load alone queues
    about 42,000 barangays) and a stale copy of production, for no use in the session.

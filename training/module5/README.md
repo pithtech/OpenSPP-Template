@@ -31,7 +31,6 @@ demonstration and nothing runs on participant laptops. Every fact, path and exce
 
 ## Why the session reads code instead of demonstrating screens
 
-The NL training team covers the user interface. Participants are the developers and technicians who will maintain these
-modules, and they already have access to the production repository. Reading the real files through the twelve parts of a
-module they learned in the morning is the skill they need on a ticket; a running copy of production on the trainer's
-laptop would add risk and no learning.
+Participants are the developers and technicians who will maintain these modules, and they already have access to the
+production repository. Reading the real files through the twelve parts of a module they learned in the morning is the
+skill they need on a ticket; a running copy of production on the trainer's laptop would add risk and no learning.

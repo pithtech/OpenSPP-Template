@@ -30,7 +30,7 @@ Edwin Gonzales, OpenSPP
 4. Recognise the production traps and say why "simplifying" them is dangerous.
 5. Find any module in the catalogue and read its card.
 
-A discussion of modules, not a tutorial. The screens are the NL training team's.
+A discussion of modules: we read the code, at the file each point is about.
 
 ---
 

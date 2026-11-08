@@ -1,6 +1,6 @@
 # Part of the DSWD 4Ps OpenSPP training template. See LICENSE file for full copyright and licensing details.
 {
-    "name": "DSWD 4Ps: Household Well-Being Level (broken copy for the Day 3 exercise)",
+    "name": "DSWD 4Ps: Household Well-Being Level (broken copy for the Module 4 drill)",
     "summary": "SWDI well-being level (Survival, Subsistence, Self-Sufficient) on 4Ps households",
     "category": "DSWD 4Ps/Registry",
     "version": "19.0.1.0.0",

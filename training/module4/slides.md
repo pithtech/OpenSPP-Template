@@ -351,4 +351,4 @@ Drill time: three real excerpts, in pairs, 12 minutes.
 ./odoo-project install dswd_wellbeing   # the module is already in your repository
 ```
 
-No Docker on your laptop? Tier 1 of the Day 3 exercise needs only the folder and your eyes. Lunch triage table today.
+No Docker on your laptop? Tomorrow you work with a pair that has one. Lunch triage table today.

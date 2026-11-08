@@ -15,9 +15,7 @@ commit, no history and no tags, and already holds the finished module.
 | [drill-answers.md](drill-answers.md)                 | Trainer             | Answer key for the drill                                                                                                                                            |
 | [quiz.md](quiz.md)                                   | Participants        | Ten items, an optional self-check; not scheduled in the session                                                                                                     |
 | [quiz-answers.md](quiz-answers.md)                   | Trainer             | Answer key with the accepted variants                                                                                                                               |
-| [exercise-day3.md](exercise-day3.md)                 | Participants, Day 3 | Three tiers: find the faults, list column, Philippine ID types                                                                                                      |
-| [exercise-day3-answers.md](exercise-day3-answers.md) | Trainer             | Answer key for the Day 3 exercise: the three faults, the bonus, outlines for Tiers 2 and 3                                                                          |
-| [dswd_wellbeing_broken/](dswd_wellbeing_broken/)     | Participants, Day 3 | The module with three planted faults; lint passes, Odoo does not                                                                                                    |
+| [dswd_wellbeing_broken/](dswd_wellbeing_broken/)     | Pairs, block 9     | The module with three planted faults (the drill excerpts); lint passes, Odoo does not                                                                                                    |
 
 ## Preparing the demo machine (the evening before)
 
@@ -46,5 +44,5 @@ requires a participant laptop: participants read, predict and diagnose. Keyboard
 
 ## Participants without a working environment
 
-They follow the **Read** track: the handout has every file, the drill needs only paper, and the Day 3 Tier 1 exercise is
-read-only. Send them to the lunch triage table on Day 2 so they are ready for Day 3.
+They follow the **Read** track: the handout has every file and the drill needs only paper. Send them to the lunch triage
+table on Day 2 so they are ready for Day 3, where every exercise needs a working stack (or a pair with one).

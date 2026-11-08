@@ -122,6 +122,19 @@ the model computes it: `fields.Date.context_today(record)`.
 Then refresh the browser: the **FDS Sessions** tile is on the home screen. Create a session, save it, then set the
 attendees to `-3` and save: the dialog shows your sentence.
 
+## Step 8: commit (1 min)
+
+On the `module6` branch you created before the session (participant guide 6.2):
+
+```powershell
+git add dswd_fds_session
+git status
+git commit -m "feat(fds): register FDS sessions"
+```
+
+`git add dswd_fds_session` adds this module's folder only. The pre-commit hooks run; if one changes a file, run
+`git add` again and commit again.
+
 ## If something goes wrong
 
 `test` may print only `CRITICAL: ... Failed to load registry` or `Couldn't load module`. The cause is in the full log it

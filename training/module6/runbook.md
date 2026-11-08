@@ -17,8 +17,9 @@ minutes of discussion. The trainer walks the room; the sheets carry the steps.
 ## 8:00 to 8:30: at the door
 
 Door slide: "Open PowerShell in your repository. `.\odoo-project start`, log in, then
-`.\odoo-project test dswd_wellbeing` and wait for `0 failed`." The first test of the day is the slowest; it must not
-happen inside the exercises. Laptops that cannot start: their owners pair with a working laptop now.
+`.\odoo-project test dswd_wellbeing` and wait for `0 failed`. Then `git switch main`, `git pull`,
+`git switch -c module6`." The first test of the day is the slowest; it must not happen inside the exercises. Laptops
+that cannot start: their owners pair with a working laptop now.
 
 ## Block 1, 8:30 to 8:35: launch
 
@@ -27,6 +28,8 @@ happen inside the exercises. Laptops that cannot start: their owners pair with a
    ten."
 3. Rules: pairs at one laptop, one types and one reads; swap at each exercise. Ask your pair, then your row, then a
    helper, then me. "Read every command's output to the end: if it does not say complete, it failed."
+4. The workflow from Module 4 block 8, steps 1 to 11 (participant guide 7.4): all three modules on the `module6` branch,
+   a commit at the end of each exercise, one push and one pull request at 9:55. No review is required.
 
 ## Block 2, 8:35 to 9:15: exercise 1, development (`dswd_fds_session`)
 
@@ -51,6 +54,9 @@ happen inside the exercises. Laptops that cannot start: their owners pair with a
 - Say at 9:45: "Exercise 3 is the smallest. Finish it here if you can; the sheet is complete for afterwards."
 - The usual mistakes: the module's `__init__.py` still importing `models`; a manual PhilSys code added in the UI.
 - Note a pair that reached the refusal on the Identity page.
+- **At 9:55, everyone**, whatever exercise they are on: commit what works, `git push -u origin module6`, open the pull
+  request from the link it prints. CI starts; its first run builds the image and ends after the session. "Check it this
+  afternoon, merge it when it is green: guide 7.4, steps 12 to 15."
 
 ## 10:00 to 10:30: discussion
 

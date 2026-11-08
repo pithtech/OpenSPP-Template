@@ -324,6 +324,43 @@ Run the tests. Keep or discard. The tool types; you decide.
 
 ---
 
+## From a change to a merge (guide 7.4)
+
+| On your laptop                                   | On GitHub                                     |
+| ------------------------------------------------ | --------------------------------------------- |
+| 1. `git switch main`, `git pull`                 | 11. Open a pull request (base `main`)         |
+| 2. `git switch -c feat/...`                      | 12. CI: pre-commit, image build, module tests |
+| 3. Test first, then code                         | 13. Review: a second person reads the diff    |
+| 4. `install` or `update` on your stack           | 14. Merge, delete the branch                  |
+| 5. Check the screen                              |                                               |
+| 6. `.\odoo-project test <module>`: `0 failed`    | Back on your laptop:                          |
+| 7. `lint`, `audit-security`                      | 15. `git switch main`, `git pull`             |
+| 8. `git add <files>`, `git status`               |                                               |
+| 9. `git commit -m "feat(scope): ..."`: hooks run |                                               |
+| 10. `git push -u origin feat/...`                |                                               |
+
+---
+
+## CI: the same checks, on a clean machine
+
+Every pull request to `main` runs **pre-commit** and **CI**: the image is built, each changed module is installed in a fresh database, its tests run, coverage must reach 85%.
+
+The first run builds the image: 10 to 25 minutes. Later runs reuse the cache.
+
+Red? **Details**, read the log bottom up, reproduce on your laptop with the same command, fix, push again. Never merge red.
+
+---
+
+## Review, then merge
+
+The reviewer reads **Files changed**: tests that could fail, every file in the manifest, nothing under `upstream/`, names that follow the rules, no secrets.
+
+Comments on lines; the author pushes fixes; the reviewer approves; **Merge pull request**.
+
+Then on your laptop: `git switch main`, `git pull`. The next change starts at step 1.
+
+---
+
 ## The five mistakes
 
 | Mistake                                        | Symptom                            | Look at                                    |

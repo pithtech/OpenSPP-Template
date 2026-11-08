@@ -18,6 +18,7 @@ docs/
 | Need to...                                   | Go to...                                                                   |
 | -------------------------------------------- | -------------------------------------------------------------------------- |
 | Set up Windows for the training              | [guides/windows-setup.md](guides/windows-setup.md)                         |
+| Learn what 4Ps is and how it maps to OpenSPP | [../training/4ps-program-reference.md](../training/4ps-program-reference.md) |
 | Use the developer CLI                        | [guides/odoo-project-cli.md](guides/odoo-project-cli.md)                   |
 | Extend an OpenSPP model, view, or workflow   | [guides/extending-openspp.md](guides/extending-openspp.md)                 |
 | Create a new module                          | [guides/module-development.md](guides/module-development.md)              |

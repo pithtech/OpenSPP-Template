@@ -4,6 +4,9 @@ theme: default
 paginate: true
 size: 16:9
 title: "Module 3: Introduction to Odoo"
+style: |
+  section pre { font-size: 0.7em; }
+  section table { font-size: 0.8em; }
 ---
 
 <!-- _class: lead -->
@@ -41,7 +44,7 @@ Then wait. Nothing in the next twenty minutes needs your laptop.
 6. Use the ORM from a method and from the shell; add a PDF report.
 7. Run `./odoo-project test dswd_asset` and read the summary line.
 
-And at ten you learn why you will almost never build a module this way for 4Ps.
+After the break you learn why you will almost never build a module this way for 4Ps.
 
 ---
 
@@ -50,8 +53,7 @@ And at ten you learn why you will almost never build a module this way for 4Ps.
 - Python on PostgreSQL, web client in JavaScript. 2005 TinyERP, 2008 OpenERP, 2014 Odoo.
 - One major release a year. This training: **Odoo 19** (2025).
 - **Community** edition, LGPL v3: what OpenSPP builds on and what you run. Enterprise: proprietary modules on top.
-- Everything is a module, including the core. A module adds tables, columns, screens, menus, reports and rules to other
-  modules **without changing their code**.
+- Everything is a module, including the core. A module adds tables, columns, screens, menus, reports and rules to other modules **without changing their code**.
 - OpenSPP: about a hundred `spp_*` modules on Odoo. Your `dswd_*` modules: on top of those.
 
 ---
@@ -64,8 +66,7 @@ And at ten you learn why you will almost never build a module this way for 4Ps.
 | View       | XML on `ir.ui.view` (list, form, search), QWeb templates for reports | `views/*.xml`, `report/*.xml` |
 | Controller | actions and menus route clicks; model methods run the logic          | `views/*.xml`, `models/*.py`  |
 
-Data and rules in the model. Drawing in the view. The controller stays thin: a button calls a method, the method uses
-the ORM, the view only says where the button sits.
+Data and rules in the model. Drawing in the view. The controller stays thin: a button calls a method, the method uses the ORM, the view only says where the button sits.
 
 ---
 
@@ -79,14 +80,13 @@ the ORM, the view only says where the button sits.
 | View   | how the table is drawn: list, form, search           | Settings > Technical > Views  |
 | Menu   | menu, then action, then view, then model             | the top bar and the app tiles |
 
-Look at `res.partner` under Models: fields from `base`, from `spp_registry`, from `spp_vocabulary`. **Many modules add
-columns to one table.** Hold that thought until 10:30.
+Look at `res.partner` under Models: fields from `base`, from `spp_registry`, from `spp_vocabulary`. **Many modules add columns to one table.** Hold that thought until 10:40.
 
 ---
 
 ## What we build: an IT asset register
 
-![w:1180](images/step3-asset-form.png)
+![h:520](images/step3-asset-form.png)
 
 ---
 
@@ -105,8 +105,7 @@ columns to one table.** Hold that thought until 10:30.
 }
 ```
 
-Odoo needs a folder and a manifest, nothing more. The `dswd_` prefix is **our** project's rule, the way `spp_` is
-OpenSPP's: it says who owns the code, not what it is about.
+Odoo needs a folder and a manifest, nothing more. The `dswd_` prefix is **our** project's rule, the way `spp_` is OpenSPP's: it says who owns the code, not what it is about.
 
 **Install now:** `./odoo-project install dswd_asset`
 
@@ -152,14 +151,13 @@ class DswdAsset(models.Model):
                 raise ValidationError(_("The warranty end date must be on or after the purchase date."))
 ```
 
-A computed field is never typed in; it is not stored, so it cannot be searched. A constraint refuses bad data with a
-sentence the user reads.
+A computed field is never typed in; it is not stored, so it cannot be searched. A constraint refuses bad data with a sentence the user reads.
 
 ---
 
 ## After step 1: a table, no door
 
-![w:1180](images/step1-technical-fields.png)
+![h:520](images/step1-technical-fields.png)
 
 ---
 
@@ -167,11 +165,14 @@ sentence the user reads.
 
 ```
 WARNING odoo.modules.loading: The models ['dswd.asset'] have no access rules in module dswd_asset,
-consider adding some
+consider adding some, like:
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+dswd_asset.access_dswd_asset,access_dswd_asset,dswd_asset.model_dswd_asset,base.group_user,1,0,0,0
 ```
 
-Nothing is broken yet. Nobody can open the table either. Remember this line: in fifteen minutes it becomes an error on
-screen.
+Odoo even suggests a row; ours will have four, with the system row first.
+
+Nothing is broken yet. Nobody can open the table either. Remember this warning: in fifteen minutes it becomes an error on screen.
 
 ---
 
@@ -205,15 +206,19 @@ Odoo 19: `<list>`, not `<tree>`. **Predict**: where will it appear?
 
 ---
 
-## After step 2: the app tile
+## After step 2: no tile, even for admin
 
-![w:1180](images/step2-app-tile.png)
+Odoo hides a menu whose model you cannot read, so the IT Assets tile does not appear.
+
+Open the action by its URL instead:
+
+`http://localhost:8069/odoo/action-dswd_asset.action_dswd_asset`
 
 ---
 
 ## The warning became an error
 
-![w:1180](images/step2-access-error.png)
+![h:520](images/step2-access-error.png)
 
 ---
 
@@ -243,9 +248,15 @@ Viewer reads. Officer reads, writes, creates. Manager also deletes. The last rec
 
 ---
 
+## After step 3: the app tile
+
+![h:520](images/step2-app-tile.png)
+
+---
+
 ## Your turn: register the laptop in front of you
 
-![w:1180](images/step3-asset-list.png)
+![h:420](images/step3-asset-list.png)
 
 Then set a warranty end date **before** the purchase date, and read the dialog.
 
@@ -270,9 +281,9 @@ $ ./odoo-project test dswd_asset
 0 failed, 0 error(s) of 12 tests
 ```
 
-The access tests log in as a viewer, an officer and a manager. The rows are proven, not assumed.
+Written with each step: the demo tag runs 8, your finished copy 12, with access tests per tier.
 
-**Start yours now** and read the summary line at 9:54.
+**Start yours now** and read the summary line at 9:56.
 
 ---
 
@@ -294,7 +305,13 @@ The access tests log in as a viewer, an officer and a manager. The rows are prov
 
 ```xml
 <header>
-    <button name="action_assign_to_me" type="object" string="Assign to me" class="btn-primary" />
+    <button
+        name="action_assign_to_me"
+        type="object"
+        string="Assign to me"
+        class="btn-primary"
+        groups="dswd_asset.group_asset_officer"
+    />
 </header>
 ```
 
@@ -360,8 +377,8 @@ A Many2one is itself a record: `a.custodian_id.name` walks the link. Nothing is 
 
 | Mistake                                      | Symptom                                                     | Look at                                    |
 | -------------------------------------------- | ----------------------------------------------------------- | ------------------------------------------ |
-| No access row                                | `have no access rules`; `AccessError` even as admin         | `security/ir.model.access.csv`             |
-| Action without a menu, menu without action   | clean update, nothing to click                              | Technical > Menu Items                     |
+| No access row                                | `have no access rules`; menu hidden; `AccessError` by URL   | `security/ir.model.access.csv`             |
+| Action without a menu, menu without action   | clean update, nothing to click                              | Technical > User Interface > Menu Items    |
 | A view field that is not on the model        | `Field "x" does not exist in model "dswd.asset"`            | Technical > Fields                         |
 | `_name` versus `model_id` in the access file | `No matching record found for external id 'model_dswd_...'` | `model_` plus `_name`, dots to underscores |
 
@@ -377,10 +394,9 @@ A Many2one is itself a record: `a.custodian_id.name` walks the link. Nothing is 
 
 ## The household table already exists
 
-![w:1180](images/handoff-household-fields.png)
+![h:380](images/handoff-household-fields.png)
 
-310 columns, from several modules. A new `dswd.household` would mean two tables, two forms, two access files, and no
-link to programs. At ten you add **one column** to this table instead.
+Hundreds of columns, from several modules. A new `dswd.household` would mean two tables, two forms, two access files, and no link to programs. After the break you add **one column** to this table instead.
 
 ---
 
@@ -394,11 +410,11 @@ link to programs. At ten you add **one column** to this table instead.
 
 One word cost: a code change, a release, an `update` on every server.
 
-In OpenSPP a code list is **data**: Settings > Vocabularies. That is the first file you see at ten.
+In OpenSPP a code list is **data**: Settings > Vocabularies. That is the first file you see after the break.
 
 ---
 
-## Today and at ten: the same files, three swaps
+## Today and after the break: the same files, three swaps
 
 | Today, `dswd_asset`                    | Next, `dswd_wellbeing`                                              |
 | -------------------------------------- | ------------------------------------------------------------------- |
@@ -409,4 +425,4 @@ In OpenSPP a code list is **data**: Settings > Vocabularies. That is the first f
 | groups and four access rows            | access file: header only                                            |
 | `depends = ["base", "spp_security"]`   | `depends = ["spp_registry", "spp_vocabulary"]`                      |
 
-Same files, same loop, same `test`. Three swaps, each one line. See you at ten.
+Same files, same loop, same `test`. Three swaps matter most: `_inherit`, a vocabulary instead of a Selection, an inherited view. See you at 10:10.

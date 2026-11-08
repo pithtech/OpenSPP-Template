@@ -1,11 +1,19 @@
 # Module 4 Training Design: Developing Custom Modules and Extending Odoo Models
 
+> **Superseded where the materials differ.** The run of show, commands and wording in
+> [training/module4/runbook.md](../../training/module4/runbook.md) are current; this design is the rationale. As built:
+> Module 4 runs 10:10 to 12:00 after a ten-minute break; block 1 shows the end state from screenshots, and the live
+> build starts on a database that has never had `dswd_wellbeing` (an uninstall leaves the system vocabulary's codes
+> behind); block 2 is five minutes and there is no buffer block; the constraint is pre-built in `m4-step-5` and block 8
+> asks Claude Code for a fourth level; the quiz is an optional self-check, with no pre-test, post-test or observation
+> checklist; participants' repositories have no tags.
+
 > **Status**: proposal for Edwin's review (2026-11-08). Synthesised from
 > [research-module4-first-module.md](research-module4-first-module.md), an instructional-design review and an Odoo
 > trainer review (both run as independent agents on the same brief), plus facts verified in the repo.
-> **Slot**: Day 2, 10:00 to 12:00, after Module 3 "Introduction to Odoo", before Module 5 (4 hours, DSWD-specific).
+> **Slot**: Day 2, 10:10 to 12:00, after Module 3 and a ten-minute break "Introduction to Odoo", before Module 5 (4 hours, DSWD-specific).
 > **Audience**: about 87 DSWD IT staff of mixed skill (18 RITOs, 36 CMTs, 33 NPMO IT). Evaluation target: Tier-2/3
-> troubleshooting, measured by pre-test, post-test and an observation checklist.
+> troubleshooting, practised in the drill; the quiz is an optional self-check.
 
 ---
 
@@ -13,7 +21,7 @@
 
 1. Module 4 is a **demo-led "read and predict" session**, not a typing session. One trainer, 87 people and a share of
    broken laptops make live participant coding the wrong tool; Module 6 on Day 3 is the hands-on slot.
-2. Edwin builds **one small module live, `dswd_wellbeing`, in five steps of one or two files each**, from pre-made git
+2. Edwin builds **one small module live, `dswd_wellbeing`, in six steps (`m4-step-0` to `m4-step-5`) of one or two files each**, from pre-made git
    tags, so any live failure is recoverable in one command and participants can jump to any step later.
 3. Every step starts from a **4Ps requirement** (SWDI well-being level on a household) and lands on an **OpenSPP
    concept** (vocabulary, registrant, inherited form), so "Odoo" is never taught in the abstract.
@@ -27,7 +35,7 @@
 
 By 12:00 a participant can:
 
-| # | Objective | Post-test form |
+| # | Objective | Quiz form |
 | --- | --- | --- |
 | 1 | Name the role of each file in a `dswd_*` module (manifest, data, model, view, security, test) and state that a file not listed in the manifest does not exist to Odoo. | Multiple choice |
 | 2 | Given a 4Ps requirement, pick the right pattern: `_inherit` on the upstream model, a `dswd_` field, a Many2one to a vocabulary code; never a new model for an attribute, never a static Selection for a code list, never an edit under `upstream/openspp/`. | Multiple choice plus one sentence |
@@ -49,7 +57,7 @@ Both reviews independently picked option A from the research doc over the altern
 - Option C (household status) invites "why not the real 32" arguments and hierarchy; afternoon material.
 
 On Edwin's question "does it extend `spp_vocabulary`": the module extends `spp_vocabulary` **by data** (a new
-vocabulary and codes, the way all 26 production vocabularies are shipped) and extends `spp_registry` **by model and
+vocabulary and codes, the way all 27 production vocabularies (in 26 files) are shipped) and extends `spp_registry` **by model and
 view** (a field on the household and its form). That pairing is the single most common shape of a `dswd_4ps_*` module,
 which is why it is the right first example. The slide title should say "Extending OpenSPP: a vocabulary and a household
 field", not "customising spp_vocabulary".
@@ -62,7 +70,7 @@ Decisions taken on the open questions from the research doc (override any of the
 | Codes | `survival`, `subsistence`, `self_sufficient`; SWDI number in `definition` | Readable on a slide; the number keeps the PPIS link |
 | Field placement | New group "4Ps" after `group_tags_section` on the household Profile page | One XPath; the group label makes the result obvious on screen |
 | ACL file | Ship `security/ir.model.access.csv` header-only, listed in the manifest | Objective 1 needs the file to exist; one minute to explain "no new model, no rows" |
-| Wrong-vocabulary code | `@api.constrains` on the field, written in step 5 with Claude Code, test first | A Many2one `domain` only filters the UI; the constraint is the honest guard and a clean TDD moment |
+| Wrong-vocabulary code | `@api.constrains` on the field, pre-built in step 5, test first (block 8 asks Claude Code for a fourth level instead) | A Many2one `domain` only filters the UI; the constraint is the honest guard and a clean TDD moment |
 
 ## 4. Run of show
 
@@ -71,25 +79,24 @@ never dropped.
 
 | Time | Block | Mode | Trainer | Participants |
 | --- | --- | --- | --- | --- |
-| 10:00 | 1. The end state | Demo | Open the finished module on a warm database: a household showing "Well-Being Level: Subsistence". One slide: SWDI levels, EO 120, where this lives in production (`dswd_4ps_registry`, 26 vocabulary files). | Watch |
-| 10:05 | 2. Module anatomy | Paper | File tree slide, one sentence per file and the 4Ps requirement it serves; the three rules (never edit vendor, inherit, list it in the manifest). | Fill the anatomy map on the handout |
-| 10:15 | 3. Step 0 and 1: manifest, data | Demo, predict | Install the empty module through Apps (developer mode, Update Apps List). Add the vocabulary file **without** the manifest line, update, nothing appears (**breakage 1**). Add the line, update, show Settings > Vocabularies. **Breakage 2**: `domain="administrative"`, read the traceback, fix to `social_assistance`. | Predict before each run |
-| 10:35 | 4. Step 2: model | Demo, predict | `_inherit` versus `_name`, the `dswd_` prefix, Many2one with namespace domain, why not `Selection` (32 statuses, 2,000 IP groups, deployment profiles). Forget the import in `models/__init__.py` (**breakage 3**): no error, no field. Show Settings > Technical > Fields. | Spot the missing line on the printed diff |
-| 10:50 | 5. Buffer | | Absorb overrun or take questions. | |
+| 10:10 | 1. The end state | Screenshots | The deck's screenshots of a household showing the Well-Being Level (never live: the demo database must not have the module). One slide: SWDI levels, EO 120, where this lives in production (`dswd_4ps_registry`, 26 vocabulary files). | Watch |
+| 10:15 | 2. Module anatomy (5 min) | Paper | File tree slide, one sentence per file and the 4Ps requirement it serves; the three rules (never edit vendor, inherit, list it in the manifest). | Fill the anatomy map on the handout |
+| 10:20 | 3. Step 0 and 1: manifest, data | Demo, predict | Install the empty module through Apps (developer mode, Update Apps List, remove the Apps filter). Add the vocabulary file **without** the manifest line, update, nothing appears (**breakage 1**). Add the line, update, show Settings > Vocabularies. **Breakage 2**: `domain="administrative"`, read the traceback, fix to `social_assistance`. | Predict before each run |
+| 10:40 | 4. Step 2: model | Demo, predict | `_inherit` versus `_name`, the `dswd_` prefix, Many2one with namespace domain, why not `Selection` (32 statuses, 394 IP groups, deployment profiles). Forget the import in `models/__init__.py` (**breakage 3**): no error, no field. Show Settings > Technical > Fields. | Spot the missing line on the printed diff |
 | 10:55 | 6. Step 3: view | Demo, predict | Open the upstream form in `upstream/` first, find `group_tags_section`. Inherit, one XPath, a "4Ps" group. Misspell the anchor (**breakage 4**): "cannot be located in parent view". Fix, open a household, set a value. | Predict where the field appears |
 | 11:10 | 7. Step 4: test | Demo, predict | The test run was started in a second terminal at 10:55 (it builds a fresh database). Walk the test file while it runs; read the log path and the summary line. Flip an assertion if time allows. | Find the failing line on the handout |
-| 11:25 | 8. Step 5: Claude Code | Demo | Ask it for the constraint plus a failing-first test; review the diff together; rerun. The point is "review the diff", not "the AI did it". | Watch |
-| 11:35 | 9. Troubleshooting drill | Pairs, paper | Three log excerpts on a sheet; each pair names the file to open and the fix; three pairs report. This produces the observation-checklist evidence. | Work in pairs |
-| 11:50 | 10. Recap and handoff | | Objectives slide; what moves to Module 5; the Day 3 exercise sheet; "before Module 6: `git checkout m4-step-5` and `./odoo-project start`". | Questions |
+| 11:25 | 8. Claude Code | Demo | Ask it for a fourth well-being level plus a test; review the diff together; rerun. The point is "review the diff", not "the AI did it". | Watch |
+| 11:35 | 9. Troubleshooting drill | Pairs, paper | Three log excerpts on a sheet; each pair names the file to open and the fix; three pairs report. | Work in pairs |
+| 11:50 | 10. Recap and handoff | | Objectives slide; what moves to Module 5; the Day 3 exercise sheet; "before Module 6: `./odoo-project start` and `./odoo-project install dswd_wellbeing`" (the finished module is already in their repository). | Questions |
 
 ## 5. Handling the skill spread
 
 - **Three self-selected tracks.** *Read*: no laptop needed, printed code per step and the handout. *Follow*: a working
-  laptop, `git checkout m4-step-N` then `./odoo-project update`, no typing. *Stretch*: challenge cards (add the field as
+  laptop with the finished module installed; follow on the handout, no typing. *Stretch*: challenge cards (add the field as
   an optional column on the household list; start the Day 3 exercise early).
 - **Pairs.** Seat CMTs next to RITOs or NPMO developers. Rule: ask your pair, then your row, then Edwin.
-- **Git tags per step** (`m4-step-0` to `m4-step-5`) are the single source of truth; anyone can jump to a working state,
-  and they double as the Day 3 starting point.
+- **Git tags per step** (`m4-step-0` to `m4-step-5`) are the single source of truth for the trainer's demo. They exist
+  only in the trainer's clone; participants start Day 3 from the finished module in their copy.
 - **Predict-then-see** questions are the participation mechanism; they work at every level and need no environment.
 
 ## 6. What moves to Module 5 and Module 6
@@ -104,7 +111,7 @@ module map in section 8 of the 4Ps reference.
 - *Minimum, no environment*: a `dswd_wellbeing_broken` copy with three planted faults (data file missing from the
   manifest, misspelled anchor, invalid `domain`); find them and write the expected symptom for each.
 - *Standard*: add the well-being field as an optional column on the household list view
-  (`spp_registry.view_groups_list_tree`), update, show it.
+  (`spp_registry.view_groups_list_tree_base`), update, show it.
 - *Stretch*: `dswd_id_types`, adding `philsys` to the upstream ID Type vocabulary with
   `^\d{4}-\d{4}-\d{4}-\d{4}$`, plus one test that an invalid value raises `ValidationError` (the upstream
   `spp.registry.id` validates in a constraint, so this is testable).
@@ -121,8 +128,8 @@ Teach these, each tied to the file a participant will open when something breaks
 | XML records and xml ids | `<record id= model=>`, `ref=`, `noupdate="1"`, and `module.id` as the address of everything. | Demo data, `Command` API |
 | View inheritance | `inherit_id`, one XPath on a named anchor, `position="after"`. Mention `hasclass()` as the Odoo 19 rule only. | Positional XPath, attributes edits |
 | ACL csv | Header and one row shape; "no new model, no rows". | Groups, record rules |
-| The loop | Edit, `./odoo-project update`, refresh. Manifest, data, security, new fields and new views need `update`; `noupdate` data needs a fresh database or deleting the record. First install is Apps > Update Apps List. | Migrations |
-| Logs | `./odoo-project logs`; the three lines to recognise: `Loading module dswd_...`, `ParseError`, `cannot be located in parent view`. | |
+| The loop | Edit, `./odoo-project update`, refresh. Manifest, data, security, new fields and new views need `update`; `noupdate` data needs a fresh database (shipped codes of a system vocabulary cannot be deleted). First install is `./odoo-project install`, or Apps > Update Apps List with the Apps filter removed. | Migrations |
+| Logs | the output of `install` and `update` (in their own terminal; `./odoo-project logs` shows the running server); the three lines to recognise: `Loading module dswd_...`, `ParseError`, `cannot be located in parent view`. | |
 | One test | `TransactionCase` via `RegistryCommon`, `self.env[...]`, `assertEqual`, the summary line, the log file path. | Tags, tours, HTTP cases |
 
 ## 8. The five mistakes to drill (they are the quiz and the drill sheet)
@@ -131,7 +138,7 @@ Teach these, each tied to the file a participant will open when something breaks
 | --- | --- | --- |
 | Module not in Apps (folder typo, no manifest, list not refreshed) | Search finds nothing | Developer mode on, Update Apps List; `./odoo-project logs` has no `dswd_` line |
 | File written but not in manifest `data` | Update clean, UI unchanged | `grep vocabulary_ dswd_wellbeing/__manifest__.py` |
-| Restart instead of update, or edited `noupdate` data | Change never shows | New field, view or data: `update`; changed `noupdate` record: delete it under Technical > External Identifiers, or `stop -v -y` |
+| Restart instead of update, or edited `noupdate` data | Change never shows | New field, view or data: `update`; changed `noupdate` record: a fresh database (`stop -v -y`) or a migration |
 | Wrong XPath anchor (`group_tag_section`, `@class=`) | `Element '<xpath ...>' cannot be located in parent view` | `grep -n 'name="group_' upstream/openspp/spp_registry/views/individual_views.xml` |
 | New model without ACL, or import missing | `have no access rules` warning, `AccessError`, or field silently absent | Technical > Fields, search `dswd_` |
 
@@ -141,11 +148,11 @@ Teach these, each tied to the file a participant will open when something breaks
 | --- | --- | --- |
 | `dswd_wellbeing` in the template, built test-first, with tags `m4-step-0` to `m4-step-5` | Source of truth; survives any live failure | Essential |
 | `dswd_wellbeing_broken` folder (three planted faults) | Day 3 minimum track and the drill | Essential |
-| Trainer runbook (`training/module4-runbook.md`) | Commands per block, the four breakages, cut-off times, drop order, fallbacks | Essential |
+| Trainer runbook (`training/module4/runbook.md`) | Commands per block, the four breakages, cut-off times, drop order, fallbacks | Essential |
 | Slides, about 18, one file per slide | Anatomy, patterns, objectives, Module 5 preview | Essential |
 | Anatomy one-pager handout | Fill-in map; desk reference afterwards | Essential |
-| Troubleshooting drill sheet and answer key | Observation-checklist evidence | Essential |
-| Quiz bank, 10 items, 5 paired pre/post | Evaluation | Essential |
+| Troubleshooting drill sheet and answer key | Diagnosis practice in pairs | Essential |
+| Quiz bank, 10 items | Optional self-check | Essential |
 | Day 3 exercise sheet (three tiers) | Handoff | Essential |
 | Screen recording of the full demo | Fallback if Edwin's machine fails; post-training reference | Strongly recommended |
 | Printed per-step diffs | Read track | Nice to have |
@@ -167,7 +174,8 @@ Teach these, each tied to the file a participant will open when something breaks
    individual-page anchor without saying households use the `group_*` anchors. Add a sentence on first install.
 4. **Point participants at one guide.** `extending-openspp.md` is the Module 4 companion; `module-development.md` is
    900 lines of starter and variant patterns and belongs to Module 5.
-5. **Prepare the demo machine**: two databases warmed (step 0 and step 5), terminal and editor at 20pt, light theme,
+5. **Prepare the demo machine**: one fresh database where `dswd_wellbeing` was never installed (block 1 uses the
+   screenshots), terminal and editor at 20pt, light theme,
    at most 25 lines per screen, tags pushed, recording made.
 6. **Recruit two volunteer helpers** with a green `./odoo-project doctor` during Module 3 for a triage table at lunch.
 
@@ -183,7 +191,7 @@ Teach these, each tied to the file a participant will open when something breaks
 | Test run too slow to show live | Start it in a second terminal at 10:55; show the log path and summary when it ends |
 | Code unreadable from the back | 20pt, light theme, trimmed files, and the same code printed in the handout |
 
-## 12. Sample post-test items
+## 12. Sample quiz items
 
 1. (Obj 1) A new `data/vocabulary_well_being_level.xml` exists, the module installs, but the vocabulary is absent.
    Most likely cause? a) missing ACL row b) file not listed in the manifest `data` c) wrong `_inherit` d) missing

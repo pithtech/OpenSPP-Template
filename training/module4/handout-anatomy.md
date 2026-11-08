@@ -32,17 +32,18 @@ dswd_wellbeing/
 
 ## 4. The loop
 
-| You changed                                                             | Run                                                                             | Then                    |
-| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ----------------------- |
-| Nothing yet, new module                                                 | `./odoo-project install dswd_wellbeing`                                         | Apps shows it installed |
-| A Python method body                                                    | `./odoo-project restart`; nothing with `start --profile dev` (it reloads)       | refresh the browser     |
-| An existing view's XML                                                  | `./odoo-project update`; nothing with `start --profile dev` (it reads the file) | refresh the browser     |
-| `__manifest__.py`, `data/`, `security/`, a new field, a new view record | `./odoo-project update`                                                         | refresh                 |
-| A record in a `noupdate="1"` data file                                  | delete the record, then `update`; or `stop -v -y` and `start`                   |                         |
-| A test                                                                  | `./odoo-project test dswd_wellbeing`                                            | read the summary line   |
+| You changed                                                             | Run                                                                                                         | Then                    |
+| ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ----------------------- |
+| Nothing yet, new module                                                 | `./odoo-project install dswd_wellbeing`                                                                     | Apps shows it installed |
+| A Python method body                                                    | `./odoo-project restart`; nothing with `start --profile dev` (it reloads)                                   | refresh the browser     |
+| An existing view's XML                                                  | `./odoo-project update`; nothing with `start --profile dev` (it reads the file)                             | refresh the browser     |
+| `__manifest__.py`, `data/`, `security/`, a new field, a new view record | `./odoo-project update`                                                                                     | refresh                 |
+| A record in a `noupdate="1"` data file                                  | a fresh database: `stop -v -y`, `start`, `install` (shipped codes of a system vocabulary cannot be deleted) |                         |
+| A test                                                                  | `./odoo-project test dswd_wellbeing`                                                                        | read the summary line   |
 
-Logs: `./odoo-project logs`. Three lines to recognise: `Loading module dswd_wellbeing`, `odoo.tools.convert.ParseError`,
-`cannot be located in parent view`.
+Logs: `install`, `update` and `test` print their output in the window where you ran them; `./odoo-project logs` shows
+the running server (and installs started from Apps). Three lines to recognise: `Loading module dswd_wellbeing`,
+`odoo.tools.convert.ParseError`, `cannot be located in parent view`.
 
 ## 5. The five mistakes (fill in the diagnostic you saw)
 
@@ -100,9 +101,9 @@ Logs: `./odoo-project logs`. Three lines to recognise: `Loading module dswd_well
 `domain` must be one of `core`, `social_assistance`, `social_insurance`, `labor`, `disability`, `agriculture`, `health`,
 `education`.
 
-### Step 2: the field (`models/res_partner.py`, plus `from . import res_partner` in `models/__init__.py` and
+### Step 2: the field (`models/res_partner.py`)
 
-`from . import models` in `__init__.py`)
+Plus `from . import res_partner` in `models/__init__.py` and `from . import models` in `__init__.py`.
 
 ```python
 from odoo import fields, models
@@ -132,7 +133,11 @@ class ResPartner(models.Model):
         <field name="arch" type="xml">
             <xpath expr="//group[@name='group_tags_section']" position="after">
                 <group name="dswd_4ps_section" string="4Ps">
-                    <field name="dswd_well_being_level_id" options="{'no_create': True, 'no_open': True}" />
+                    <field
+                        name="dswd_well_being_level_id"
+                        readonly="disabled"
+                        options="{'no_create': True, 'no_open': True}"
+                    />
                 </group>
             </xpath>
         </field>
@@ -140,7 +145,11 @@ class ResPartner(models.Model):
 </odoo>
 ```
 
-Find the anchor first: `grep -n 'name="group_' upstream/openspp/spp_registry/views/individual_views.xml`.
+`readonly="disabled"` locks the field with the rest of the Profile page when a household is disabled.
+
+Find the anchor first: search `name="group_` in `upstream/openspp/spp_registry/views/individual_views.xml` (VS Code:
+Ctrl+F), or in PowerShell:
+`Select-String -Path upstream\openspp\spp_registry\views\individual_views.xml -Pattern 'name="group_'`.
 
 ### Step 4: the security file and the tests
 

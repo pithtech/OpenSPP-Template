@@ -6,7 +6,8 @@ then the trainer.
 Before you start, on a working laptop, run the pre-flight. Every line must pass before you touch the exercise; if one
 fails, go to the helpers' table.
 
-1. `./odoo-project doctor` shows no error and no warning.
+1. `./odoo-project doctor` shows no red ✗. Yellow ⚠ warnings (for example argcomplete not installed, or Docker memory
+   below 6 GB) are fine.
 2. `./odoo-project start` prints the URL and you can log in.
 3. The page is styled (blue sidebar, no red "css error" banner). If not: `./odoo-project resetassets`.
 4. `./odoo-project test dswd_wellbeing` reports 5 passed.
@@ -33,19 +34,21 @@ Use the Module 4 handout: the three rules, the loop, the five mistakes. Do not r
 
 Checkpoint: you have three file:line pairs and three expected symptoms. Compare with your pair before the debrief.
 
-Bonus: `./odoo-project lint` (ruff and prettier) passes on all three faults. The repo's pre-commit hooks catch exactly
-one of them. Which one, and which hook? (Hint: the OCA module checks compare the files on disk with the manifest.)
+Bonus: `./odoo-project lint` (ruff and prettier) passes on all three faults; try them in your own `dswd_wellbeing`,
+because this folder is excluded from the hooks. In the real module, the repo's pre-commit hooks catch exactly one of
+them. Which one, and which hook? (Hint: the OCA module checks compare the files on disk with the manifest.)
 
 ## Tier 2: Show the level on the household list (environment needed)
 
 The level shows on the household form but not on the list. Add it as an optional column.
 
-1. Find the upstream list view:
-   `grep -n 'record id="view_groups_list' upstream/openspp/spp_registry/views/group_views.xml`. You want
+1. Find the upstream list view: open `upstream/openspp/spp_registry/views/group_views.xml` and search for
+   `view_groups_list` (VS Code: Ctrl+F), or in PowerShell
+   `Select-String -Path upstream\openspp\spp_registry\views\group_views.xml -Pattern 'view_groups_list'`. You want
    `view_groups_list_tree_base`; note the field names inside its `<list>`.
 2. Add a second record to `dswd_wellbeing/views/res_partner_views.xml` that inherits it and puts
    `<field name="dswd_well_being_level_id" optional="show" />` after `registration_date`.
-3. `./odoo-project update`, open Registry > Groups, and show the column.
+3. `./odoo-project update`, open Registry > Browse All (Audit) > All Groups, and show the column.
 4. Add a test to `tests/test_wellbeing.py` that the list view's arch contains the field (copy the form test and change
    the view id and view type to `list`). Run `./odoo-project test dswd_wellbeing`.
 

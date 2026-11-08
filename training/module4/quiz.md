@@ -1,8 +1,7 @@
 # Module 4 Quiz Bank
 
-Ten items mapped to the five Module 4 objectives. Items 1 to 5 are the paired pre-test and post-test set (ask the same
-five before Day 2 and after Module 4); items 6 to 10 are spares for the post-test or for Module 6. Answers are in
-`quiz-answers.md`.
+Ten items mapped to the five Module 4 objectives: an optional self-check, not scheduled in the session. Use it after
+Module 4 or before Module 6. Answers are in `quiz-answers.md`.
 
 Objectives: (1) module anatomy and the manifest rule, (2) the extension pattern, (3) view inheritance and its error, (4)
 reading a log excerpt, (5) running tests and reading the summary.
@@ -30,7 +29,10 @@ but the vocabulary is not in Settings > Vocabularies. What is the most likely ca
 **4.** (Objectives 3 and 4) An update fails with:
 
 ```
-odoo.exceptions.ValidationError: Element '<xpath expr="//group[@name='group_tag_section']">' cannot be located in parent view
+odoo.tools.convert.ParseError: while parsing /mnt/extra-addons/custom/dswd_wellbeing/views/res_partner_views.xml:8
+Error while parsing or validating view:
+
+Element '<xpath expr="//group[@name=&#39;group_tag_section&#39;]">' cannot be located in parent view
 ```
 
 Which file in your module do you open, and what do you compare it against?

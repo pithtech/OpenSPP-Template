@@ -2,7 +2,7 @@
 
 Work in pairs. For each excerpt, write down (1) which file in `dswd_wellbeing` you open, (2) what you compare it against
 or look for, and (3) the one-line fix. You have 12 minutes for the three. These are real log lines from
-`./odoo-project test dswd_wellbeing`.
+`./odoo-project test dswd_wellbeing`; `...` marks where a line was shortened.
 
 ---
 
@@ -20,6 +20,7 @@ odoo.tools.convert.ParseError: while parsing /mnt/extra-addons/custom/dswd_wellb
 <record id="vocab_well_being_level" model="spp.vocabulary">
         <field name="name">4Ps Well-Being Level</field>
         <field name="namespace_uri">urn:dswd:4ps:well-being-level</field>
+        <field name="description">Household well-being level from the SWDI assessment</field>
         <field name="is_system" eval="True"/>
         <field name="domain">administrative</field>
     </record>
@@ -39,12 +40,15 @@ ERROR odoo.registry: Failed to load registry
 odoo.tools.convert.ParseError: while parsing /mnt/extra-addons/custom/dswd_wellbeing/views/res_partner_views.xml:8
 Error while parsing or validating view:
 
-Element '<xpath expr="//group[@name='group_tag_section']">' cannot be located in parent view
+Element '<xpath expr="//group[@name=&#39;group_tag_section&#39;]">' cannot be located in parent view
 
 View error context:
 {'file': '/mnt/extra-addons/custom/dswd_wellbeing/views/res_partner_views.xml',
+ 'line': ...,
  'name': 'res.partner.form.dswd.wellbeing',
+ 'view': ...,
  'view.model': 'res.partner',
+ 'view.parent': ...,
  'xmlid': 'view_res_partner_form_wellbeing'}
 ```
 

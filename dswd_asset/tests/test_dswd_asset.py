@@ -1,6 +1,7 @@
 # Part of the DSWD 4Ps OpenSPP training template. See LICENSE file for full copyright and licensing details.
 from datetime import date, timedelta
 
+from odoo import Command
 from odoo.exceptions import ValidationError
 from odoo.tests import TransactionCase, tagged
 
@@ -42,10 +43,17 @@ class TestDswdAsset(TransactionCase):
 
     def test_assign_to_me_makes_the_current_user_the_custodian(self):
         """The form button writes the current user into custodian_id (the ORM write in one line)."""
-        other = self.env.ref("base.user_admin")
-        self.asset.custodian_id = other
-        self.asset.with_user(self.env.user).action_assign_to_me()
-        self.assertEqual(self.asset.custodian_id, self.env.user)
+        officer = self.env["res.users"].create(
+            {
+                "name": "asset_officer",
+                "login": "asset_officer",
+                "email": "asset_officer@example.test",
+                "group_ids": [Command.set([self.env.ref("dswd_asset.group_asset_officer").id])],
+            }
+        )
+        self.asset.custodian_id = self.env.ref("base.user_admin")
+        self.asset.with_user(officer).action_assign_to_me()
+        self.assertEqual(self.asset.custodian_id, officer)
 
     def test_find_warranty_expiring_returns_only_assets_ending_soon(self):
         """A model method built on search(): warranties ending within the window, still in use."""

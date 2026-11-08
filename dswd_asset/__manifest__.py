@@ -14,6 +14,7 @@
         "spp_security",
     ],
     "data": [
+        "security/groups.xml",
         "security/ir.model.access.csv",
         "views/dswd_asset_views.xml",
         "views/menus.xml",

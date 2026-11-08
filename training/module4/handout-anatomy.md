@@ -45,13 +45,13 @@ Logs: `./odoo-project logs`. Three lines to recognise: `Loading module dswd_well
 
 ## 5. The five mistakes (fill in the diagnostic you saw)
 
-| Mistake                                                  | Symptom                              | How you find it                  |
-| -------------------------------------------------------- | ------------------------------------ | -------------------------------- |
-| Data file not in the manifest                            | clean update, nothing appears        | **************\_\_************** |
-| Invalid value in a data file (`domain`)                  | `ParseError`, registry fails to load | **************\_\_************** |
-| Import missing in `models/__init__.py`                   | no error, field absent               | **************\_\_************** |
-| XPath anchor misspelled                                  | `cannot be located in parent view`   | **************\_\_************** |
-| `restart` instead of `update`, or `noupdate` data edited | change never shows                   | **************\_\_************** |
+| Mistake                                                  | Symptom                              | How you find it |
+| -------------------------------------------------------- | ------------------------------------ | --------------- |
+| Data file not in the manifest                            | clean update, nothing appears        |                 |
+| Invalid value in a data file (`domain`)                  | `ParseError`, registry fails to load |                 |
+| Import missing in `models/__init__.py`                   | no error, field absent               |                 |
+| XPath anchor misspelled                                  | `cannot be located in parent view`   |                 |
+| `restart` instead of `update`, or `noupdate` data edited | change never shows                   |                 |
 
 ## 6. The code, step by step
 

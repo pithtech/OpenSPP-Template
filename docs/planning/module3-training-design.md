@@ -1,8 +1,16 @@
 # Module 3 Training Design: Introduction to Odoo
 
+> **Superseded where the materials differ.** The run of show, commands and wording in
+> [training/module3/runbook.md](../../training/module3/runbook.md) are current; this design is the rationale. As built:
+> seven tagged steps (`m3-step-0` to `m3-step-6`); `depends = ["base", "spp_security"]`; `security/groups.xml` with
+> viewer, officer and manager, and four access rows (system first); no Module 3 quiz and no pre-test or post-test (the
+> Module 4 quiz is an optional self-check); at step 2 no tile appears, the AccessError is shown by opening the action's
+> URL; a ten-minute break at 10:00, Module 4 from 10:10. Sections 4, 5, 8, 11 and 12 below were written before these
+> changes.
+
 > **Status**: proposal for Edwin's review (2026-11-08). Synthesised from Edwin's brief, an instructional-design review
 > and an Odoo trainer review run as independent agents on the same brief, and facts verified in the repo.
-> **Slot**: Day 2, 8:30 to 10:00, the first session of the day, immediately before Module 4 (10:00 to 12:00). Same
+> **Slot**: Day 2, 8:30 to 10:00, the first session of the day, then a ten-minute break and Module 4 (10:10 to 12:00). Same
 > trainer. Day 1 covered the DPG ecosystem and how OpenSPP was built on Odoo, conceptually.
 > **Audience**: about 87 DSWD IT staff of mixed skill; every participant arrives with a running stack (mandatory
 > pre-training step 8.5).
@@ -15,7 +23,7 @@
    error in Module 3 is chosen so that Module 4 reads as the next step of the same arc, not a new topic.
 2. The concept lecture is **twelve minutes**, each concept shown on the running stack rather than explained, because
    Day 1 already gave the conceptual picture and the rest of the time belongs to building.
-3. Edwin builds **one generic module live, `dswd_asset`, an IT asset register, in five steps** from pre-made tags.
+3. Edwin builds **one generic module live, `dswd_asset`, an IT asset register, in seven steps** (0 to 6) from pre-made tags.
    Thirty-six of the 87 participants are computer maintenance technologists who keep exactly this register.
 4. Participants touch their laptops **three times**: install the module, register their own laptop in it, start the
    test run. Each touch sits at the start of a demo-only block so the room absorbs the waiting.
@@ -42,7 +50,8 @@ slide ("Odoo needs a folder and a manifest; the prefix is our project's rule, li
 
 Chosen over a help-desk ticket (needs a state machine, the one legitimate use of a Selection, which would muddy the
 hand-off) and a training attendance sheet (needs registrant relations, too close to Module 4). Model `dswd.asset`,
-depends on `base` only, which proves on the slide that it is plain Odoo.
+depends on `base` and `spp_security` (only to link its manager group into the OpenSPP admin group), so it is still plain
+Odoo on the slide.
 
 | Field              | Type                                            | Why it is there                                              |
 | ------------------ | ----------------------------------------------- | ------------------------------------------------------------ |
@@ -57,12 +66,12 @@ depends on `base` only, which proves on the slide that it is plain Odoo.
 
 Plus one constraint (warranty cannot end before purchase), which gives the test suite something to refuse and gives
 participants an error dialog to read. Left out and named on a slide as "Module 5": One2many, chatter, Monetary, state
-buttons, security groups, record rules, demo data (participant databases are created without demo data anyway).
+buttons, record rules, demo data (participant databases are created without demo data anyway).
 
 Files, each short enough for one slide: `__manifest__.py`, `__init__.py`, `models/__init__.py`,
 `models/dswd_asset.py`, `views/dswd_asset_views.xml` (list, form, search, action), `views/menus.xml` (a top-level
-app menu with an icon, so the app tile appearing is the payoff moment), `security/ir.model.access.csv` (two rows:
-`base.group_system` full, `base.group_user` read, write and create), `tests/test_dswd_asset.py` (defaults; the
+app menu with an icon, so the app tile appearing is the payoff moment), `security/groups.xml` (viewer, officer, manager) and `security/ir.model.access.csv` (four rows,
+`base.group_system` first), `tests/test_dswd_asset.py` (defaults; the
 constraint refuses; on `TransactionCase` with `setUp`), `readme/DESCRIPTION.md`.
 
 The Selection deliberately contradicts the repo checklist "no static Selection for vocabulary-backed values". The
@@ -75,41 +84,41 @@ say." Nothing in the first twenty minutes needs a laptop, so late arrivals cost 
 
 | Time | Block                              | Mode              | Trainer                                                                                                                                                                                                                        | Laptops                                  |
 | ---- | ---------------------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------- |
-| 8:30 | 1. Objectives, hands up            | talk              | "Who sees the login page?" Recruit the two helpers Module 4 needs from the green hands. Day 2 pre-test items (Modules 3 and 4 combined) if a pre-test is run on paper.                                                        | `start` only                             |
-| 8:35 | 2. Odoo in twelve minutes          | demo              | Five concepts, each on screen: module = folder with a manifest (the addons path in `logs`); model = table (Technical > Models, `res.partner`, "many modules add columns to one table, hold that thought until 10:30"); view = how a table is drawn (Technical > Views); menu, action, view, model (developer mode "Edit Action"); developer mode itself. | developer mode on                        |
+| 8:30 | 1. Objectives, hands up            | talk              | "Who sees the login page?" Recruit the two helpers Module 4 needs from the green hands.                                                        | `start` only                             |
+| 8:35 | 2. Odoo in twelve minutes          | demo              | Five concepts, each on screen: module = folder with a manifest (the addons path in `logs`); model = table (Technical > Models, `res.partner`, "many modules add columns to one table, hold that thought until 10:40"); view = how a table is drawn (Technical > Views); menu, action, view, model (developer mode "Edit Action"); developer mode itself. | developer mode on                        |
 | 8:47 | 3. Step 0, manifest and `__init__` | demo, predict     | The empty module; Apps > Update Apps List > Install on the demo machine; `Loading module dswd_asset` in the log. Then: **"Install now"**. Predict: "mine is empty, yours is finished; what differs in Apps?"                  | **touch 1**: `./odoo-project install dswd_asset` |
-| 8:55 | 4. Step 1, the model               | demo, predict     | One field type per minute with its why. `update`. Technical > Fields shows nine columns; the log says `The model dswd.asset has no access rules`. "No view yet: invisible, not broken." Plant the Selection question: "Region IV buys tablets. What do we change?" Hold the answer. | installs finish in the background        |
+| 8:55 | 4. Step 1, the model               | demo, predict     | One field type per minute with its why. `update`. Technical > Fields shows fourteen rows (eight fields plus six automatic ones); the `update` output says `The models ['dswd.asset'] have no access rules in module dswd_asset, consider adding some, like:`. "No view yet: invisible, not broken." Plant the Selection question: "Region IV buys tablets. What do we change?" Hold the answer. | installs finish in the background        |
 | 9:10 | 5. Checkpoint                      | buffer            | "Apps, search Asset: installed?" Helpers walk the rows.                                                                                                                                                                       | a glance                                 |
-| 9:14 | 6. Step 2, views, action, menu     | demo, predict     | Predict: "where will the menu appear?" `update`; the app tile appears; click it: **AccessError, even as admin** (planted: no access row). Read the warning in `logs`.                                                           |                                          |
-| 9:22 | 7. Step 3, the access row          | demo, then do     | Two rows, `update`, the list opens. Create the demo laptop. Then participants register their own laptop, group by type, and set a warranty date before the purchase date to read the constraint's dialog.                       | **touch 2**: create a record             |
+| 9:14 | 6. Step 2, views, action, menu     | demo, predict     | Predict: "where will the menu appear?" `update`; no tile appears, even for admin (Odoo hides a menu whose model the user cannot read); open the action by URL: **AccessError, even as admin** (planted: no access row).                                                           |                                          |
+| 9:22 | 7. Step 3, the access row          | demo, then do     | Groups and four rows, `update`, the tile appears and the list opens. Create the demo laptop. Then participants register their own laptop, group by type, and set a warranty date before the purchase date to read the constraint's dialog.                       | **touch 2**: create a record             |
 | 9:34 | 8. Step 4, tests                   | demo              | Walk the two tests; run on the demo machine (about 20 s once the image is warm). Participants start theirs and leave it running.                                                                                              | **touch 3**: `./odoo-project test dswd_asset` |
 | 9:42 | 9. The hand-off (never dropped)    | demo, slide       | Section 5.                                                                                                                                                                                                                     | read the test summary when it lands      |
 | 9:54 | 10. Close                          | talk              | Three quiz items by show of hands; "leave the stack running, Module 4 needs nothing from it"; the two helpers meet Edwin at the break.                                                                                         |                                          |
 
-Drop order if late: the planted AccessError (show the rows and move on), then the participants' test run (becomes the
-lunch task). The hand-off is never dropped.
+Drop order if late (current, see the runbook): the shell demo, then step 6 reduced to opening the PDF, then the
+participants' test run (becomes the lunch task). The planted AccessError and the hand-off are never dropped.
 
 ## 5. The hand-off to Module 4
 
 Three devices, in this order, at 9:42:
 
 1. **The question.** "4Ps needs a well-being level on every household. Which file do we start with?" Most will answer
-   a new `models/dswd_household.py`. Open Registry > Groups: the household table already exists with dozens of columns
+   a new `models/dswd_household.py`. Open Registry > Browse All (Audit) > All Groups: the household table already exists with dozens of columns
    from several modules (the Technical > Models x-ray from 8:40 said so). A new model means two tables, two forms,
-   two access files, and no link to programs. "At 10:00 you will add one column to the existing table instead."
+   two access files, and no link to programs. "After the break you will add one column to the existing table instead."
 2. **The planted Selection, resolved.** Add `("tablet", "Tablet")` to `asset_type` live, `update`, show it works, then:
    "that was a code change, a release, and an update on every server for one new word. In OpenSPP a code list is
-   data, edited under Settings > Vocabularies. That is the first file you see at 10:00."
+   data, edited under Settings > Vocabularies. That is the first file you see after the break."
 3. **The side-by-side table**, the last slide and the back of the handout:
 
-| Today, `dswd_asset` (8:30)                          | Next, `dswd_wellbeing` (10:00)                                   |
+| Today, `dswd_asset` (8:30)                          | Next, `dswd_wellbeing` (10:10)                                   |
 | --------------------------------------------------- | ---------------------------------------------------------------- |
 | `_name = "dswd.asset"`, a new table                 | `_inherit = "res.partner"`, columns on an existing table         |
 | `asset_type = fields.Selection([...])`              | `dswd_well_being_level_id = fields.Many2one("spp.vocabulary.code")` |
 | `<list>` and `<form>` written from scratch          | `inherit_id` plus one XPath on a named anchor                    |
 | an action and a menu you created                    | no menu: the household form already has one                     |
-| access file: two rows                               | access file: header only, "no new model, no rows"                |
-| `depends = ["base"]`                                | `depends = ["spp_registry", "spp_vocabulary"]`                   |
+| groups and four access rows                         | access file: header only, "no new model, no rows"                |
+| `depends = ["base", "spp_security"]`                | `depends = ["spp_registry", "spp_vocabulary"]`                   |
 | `TransactionCase`, `create()` your own record       | `RegistryCommon` hands you a household                           |
 | the field is yours: `asset_type`                    | a field on someone else's model: prefix `dswd_`                  |
 
@@ -127,7 +136,7 @@ brand-new module: `install`. The Module 4 handout gets the same two-line correct
 
 | Mistake                                  | Symptom                                                                                   | Diagnostic                                                        |
 | ---------------------------------------- | ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| No access row                            | `The model dswd.asset has no access rules` on update; `AccessError` even as admin        | `grep dswd_asset security/ir.model.access.csv`                    |
+| No access row                            | `The models ['dswd.asset'] have no access rules` on update; menu hidden; `AccessError` by URL even as admin | `grep dswd_asset security/ir.model.access.csv`                    |
 | Action without a menu, or menu without `action=` | clean update, nothing to click                                                    | Technical > User Interface > Menu Items, search the name          |
 | A view field that is not on the model    | update fails: `Field "custodian" does not exist in model "dswd.asset"`, file and line     | compare against Technical > Fields                                |
 | `_name` versus the access row's `model_id` | `No matching record found for external id 'model_dswd_assett'` at the csv line          | `model_` plus `_name` with dots as underscores, exactly           |
@@ -136,12 +145,12 @@ brand-new module: `install`. The Module 4 handout gets the same two-line correct
 
 | Material                                                     | Priority            |
 | ------------------------------------------------------------ | ------------------- |
-| `dswd_asset` at the repo root, test-first, tags `m3-step-0` to `m3-step-4`, `auto_install: False` | Essential |
+| `dswd_asset` at the repo root, test-first, tags `m3-step-0` to `m3-step-6`, `auto_install: False` | Essential |
 | `runbook.md`: commands per block, the planted fault with its real log line, cut-offs, drop order  | Essential |
 | `slides.md`: Marp, about 16 slides, screenshots from the real stack                                | Essential |
 | `handout-anatomy.md`: fill-in file map, the field-type table, the loop, the mistakes, the code per step, the side-by-side table on the back | Essential |
 | `command-card.md`: half a page: `start`, `install dswd_asset`, `test dswd_asset`, `resetassets`, `logs` | Essential |
-| `quiz.md` and `quiz-answers.md`: five paired items; one combined Day 2 pre-test is suggested      | Essential |
+| `quiz.md` and `quiz-answers.md`: not built; no Module 3 quiz, no pre-test or post-test             | Dropped   |
 | `README.md`: index and demo-machine preparation                                                   | Essential |
 | Screen recording; one stretch card ("add a `location` Char and a list column")                     | Nice to have        |
 
@@ -163,10 +172,10 @@ groups (it provides only `group_spp_admin` and a self-restriction group); the sc
 | 87 installs at once                                    | Installs are local, so failures are individual: helpers per row, pair rule, lunch triage; a failed install costs nothing, the module is in the repo for Day 3 |
 | `install` wall time on Windows laptops unknown         | Measured 6 s plus restart on a Mac; measure on the Windows machine during Edwin's rehearsal; the fourteen-minute demo block after it absorbs the wait |
 | First `test` run slow (fresh database)                 | Started at 9:34, read at 9:54; lunch task if needed                                                      |
-| Overrun into Module 4, same trainer, hard 10:00        | Cut-offs per block, fixed drop order, the hand-off never dropped                                          |
+| Overrun into the break and Module 4 (10:10), same trainer | Cut-offs per block, fixed drop order, the hand-off never dropped                                          |
 | Demo machine fails                                     | Tags per step, warm database, the recording                                                              |
 
-## 11. Sample post-test items
+## 11. Sample quiz items (not built)
 
 1. (Obj 1) `views/dswd_asset_views.xml` exists and `update` is clean, but the menu never appears. Most likely cause?
    a) missing `_description` b) the file is not in the manifest `data` c) missing `tests/__init__.py` d) wrong
@@ -175,7 +184,8 @@ groups (it provides only `group_spp_admin` and a self-restriction group); the sc
    edit the Python, release, `update` on every server. Follow-up: what does OpenSPP use instead?
 3. (Obj 3) A user clicks a menu and sees a list. Put in order: model, action, menu, view. Answer: menu, action, view,
    model.
-4. (Obj 4) The log shows `The model dswd.asset has no access rules` and admin gets `AccessError`. Which file, which
+4. (Obj 4) The `update` output shows `The models ['dswd.asset'] have no access rules in module dswd_asset` and admin
+   gets `AccessError`. Which file, which
    row? Expected: `security/ir.model.access.csv`, a `base.group_system` row with 1,1,1,1 first.
 5. (Obj 5) Write the command that runs the tests of `dswd_asset` and name the line that says whether they passed.
    Expected: `./odoo-project test dswd_asset`; the summary line with the failure and error counts.
@@ -186,8 +196,8 @@ groups (it provides only `group_spp_admin` and a self-restriction group); the sc
 2. The menu: a top-level app menu with its own icon (the tile appearing is the payoff), rather than a child of the
    Registry menu, which is gated by registry groups.
 3. Keep the planted Selection in the shipped module, with the note in its readme, as the before picture.
-4. One combined Day 2 pre-test (Module 3 and 4 items) at 8:30, separate post-tests.
-5. Access rows: system plus all internal users, no custom groups until Module 5.
+4. Superseded: no pre-test or post-test on Day 2; the Module 4 quiz is an optional self-check.
+5. Superseded: the module ships three groups (viewer, officer, manager) and four access rows.
 
 ## 13. Additions decided on 2026-11-08 (evening)
 

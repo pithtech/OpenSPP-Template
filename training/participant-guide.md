@@ -10,6 +10,15 @@ Modules 1, 2 and 6 are added as their sessions are prepared. This edition covers
 Introduction to Odoo, and Module 4, Developing Custom Modules and Extending Odoo Models, in the morning; Module 5,
 DSWD-specific implementation of OpenSPP, in the afternoon.
 
+Contents:
+
+- [0. Before you start](#0-before-you-start)
+- [Module 3: Introduction to Odoo](#module-3-introduction-to-odoo)
+- [Module 4: Developing Custom Modules and Extending Odoo Models](#module-4-developing-custom-modules-and-extending-odoo-models)
+- [Module 5: DSWD-specific implementation of OpenSPP](#module-5-dswd-specific-implementation-of-openspp)
+- [6. Module 6: Hands-on activity](#6-module-6-hands-on-activity)
+- [7. Reference](#7-reference), with the glossary in 7.6
+
 ---
 
 ## 0. Before you start
@@ -23,8 +32,14 @@ If you followed `training/SETUP.md`, you have:
 - the OpenSPP image pulled, the OpenSPP source in `upstream/openspp/`, and a first start that ended at a styled login
   page.
 
-Everything in this guide happens inside that repository folder. On Windows PowerShell, write `.\odoo-project` wherever
-this guide writes `./odoo-project`.
+Everything in this guide happens inside that repository folder. On Windows PowerShell, type `.\odoo-project` (or
+`./odoo-project`, which also works) wherever this guide writes `./odoo-project`; a bare `odoo-project` does not work.
+Paths are written with `/`; PowerShell accepts them too.
+
+The few `grep` commands in this guide search files. Windows PowerShell has no `grep`; use
+`Select-String -Path <file> -Pattern <text>` instead, or search the folder in VS Code (Ctrl+Shift+F). `git grep` does
+not see `upstream/openspp/`, because that folder is not tracked by Git. Bash habits such as `&&`, `||` and `> /dev/null`
+do not work in Windows PowerShell 5.1 either; run one command per line.
 
 ### 0.2 The map of your repository
 
@@ -50,10 +65,13 @@ no folder at the root may be called `forms`, `helpers`, `mixins`, `utilities` or
 | Install a new module into the running database | `./odoo-project install <module>` |
 | A module you already installed changed         | `./odoo-project update`           |
 | You changed Python and run the default profile | `./odoo-project restart`          |
-| Odoo said something you did not understand     | `./odoo-project logs`             |
+| Read what the running server says              | `./odoo-project logs`             |
 | Run a module's tests on a clean database       | `./odoo-project test <module>`    |
 | Pages lost their styling                       | `./odoo-project resetassets`      |
 | End of the day                                 | `./odoo-project stop`             |
+
+`install`, `update` and `test` print their output, errors included, in the terminal where you ran them; `logs` shows
+only the running server, not that output.
 
 Login: `admin` / `admin`. Developer mode: Settings, scroll to the bottom, "Activate the developer mode". Developer mode
 adds the Technical menu, which is the x-ray of everything in this guide.
@@ -68,20 +86,26 @@ Odoo reads your files when it installs or updates a module, not continuously. Af
 | `__manifest__.py`, a data file, a security file, a new field, a new view record | `./odoo-project update`                                       |
 | A Python method body                                                            | `./odoo-project restart` (nothing with `start --profile dev`) |
 | An existing view's XML                                                          | `./odoo-project update` (nothing with `start --profile dev`)  |
-| A record in a `noupdate="1"` data file                                          | delete the record, then `update`; or a fresh database         |
+| A record in a `noupdate="1"` data file                                          | a fresh database (`stop -v -y`, `start`, `install`); 4.4      |
 | A test                                                                          | `./odoo-project test <module>`, then read the summary line    |
 
 `update` never installs a new module; `install` does. Both restart the server.
+
+`start --profile dev` reloads Python and view changes by itself. It runs on its own port, not 8069: it prints its URL,
+and `./odoo-project url` shows it again. On Windows, with the repository on the `C:` drive, the dev profile may not see
+your edits at all (the container gets no file-change events from the Windows drive); if a change does not show, use
+`restart` and `update` as on the default profile.
 
 ---
 
 ## Module 3: Introduction to Odoo
 
-The session builds `dswd_asset` in six steps. Between the steps, sections marked **Reference** go deeper into the topic
-the step introduced: every field type, the ORM as written in module code, wizards, record rules, overrides, scheduled
-jobs. They are not presented in the 90 minutes; they are what you come back to when you maintain and build modules.
-Their examples continue the same two subjects, the asset register and 4Ps households, and were run against Odoo 19 and
-OpenSPP 2026.09 before they were printed here.
+The session builds `dswd_asset` in seven steps, numbered 0 to 6. Your repository holds the finished module, with every
+step in it. Between the steps, sections marked **Reference** go deeper into the topic the step introduced: every field
+type, the ORM as written in module code, wizards, record rules, overrides, scheduled jobs. They are not presented in the
+90 minutes; they are what you come back to when you maintain and build modules. Their examples continue the same two
+subjects, the asset register and 4Ps households, and were run against Odoo 19 and OpenSPP 2026.09 before they were
+printed here.
 
 ### 3.1 What you can do after this module
 
@@ -159,8 +183,12 @@ dswd_asset/
 ├── report/dswd_asset_report.xml    the Asset Sheet PDF report and its template
 ├── security/groups.xml             viewer, officer and manager groups
 ├── security/ir.model.access.csv    who may read, write, create, delete
+├── tests/__init__.py                imports the test files
 ├── tests/test_dswd_asset.py        what "working" means, as code
 ├── tests/test_access.py            the access rows, proven as each tier
+├── tests/test_report.py            the report renders
+├── static/description/icon.png     the app tile icon
+├── pyproject.toml                  packaging metadata
 └── readme/DESCRIPTION.md           what the module is for
 ```
 
@@ -176,14 +204,16 @@ The module ships in your repository with `auto_install: False`. It is installed 
     "category": "DSWD 4Ps/Training",
     "version": "19.0.1.0.0",
     "author": "DSWD",
+    "website": "https://github.com/pithtech/OpenSPP-Template",
     "license": "LGPL-3",
-    "depends": ["base", "spp_security"],
+    "development_status": "Alpha",
+    "maintainers": [],
+    "depends": [
+        "base",
+        "spp_security",
+    ],
     "data": [
-        "security/groups.xml",
         "security/ir.model.access.csv",
-        "views/dswd_asset_views.xml",
-        "views/menus.xml",
-        "report/dswd_asset_report.xml",
     ],
     "application": False,
     "installable": True,
@@ -191,15 +221,31 @@ The module ships in your repository with `auto_install: False`. It is installed 
 }
 ```
 
+This is the manifest at step 0. At this point `security/ir.model.access.csv` holds only its header line, and `data`
+lists nothing else, because nothing else exists yet. Each later step adds its file to `data`; the finished manifest in
+your repository lists five:
+
+```python
+    "data": [
+        "security/groups.xml",
+        "security/ir.model.access.csv",
+        "views/dswd_asset_views.xml",
+        "views/menus.xml",
+        "report/dswd_asset_report.xml",
+    ],
+```
+
 - `depends` lists the modules Odoo must install first. `base` is Odoo itself; `spp_security` is the OpenSPP module that
   owns the admin group the manager tier links into (step 3).
 - `data` lists the files Odoo loads, in order. **A file not listed here does not exist to Odoo.** No error is raised;
-  the file is simply ignored.
+  the file is simply ignored. The reverse fails: a file listed in `data` that does not exist stops the install.
 - `installable: True` makes it appear in Apps; `auto_install: False` keeps it out of the automatic first start.
+  `application: False` means the default "Apps" filter hides it.
 
-With only this file and an empty `__init__.py`, the module installs. It does nothing yet. In Apps, turn on developer
-mode, click Update Apps List, search "Asset", and install; or from the terminal: `./odoo-project install dswd_asset`.
-`./odoo-project logs` shows `Loading module dswd_asset`.
+With this manifest, the header-only access file and an empty `__init__.py`, the module installs. It does nothing yet.
+From the terminal: `./odoo-project install dswd_asset`; its output, in the same terminal, shows
+`Loading module dswd_asset`. Or in Apps: turn on developer mode, click Update Apps List, remove the "Apps" filter from
+the search box (the x on the facet), search "Asset", and install; then `./odoo-project logs` shows the same line.
 
 ### 3.7 Step 1: the model is the table
 
@@ -239,7 +285,7 @@ class DswdAsset(models.Model):
                 raise ValidationError(_("The warranty end date must be on or after the purchase date."))
 ```
 
-What each line teaches:
+The file in your repository also carries a class docstring and comments, left out here. What each line teaches:
 
 | Line                           | Teaches                                                                                                                                                                    |
 | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -258,13 +304,15 @@ The model needs two import lines to be seen: `from . import dswd_asset` in `mode
 `from . import models` in `__init__.py`. Forgetting either raises no error; the model is simply absent. After
 `./odoo-project update`, Settings > Technical > Fields, searched by model `dswd.asset`, lists the columns.
 
-The log also says, at this point:
+The output of that `update`, in the same terminal, also says:
 
 ```
-WARNING odoo.modules.loading: The models ['dswd.asset'] have no access rules in module dswd_asset, consider adding some
+WARNING ... odoo.modules.loading: The models ['dswd.asset'] have no access rules in module dswd_asset, consider adding some, like:
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+dswd_asset.access_dswd_asset,access_dswd_asset,dswd_asset.model_dswd_asset,base.group_user,1,0,0,0
 ```
 
-Nothing is broken. Nobody can open the table either.
+Odoo even suggests a row. Nothing is broken. Nobody can open the table either.
 
 ### 3.8 Fields in depth
 
@@ -333,8 +381,8 @@ class DswdAssetMovement(models.Model):
 ```
 
 - **Many2one**: a column holding the id of another record. `ondelete` decides what happens when that record is deleted:
-  `set null` (the default), `restrict` (refuse the deletion), `cascade` (delete this record too). Index Many2one fields
-  you search or group on.
+  `set null` (the default; `restrict` when the field is required), `restrict` (refuse the deletion), `cascade` (delete
+  this record too). Index Many2one fields you search or group on.
 - **One2many**: no column; the list of records whose Many2one points back here. It needs that Many2one to exist on the
   other model.
 - **Many2many**: a link table. Name the table and its two columns explicitly when two Many2many fields could link the
@@ -573,8 +621,12 @@ constraint, or a `create`/`write` override.
     <field name="res_model">dswd.asset</field>
     <field name="view_mode">list,form</field>
     <field name="context">{'search_default_filter_in_use': 1}</field>
+    <!-- a help field, the text shown on an empty list, follows; see the file -->
 </record>
 ```
+
+Abridged: comments and the action's `help` text are left out; the full files are `dswd_asset/views/dswd_asset_views.xml`
+and `dswd_asset/views/menus.xml`.
 
 ```xml
 <menuitem id="menu_dswd_asset_root" name="IT Assets" web_icon="dswd_asset,static/description/icon.png" sequence="95" />
@@ -590,15 +642,22 @@ constraint, or a `create`/`write` override.
   tile.
 - XML ids follow the repository's rules: `view_<model>_<type>`, `action_<model>`, `menu_<model>_<purpose>`.
 
-After `./odoo-project update` the app tile "IT Assets" appears. Clicking it, even as `admin`, gives:
+After `./odoo-project update`, nothing new appears, not even for `admin`: Odoo hides a menu whose model you may not
+read, and `admin` is not the superuser. Open the action directly instead, at
+`http://localhost:8069/odoo/action-dswd_asset.action_dswd_asset` (with the dev profile, use the port that `start`
+printed). You get:
 
 ```
 Access Error
 You are not allowed to access 'IT Asset' (dswd.asset) records.
+
 No group currently allows this operation.
+
+Contact your administrator to request access if necessary.
 ```
 
-The warning from step 1 became an error the moment there was a door to knock on.
+The warning from step 1 became an error the moment there was a door to knock on. The tile appears at step 3, once the
+access rows exist.
 
 ### 3.10 Wizards and actions returned from Python
 
@@ -608,6 +667,9 @@ A wizard is a temporary model (`TransientModel`) behind a dialog; a method can r
 client what to open next.
 
 ```python
+from odoo import Command, _, api, fields, models
+
+
 class DswdAssetReassignWizard(models.TransientModel):
     _name = "dswd.asset.reassign.wizard"
     _description = "Reassign Assets"
@@ -757,6 +819,9 @@ def test_officer_sees_only_held_assets(self):
 
 ### 3.13 Step 4: tests say what "working" means
 
+The tests were written with each step, from step 1 on; step 4 is where the session reads them. Abridged: the full files
+are `dswd_asset/tests/test_dswd_asset.py` and `dswd_asset/tests/test_access.py`, which hold more tests than shown here.
+
 ```python
 from datetime import date, timedelta
 
@@ -830,16 +895,22 @@ class TestDswdAssetAccess(TransactionCase):
 - `TransactionCase` gives each test a database transaction that is rolled back afterwards; `setUp` runs before each
   test. `@tagged("post_install", "-at_install")` runs the tests after every module is installed, which is what this
   repository requires.
-- `self.env["dswd.asset"]` is the model; `create`, `write`, `search_count`, `unlink` are ORM operations (3.11 lists the
+- `self.env["dswd.asset"]` is the model; `create`, `write`, `search_count`, `unlink` are ORM operations (3.14 lists the
   five you use most). `with_user(...)` runs the same operations as that user, which is how the access rows are proven
   rather than assumed.
 
 ```
 $ ./odoo-project test dswd_asset
+...
+========== TEST RESULTS ==========
 0 failed, 0 error(s) of 12 tests
+Passed: 12 | Failed: 0 | Errors: 0
+
 Full log: .../dswd_asset_unittest_20261108_153000.log
+==================================
 ```
 
+Your repository has all seven steps, so it runs 12 tests; at step 4 alone the count is 8 (steps 5 and 6 add two each).
 The summary line is the first thing you read when someone says a module is broken; the log path is the second.
 
 ### 3.14 Step 5: the ORM, from a method and from the shell
@@ -859,12 +930,16 @@ Two methods added to `dswd.asset` show the two shapes a method takes:
 
 ```python
     def action_assign_to_me(self):
-        """Form button: the ORM write in one line. ``self`` is the asset the button was pressed on."""
+        """Form button: the ORM write in one line. ``self`` is the asset(s) the button was pressed on."""
         self.write({"custodian_id": self.env.user.id})
 
     @api.model
     def find_warranty_expiring(self, days=30):
-        """Assets still in use whose warranty ends within ``days``: a search with a domain."""
+        """Assets still in use whose warranty ends within ``days``: a search with a domain.
+
+        ``@api.model`` means the method works on the model, not on records:
+        ``env["dswd.asset"].find_warranty_expiring(30)``.
+        """
         today = fields.Date.context_today(self)
         return self.search(
             [
@@ -876,8 +951,24 @@ Two methods added to `dswd.asset` show the two shapes a method takes:
         )
 ```
 
-- A method without a decorator runs on records: `self` is the asset (or assets) it was called on. The form's
-  `<button name="action_assign_to_me" type="object" />` calls it on the record being edited.
+Step 5 also adds a header with the button to the form view:
+
+```xml
+<header>
+    <!-- type="object" calls the method of that name on the record -->
+    <button
+        name="action_assign_to_me"
+        type="object"
+        string="Assign to me"
+        class="btn-primary"
+        groups="dswd_asset.group_asset_officer"
+    />
+</header>
+```
+
+- A method without a decorator runs on records: `self` is the asset (or assets) it was called on. The form's button,
+  `type="object"`, calls it on the record being edited. `groups` shows the button only to officers and above: a viewer
+  may not write, so the button would only give them an `AccessError`.
 - `@api.model` marks a method that works on the model as a whole: `env["dswd.asset"].find_warranty_expiring(30)`.
 - `self.env` is the environment: the current user (`self.env.user`), the other models (`self.env["res.users"]`), xml ids
   (`self.env.ref("dswd_asset.group_asset_manager")`).
@@ -894,11 +985,13 @@ $ ./odoo-project shell
 ['LT-0001']
 >>> a = Asset.create({"name": "LT-0099", "asset_type": "laptop"})
 >>> a.write({"model_name": "Lenovo ThinkPad T14"})
+True
 >>> a.custodian_id.name
 'OdooBot'
 >>> Asset.find_warranty_expiring(365).mapped("name")
 ['LT-0001']
 >>> a.unlink()
+True
 >>> env.cr.commit()      # the shell does not save until you say so: shell only, never in module code
 ```
 
@@ -1205,8 +1298,16 @@ wkhtmltopdf, which the image includes.
                             <tr><th>Custodian</th><td><span t-field="asset.custodian_id" /></td></tr>
                             <tr><th>Purchase Date</th><td><span t-field="asset.purchase_date" /></td></tr>
                             <tr><th>Warranty End</th><td><span t-field="asset.warranty_end_date" /></td></tr>
+                            <tr>
+                                <th>Under Warranty</th>
+                                <td><t t-if="asset.is_under_warranty">Yes</t><t t-else="">No</t></td>
+                            </tr>
                         </tbody>
                     </table>
+                    <p class="text-muted">
+                        Printed on <span t-out="context_timestamp(datetime.datetime.now()).strftime('%Y-%m-%d')" />
+                        by <span t-out="user.name" />.
+                    </p>
                 </div>
             </t>
         </t>
@@ -1214,22 +1315,26 @@ wkhtmltopdf, which the image includes.
 </template>
 ```
 
+The file is `dswd_asset/report/dswd_asset_report.xml`; its comments are left out here.
+
 - `binding_model_id` puts "Asset Sheet" in the Print menu of the asset list and form; `print_report_name` names the
   downloaded file.
 - `docs` is the recordset being printed; `t-foreach` makes one page per record; `t-field` renders a field with its
-  widget (dates, Many2one names, selections) the way the form does; `t-esc` prints any expression.
+  widget (dates, Many2one names, selections) the way the form does; `t-out` prints any expression, escaped; `t-if` and
+  `t-else` choose what to print. Older code writes `t-esc`, which Odoo 19 deprecates: with the dev profile, every render
+  logs a warning asking for `t-out`.
 - `web.external_layout` adds the company header and footer; `web.html_container` is the page wrapper.
 - A report is tested without a PDF engine by rendering the HTML:
   `self.env["ir.actions.report"]._render_qweb_html("dswd_asset.action_report_dswd_asset", asset.ids)`.
 
 ### 3.19 The four mistakes of a new module
 
-| Mistake                                       | Symptom                                                        | Where to look                                      |
-| --------------------------------------------- | -------------------------------------------------------------- | -------------------------------------------------- |
-| No access row                                 | `have no access rules` in the log; `AccessError` even as admin | `security/ir.model.access.csv`                     |
-| Action without a menu, or menu without action | clean update, nothing to click                                 | Settings > Technical > User Interface > Menu Items |
-| A view field that is not on the model         | update fails: `Field "x" does not exist in model "dswd.asset"` | compare with Settings > Technical > Fields         |
-| `_name` versus `model_id` in the access file  | `No matching record found for external id 'model_dswd_...'`    | `model_` plus `_name` with dots as underscores     |
+| Mistake                                       | Symptom                                                                                                                        | Where to look                                      |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------- |
+| No access row                                 | `have no access rules` in the `install` or `update` output; the menu is hidden; `AccessError` on the action URL, even as admin | `security/ir.model.access.csv`                     |
+| Action without a menu, or menu without action | clean update, nothing to click                                                                                                 | Settings > Technical > User Interface > Menu Items |
+| A view field that is not on the model         | update fails: `Field "x" does not exist in model "dswd.asset"`                                                                 | compare with Settings > Technical > Fields         |
+| `_name` versus `model_id` in the access file  | `No matching record found for external id 'model_dswd_...'`                                                                    | `model_` plus `_name` with dots as underscores     |
 
 ### 3.20 From Module 3 to Module 4
 
@@ -1254,7 +1359,9 @@ the first file of Module 4.
 | `TransactionCase`, `create()` your own record | `RegistryCommon` hands you a household                              |
 | the field is yours: `asset_type`              | a field on someone else's model: prefix `dswd_`                     |
 
-Same files, same loop, same `test`. Three swaps, each one line.
+Same files, same loop, same `test`. Three swaps matter most, each one line: `_inherit` instead of `_name`, a vocabulary
+Many2one instead of a Selection, and `inherit_id` instead of a view written from scratch. The other rows follow from
+them.
 
 ---
 
@@ -1307,16 +1414,16 @@ dswd_wellbeing/
 OpenSPP's `spp_vocabulary` module stores code lists in two models: `spp.vocabulary`, a named list with a globally unique
 namespace URI, and `spp.vocabulary.code`, one code in a list with a `code`, a `display` label, a `definition` and a
 computed URI `namespace#code`. OpenSPP ships gender (ISO 5218), country, currency, language, occupation (ISCO-08),
-education level, ID type and more. The production 4Ps modules ship 26 of their own: client status (32 statuses in 9
-categories), member status, set groups, indigenous peoples groups (about 2,000 codes), well-being level, and so on, all
-under `urn:dswd:4ps:...`.
+education level, ID type and more. The production 4Ps modules ship about 70 of their own, 27 in the registry module
+alone: client status (32 statuses in 9 categories), member status, set groups, indigenous peoples groups (394 codes),
+well-being level, and so on, all under `urn:dswd:4ps:...`.
 
 Why a vocabulary and not a `Selection`:
 
 - a code list changes without a release: Settings > Vocabularies, no code change;
 - deployments differ: a region can hide codes with a deployment profile;
 - every code has a URI other systems can match;
-- 32 client statuses and 2,000 groups do not belong in Python.
+- 32 client statuses and 394 indigenous peoples groups do not belong in Python.
 
 Static selections are for internal workflow states only.
 
@@ -1342,9 +1449,19 @@ Static selections are for internal workflow states only.
 </odoo>
 ```
 
-- `noupdate="1"`: these records are loaded once, on install, and never overwritten by an update. To change one after
-  install, delete it (Settings > Technical > External Identifiers, or the Vocabularies screen) and update again, or
-  start from a fresh database. A bad value in such a file is caught only the first time it loads.
+- `noupdate="1"`: these records are loaded once, on install, and never overwritten by an update. A bad value in such a
+  file is caught only the first time it loads. To see an edit to one of them:
+
+  - in development, start from a fresh database: `./odoo-project stop -v -y`, then `start`, then `install` the module;
+  - on a database that must keep its data, write a migration (4.13). The ORM refuses ordinary writes to the shipped
+    codes of a system vocabulary, so production migrations use SQL or `with_context(install_xmlid=True)`, the context
+    the data loader itself runs with.
+
+  Deleting the record does not work here. The Vocabularies screen refuses to delete codes of a system vocabulary
+  ("Cannot delete codes from system vocabulary"). Deleting only the row in Settings > Technical > External Identifiers
+  leaves the code in place, so the next `update` creates it again and fails with "Code must be unique within
+  vocabulary".
+
 - `domain` is a fixed selection: `core`, `social_assistance`, `social_insurance`, `labor`, `disability`, `agriculture`,
   `health` or `education`. Any other value fails at install with a `ParseError`.
 - `is_system`: shipped codes are locked against editing in the UI; administrators add local codes next to them.
@@ -1425,7 +1542,7 @@ class in another module. `_inherits` is rare in `dswd_*` code but appears upstre
         <field name="arch" type="xml">
             <xpath expr="//group[@name='group_tags_section']" position="after">
                 <group name="dswd_4ps_section" string="4Ps">
-                    <field name="dswd_well_being_level_id" options="{'no_create': True, 'no_open': True}" />
+                    <field name="dswd_well_being_level_id" readonly="disabled" options="{'no_create': True, 'no_open': True}" />
                 </group>
             </xpath>
         </field>
@@ -1433,17 +1550,23 @@ class in another module. `_inherits` is rare in `dswd_*` code but appears upstre
 </odoo>
 ```
 
+The file in your repository starts with a comment, left out here.
+
 - `inherit_id` names the upstream view. In `spp_registry` one form serves individuals and households; the household
   pages and groups are prefixed `group_` (`group_profile`, `group_tags_section`, `group_identity`).
 - Find the anchor before writing the XPath:
-  `grep -n 'name="group_' upstream/openspp/spp_registry/views/individual_views.xml`. Target named elements only;
-  positional XPath breaks on the next release.
+  `grep -n 'name="group_' upstream/openspp/spp_registry/views/individual_views.xml`; in PowerShell,
+  `Select-String -Path upstream\openspp\spp_registry\views\individual_views.xml -Pattern 'name="group_'`; or search the
+  file in VS Code. Target named elements only; positional XPath breaks on the next release.
 - `no_create` and `no_open` keep users from creating or editing codes from the dropdown; codes are managed under
   Settings > Vocabularies.
+- `readonly="disabled"` follows the upstream form, which locks its own fields (names, tags) the same way: the level
+  cannot be edited once the registrant is disabled (`disabled` is the upstream "Date Disabled" field).
 - The other positions (`before`, `inside`, `replace`, `attributes`), conditional `invisible` and `readonly`, and
   `groups` on fields and buttons: section 4.8.
 
-After `./odoo-project update`: Registry > Groups > a household > Profile shows a "4Ps" section with the dropdown.
+After `./odoo-project update`: Registry > Browse All (Audit) > All Groups > a household > Profile shows a "4Ps" section
+with the dropdown.
 
 ### 4.8 View inheritance: every position
 
@@ -1535,20 +1658,23 @@ class TestHouseholdWellBeing(RegistryCommon):
 
 ```
 $ ./odoo-project test dswd_wellbeing
+...
+========== TEST RESULTS ==========
 0 failed, 0 error(s) of 5 tests
+Passed: 5 | Failed: 0 | Errors: 0
 ```
 
 ### 4.11 The five mistakes of an extension
 
-| Mistake                                                           | Symptom                                                                                   | One-line diagnostic                                                                      |
-| ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| Module not in Apps (folder typo, no manifest, list not refreshed) | search finds nothing                                                                      | developer mode on, Update Apps List; `./odoo-project logs` has no `dswd_` line           |
-| Data file written but not in manifest `data`                      | update clean, UI unchanged                                                                | `grep vocabulary_ dswd_wellbeing/__manifest__.py`                                        |
-| `restart` instead of `update`, or edited `noupdate` data          | change never shows                                                                        | new field, view or data: `update`; changed `noupdate` record: delete it, or `stop -v -y` |
-| Wrong XPath anchor (`group_tag_section`, `@class=`)               | `Element '<xpath ...>' cannot be located in parent view`                                  | `grep -n 'name="group_' upstream/openspp/spp_registry/views/individual_views.xml`        |
-| Import missing in `models/__init__.py`                            | no error, field absent; or `Field "..." does not exist in model` once a view refers to it | Settings > Technical > Fields, search `dswd_`                                            |
+| Mistake                                                           | Symptom                                                                                   | One-line diagnostic                                                                                                                       |
+| ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Module not in Apps (folder typo, no manifest, list not refreshed) | search finds nothing                                                                      | remove the "Apps" filter, developer mode on, Update Apps List; the `install` output says `invalid module names, ignored`                  |
+| Data file written but not in manifest `data`                      | update clean, UI unchanged                                                                | `grep vocabulary_ dswd_wellbeing/__manifest__.py` (PowerShell: `Select-String -Path dswd_wellbeing\__manifest__.py -Pattern vocabulary_`) |
+| `restart` instead of `update`, or edited `noupdate` data          | change never shows                                                                        | new field, view or data: `update`; changed `noupdate` record: a fresh database (`stop -v -y`), or a migration (4.4)                       |
+| Wrong XPath anchor (`group_tag_section`, `@class=`)               | `Element '<xpath ...>' cannot be located in parent view`                                  | search `name="group_` in `upstream/openspp/spp_registry/views/individual_views.xml` (4.7)                                                 |
+| Import missing in `models/__init__.py`                            | no error, field absent; or `Field "..." does not exist in model` once a view refers to it | Settings > Technical > Fields, search `dswd_`                                                                                             |
 
-Three real log excerpts, as the Day 3 drill uses them:
+Three real log excerpts, as the Module 4 drill uses them:
 
 ```
 ValueError: Wrong value for spp.vocabulary.domain: 'administrative'
@@ -1557,8 +1683,10 @@ odoo.tools.convert.ParseError: while parsing /mnt/extra-addons/custom/dswd_wellb
 
 ```
 odoo.tools.convert.ParseError: while parsing /mnt/extra-addons/custom/dswd_wellbeing/views/res_partner_views.xml:8
-Element '<xpath expr="//group[@name='group_tag_section']">' cannot be located in parent view
+Element '<xpath expr="//group[@name=&#39;group_tag_section&#39;]">' cannot be located in parent view
 ```
+
+`&#39;` is a `'`: Odoo escapes the quotes inside the XPath when it writes the message.
 
 ```
 INFO odoo.modules.loading: loading dswd_wellbeing/security/ir.model.access.csv
@@ -1658,6 +1786,11 @@ session; read it before your first change to a `dswd_4ps_*` module.
 
 ### 5.2 How to read a production module
 
+The session opens with a short primer on five things the production modules use on almost every card and that Modules 3
+and 4 left to the Reference sections: record rules (3.12), jobs and scheduled actions (3.17), migrations and `noupdate`
+data (4.13, 4.4), hooks such as `post_init_hook` and `_register_hook` (5.10), and wizards (3.10). The glossary (7.6) has
+a line on each.
+
 Each card in the catalogue has the same parts:
 
 | Part                      | Says                                                                                                        |
@@ -1708,9 +1841,10 @@ Under all of them sits OpenSPP: `spp_registry`, `spp_area`, `spp_vocabulary`, `s
 | `dswd_4ps_instance1` | Registry and operations: change requests, compliance, FDS, payroll, the APIs, `bridge_server` |
 | `dswd_4ps_instance2` | Casework: SWDI, CMS, the casework portal API, `bridge_client`                                 |
 
-Area, registry, roles, the API and auth install on both instances; period and the approval modules only with starter or
-instance 1. Manifest `excludes` enforce the split: 26 modules exclude `dswd_4ps_bridge_client`, 8 exclude
-`dswd_4ps_bridge_server`. A manifest is the map of a deployment (3.6).
+Area, registry, roles, the API and auth install on both instances (with the shared bridge schemas, the portal API base,
+the theme and attachment hardening); period and the approval modules only with starter or instance 1. Manifest
+`excludes` enforce the split: 26 modules exclude `dswd_4ps_bridge_client`, 8 exclude `dswd_4ps_bridge_server`. A
+manifest is the map of a deployment (3.6).
 
 ### 5.4 Foundation: where, who, who may, when
 
@@ -1833,7 +1967,7 @@ seeded.
 
 ### 5.10 Reading production code
 
-_Reference: not presented in the session. Read it before your first change to a `dswd_4ps_\*` module.\_
+_Reference: not presented in the session. Read it before your first change to a production module._
 
 The production modules use everything in Modules 3 and 4, plus a few things a newcomer misreads. Recognise them before
 changing them.
@@ -1942,10 +2076,15 @@ runs the full set.
 1. `./odoo-project test <module>`: the summary line reads `0 failed, 0 error(s)`.
 2. `./odoo-project lint`: clean.
 3. `./odoo-project audit-security`: 0 errors, 0 warnings.
-4. `git commit`: the hooks pass. Commit messages follow `feat(scope): ...`, `fix(scope): ...`, `docs(scope): ...`.
+4. `git commit -m "..."`: the hooks pass. Without `-m`, Git opens its default editor, which on Git for Windows is Vim
+   unless you chose another when installing (type `:q!` and Enter to leave it). Commit messages follow
+   `feat(scope): ...`, `fix(scope): ...`, `docs(scope): ...`.
 
 ### 7.5 Where to read more
 
+- `docs/guides/windows-setup.md`, section "Common Errors": what to do when Docker, WSL, a port or the CLI fails on
+  Windows.
+- `docs/guides/odoo-project-cli.md`: every `./odoo-project` command, and its "Troubleshooting" section.
 - `docs/guides/extending-openspp.md`: the companion of Module 4, step by step.
 - `docs/guides/module-development.md`: the full scaffold for a new module, starter and variant patterns.
 - `docs/guides/testing-guide.md` and `docs/principles/testing.md`.
@@ -1957,31 +2096,46 @@ runs the full set.
 
 ### 7.6 Glossary
 
-| Term                         | Meaning                                                                                                               |
-| ---------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| Addons path                  | The folders Odoo scans for modules; your repository root is one of them inside the container.                         |
-| Manifest                     | `__manifest__.py`: the module's name, dependencies and data files.                                                    |
-| ORM                          | Odoo's object layer: `create`, `write`, `search`, `unlink` on a model instead of SQL.                                 |
-| MVC                          | Model, view, controller: in Odoo, `models.Model`, XML views and QWeb templates, and actions, menus and model methods. |
-| QWeb                         | Odoo's template engine: HTML with `t-` attributes, used by reports and by the web client.                             |
-| Domain                       | A list of `(field, operator, value)` conditions passed to `search` and to filters.                                    |
-| Model, field                 | A table and a column, declared in Python.                                                                             |
-| View                         | XML that draws a model as a list, a form or a search box; an `ir.ui.view` record.                                     |
-| Action, menu                 | An action names a model and its views; a menu points at an action.                                                    |
-| XML id                       | The address of a record defined in a data file, `module.name`; used by `ref=` and `env.ref`.                          |
-| Access row                   | One line of `ir.model.access.csv`: what one group may do on one model.                                                |
-| Group, privilege, category   | A permission tier; what the user form shows for it; the heading it sits under.                                        |
-| `_inherit`                   | Add fields and behaviour to an existing model.                                                                        |
-| Inherited view               | A view that modifies another with XPath on named elements.                                                            |
-| `noupdate`                   | Data loaded once on install and never overwritten by an update.                                                       |
-| Vocabulary, code             | OpenSPP's code lists as data, with namespace URIs; `spp.vocabulary` and `spp.vocabulary.code`.                        |
-| Registrant, household, group | A `res.partner` with `is_registrant`; a household is also `is_group`.                                                 |
-| SWDI                         | Social Welfare and Development Indicators: the 4Ps yearly well-being assessment, levels 1 to 3.                       |
-| PSGC                         | Philippine Standard Geographic Code: region, province, city or municipality, barangay. `dswd_4ps_area` loads it.      |
-| Job, job worker              | Work queued with `with_delay()` and run later by a background worker, on a named channel (3.17).                      |
-| CEL                          | Common Expression Language: the conditions that pick an approval definition in OpenSPP.                               |
-| Install bundle               | A module with no models whose `depends` installs a deployment: `starter`, `instance1`, `instance2` (5.3).             |
-| `TransactionCase`            | The Odoo test base class: each test runs in a rolled-back transaction.                                                |
+| Term                         | Meaning                                                                                                                                                                     |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Access row                   | One line of `ir.model.access.csv`: what one group may do on one model.                                                                                                      |
+| Action, menu                 | An action names a model and its views; a menu points at an action.                                                                                                          |
+| Addons path                  | The folders Odoo scans for modules; your repository root is one of them inside the container.                                                                               |
+| Approval mixin               | `spp.approval.mixin`: multi-tier approval on a record, such as a change request; its state must match its review records (5.5, 5.10).                                       |
+| `auto_install`               | Manifest key: Odoo installs the module by itself once all its dependencies are installed (3.6).                                                                             |
+| Bridge                       | The link between the registry instance and the casework instance: lookups and imports one way, case events back through jobs (5.8).                                         |
+| CEL                          | Common Expression Language: the conditions that pick an approval definition in OpenSPP.                                                                                     |
+| Center area                  | An area a 4Ps user is assigned to; the area rules show the user only what lies in their center areas (5.4).                                                                 |
+| Context key                  | A flag passed down with `with_context(...)`; production code reads some to skip a check (3.15, 5.10).                                                                       |
+| Cron, scheduled action       | An `ir.cron` record that runs a model method on a schedule, for example daily (3.17).                                                                                       |
+| Domain                       | A list of `(field, operator, value)` conditions passed to `search` and to filters.                                                                                          |
+| `excludes`                   | Manifest key: modules that cannot be installed on the same database as this one (5.3).                                                                                      |
+| Group, privilege, category   | A permission tier; what the user form shows for it; the heading it sits under.                                                                                              |
+| Hook                         | Code Odoo calls at a fixed moment: `post_init_hook` once, right after the module installs; `_register_hook` each time the server loads the module (5.4, 5.10).              |
+| `_inherit`                   | Add fields and behaviour to an existing model.                                                                                                                              |
+| Inherited view               | A view that modifies another with XPath on named elements.                                                                                                                  |
+| Install bundle               | A module with no models whose `depends` installs a deployment: `starter`, `instance1`, `instance2` (5.3).                                                                   |
+| Instance                     | One of the two production databases: instance 1, registry and operations; instance 2, casework (5.3).                                                                       |
+| Job, job worker              | Work queued with `with_delay()` and run later by a background worker, on a named channel (3.17).                                                                            |
+| Manifest                     | `__manifest__.py`: the module's name, dependencies and data files.                                                                                                          |
+| Migration                    | A script in `migrations/<version>/` that runs on `update` when the manifest version goes up: how a data or schema change reaches a database that already holds data (4.13). |
+| Model, field                 | A table and a column, declared in Python.                                                                                                                                   |
+| MVC                          | Model, view, controller: in Odoo, `models.Model`, XML views and QWeb templates, and actions, menus and model methods.                                                       |
+| `noupdate`                   | Data loaded once on install and never overwritten by an update.                                                                                                             |
+| ORM                          | Odoo's object layer: `create`, `write`, `search`, `unlink` on a model instead of SQL.                                                                                       |
+| PSGC                         | Philippine Standard Geographic Code: region, province, city or municipality, barangay. `dswd_4ps_area` loads it.                                                            |
+| QWeb                         | Odoo's template engine: HTML with `t-` attributes, used by reports and by the web client.                                                                                   |
+| Record rule                  | An `ir.rule` record: a domain saying which rows of a model a group may see or change (3.12).                                                                                |
+| Registrant, household, group | A `res.partner` with `is_registrant`; a household is also `is_group`.                                                                                                       |
+| Router, scope                | In the API, a router is the code behind a set of endpoints; a scope is the permission the calling client must hold (5.9).                                                   |
+| Superuser, `sudo()`          | The superuser ignores access rows and record rules, and `sudo()` runs code as it. Tests and the shell run as the superuser; `admin` is not it (3.9, 3.15).                  |
+| SWDI                         | Social Welfare and Development Indicators: the 4Ps yearly well-being assessment, levels 1 to 3.                                                                             |
+| System parameter             | A key and a value in Settings > Technical > System Parameters (`ir.config_parameter`), read by code for switches and thresholds (5.10).                                     |
+| `TransactionCase`            | The Odoo test base class: each test runs in a rolled-back transaction.                                                                                                      |
+| View                         | XML that draws a model as a list, a form or a search box; an `ir.ui.view` record.                                                                                           |
+| Vocabulary, code             | OpenSPP's code lists as data, with namespace URIs; `spp.vocabulary` and `spp.vocabulary.code`.                                                                              |
+| Wizard                       | A dialog backed by a temporary model, a `TransientModel` (3.10).                                                                                                            |
+| XML id                       | The address of a record defined in a data file, `module.name`; used by `ref=` and `env.ref`.                                                                                |
 
 The 4Ps program terms (C/ML, FDS, CVS, BUS, POO, RPMO, NPMO, Kilos-Unlad and others) are in the glossary of
 `training/4ps-program-reference.md`, section 9.

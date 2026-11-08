@@ -60,12 +60,12 @@ dswd_asset/
 
 ## 6. The four mistakes of a new module
 
-| Mistake                                       | Symptom                                                        | Where to look                                  |
-| --------------------------------------------- | -------------------------------------------------------------- | ---------------------------------------------- |
-| No access row                                 | `have no access rules` in the log; `AccessError` even as admin | `security/ir.model.access.csv`                 |
-| Action without a menu, or menu without action | clean update, nothing to click                                 | Technical > User Interface > Menu Items        |
-| A view field that is not on the model         | update fails: `Field "x" does not exist in model "dswd.asset"` | compare with Technical > Fields                |
-| `_name` versus `model_id` in the access file  | `No matching record found for external id 'model_dswd_...'`    | `model_` plus `_name` with dots as underscores |
+| Mistake                                       | Symptom                                                                                                                    | Where to look                                  |
+| --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| No access row                                 | `have no access rules` in the `update` output; the menu stays hidden; opening the action gives `AccessError` even as admin | `security/ir.model.access.csv`                 |
+| Action without a menu, or menu without action | clean update, nothing to click                                                                                             | Technical > User Interface > Menu Items        |
+| A view field that is not on the model         | update fails: `Field "x" does not exist in model "dswd.asset"`                                                             | compare with Technical > Fields                |
+| `_name` versus `model_id` in the access file  | `No matching record found for external id 'model_dswd_...'`                                                                | `model_` plus `_name` with dots as underscores |
 
 ## 7. The code, step by step
 
@@ -79,15 +79,16 @@ dswd_asset/
     "license": "LGPL-3",
     "depends": ["base", "spp_security"],
     "data": [
-        "security/groups.xml",
         "security/ir.model.access.csv",
-        "views/dswd_asset_views.xml",
-        "views/menus.xml",
     ],
+    "application": False,
     "installable": True,
     "auto_install": False,
 }
 ```
+
+At step 0 `data` lists only the access file, which holds just its header row. Each later step adds its files: views and
+menus (step 2), groups (step 3), the report (step 6). A file listed here that does not exist stops the install.
 
 ### Step 1: the model (`models/dswd_asset.py`)
 
@@ -215,9 +216,10 @@ class TestDswdAsset(TransactionCase):
                             ("warranty_end_date", "<=", fields.Date.add(today, days=days))])
 ```
 
-`<button name="action_assign_to_me" type="object" string="Assign to me" />` in the form header calls the first. From
-`./odoo-project shell`: `env["dswd.asset"].search([...])`, `.create({...})`, `.write({...})`, `.unlink()`,
-`.mapped("name")`; nothing is saved until `env.cr.commit()`.
+`<button name="action_assign_to_me" type="object" string="Assign to me" groups="dswd_asset.group_asset_officer" />` in
+the form header calls the first; `groups` hides it from viewers, who cannot write. From `./odoo-project shell`:
+`env["dswd.asset"].search([...])`, `.create({...})`, `.write({...})`, `.unlink()`, `.mapped("name")`; nothing is saved
+until `env.cr.commit()`.
 
 ### Step 6: a PDF report
 
@@ -247,7 +249,7 @@ does. Test it by rendering the HTML:
 
 ---
 
-## 8. Today and at 10:00: the same files, three swaps
+## 8. Today and in Module 4: the same files, three swaps
 
 | Today, `dswd_asset`                           | Next, `dswd_wellbeing`                                              |
 | --------------------------------------------- | ------------------------------------------------------------------- |
@@ -260,5 +262,8 @@ does. Test it by rendering the HTML:
 | `TransactionCase`, `create()` your own record | `RegistryCommon` hands you a household                              |
 | the field is yours: `asset_type`              | a field on someone else's model: prefix `dswd_`                     |
 
+Three swaps matter most: `_inherit`, a vocabulary instead of a Selection, an inherited view. The other rows follow from
+them.
+
 Adding "Tablet" to `asset_type` today meant editing Python, releasing, and updating every server. In OpenSPP a code list
-is data, under Settings > Vocabularies. That is the first file you see at 10:00.
+is data, under Settings > Vocabularies. That is the first file you see in Module 4.

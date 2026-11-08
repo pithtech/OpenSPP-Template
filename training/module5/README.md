@@ -10,10 +10,10 @@ demonstration and nothing runs on participant laptops. Every fact, path and exce
 | File                                     | For                | Use                                                                                     |
 | ---------------------------------------- | ------------------ | --------------------------------------------------------------------------------------- |
 | [runbook.md](runbook.md)                 | Trainer            | Run of show, what to say per card, the code moments in tab order, drop order, fallbacks |
-| [slides.md](slides.md)                   | Trainer, projected | Marp deck, 34 slides; excerpts are copied from the cards                                |
-| [module-cards.md](module-cards.md)       | Everyone, printed  | 26 module cards (A5) in session order, then the index of all 66 modules; bound to keep  |
+| [slides.md](slides.md)                   | Trainer, projected | Marp deck, 40 slides; excerpts are copied from the cards                                |
+| [module-cards.md](module-cards.md)       | Everyone, printed  | 26 module cards in session order, then the index of all 66 modules; A4, bound to keep   |
 | [module-map.md](module-map.md)           | Wall, A1           | The poster: the process top to bottom, the two instances, the bridge                    |
-| [category-cards.md](category-cards.md)   | Pairs, printed     | Eight coloured cards (M, V, D, S, W, J, A, T) for "where would you look?"               |
+| [category-cards.md](category-cards.md)   | Pairs, printed     | Eight lettered cards (M, V, D, S, W, J, A, T) for "where would you look?"               |
 | [triage-sheet.md](triage-sheet.md)       | Pairs, printed     | Eight fabricated training tickets for the 4:32 triage                                   |
 | [triage-answers.md](triage-answers.md)   | Trainer            | Answer key with the reasoning and every file a full fix touches                         |
 | [checkpoint-bank.md](checkpoint-bank.md) | Trainer            | Two standing checkpoints with spares                                                    |
@@ -26,8 +26,13 @@ demonstration and nothing runs on participant laptops. Every fact, path and exce
 2. The evening before: check out `ad98dac9` in the production checkout and open the files in the runbook's tab list.
 3. Render the deck once (`npx @marp-team/marp-cli training/module5/slides.md -o slides.pdf`) and keep the PDF as the
    projector fallback.
-4. Print: the catalogue for everyone, the poster at A1, a set of category cards and a triage sheet per pair, and the
-   answer key and checkpoint bank for yourself.
+4. Print the catalogue on A4, one card per sheet (front and back), bound as a booklet. Render it to PDF once with a
+   single tool (for example VS Code's Markdown PDF extension or pandoc) and check that the wide strip tables are not
+   clipped; use landscape if they are. Test-print card 8, the longest, before ordering about 87 copies, and leave the
+   print shop enough time. If time or budget is short, print one catalogue per pair (pairs work together all afternoon)
+   and share the PDF.
+5. Print the rest: the poster at A1, a set of category cards and a triage sheet per pair, and the answer key and
+   checkpoint bank for yourself.
 
 ## Why the session reads code instead of demonstrating screens
 

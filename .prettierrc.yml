@@ -6,3 +6,8 @@ proseWrap: always
 semi: true
 trailingComma: "es5"
 xmlWhitespaceSensitivity: "strict"
+overrides:
+  # Marp shows every source line break inside a paragraph, so slide decks keep one line per paragraph.
+  - files: "training/**/slides.md"
+    options:
+      proseWrap: preserve

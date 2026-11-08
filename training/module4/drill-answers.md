@@ -15,8 +15,10 @@ Debrief order: C first (the silent one teaches the most), then A, then B, then D
 ## Excerpt B: XPath anchor does not exist in the upstream view
 
 - **File**: `views/res_partner_views.xml`, the `xpath` line. The context block even gives the xml id of your view.
-- **Compare against**: the named groups in the upstream form,
-  `grep -n 'name="group_' upstream/openspp/spp_registry/views/individual_views.xml`.
+  `&#39;` in the message is a quote: Odoo escapes the attribute values.
+- **Compare against**: the named groups in the upstream form: search `name="group_` in
+  `upstream/openspp/spp_registry/views/individual_views.xml` (VS Code Ctrl+F, or PowerShell
+  `Select-String -Path upstream\openspp\spp_registry\views\individual_views.xml -Pattern 'name="group_'`).
 - **Fix**: `group_tag_section` to `group_tags_section`.
 - Teaching point: anchors are names, and names live upstream. Always open the upstream view before writing the XPath.
 
@@ -24,7 +26,7 @@ Debrief order: C first (the silent one teaches the most), then A, then B, then D
 
 - **File**: `__manifest__.py`. The module "loaded" but the log shows only two files loading: the access csv and the
   view. `data/vocabulary_well_being_level.xml` never appears.
-- **Look for**: the `data` list; `grep vocabulary_ dswd_wellbeing/__manifest__.py` returns nothing.
+- **Look for**: the `data` list in `dswd_wellbeing/__manifest__.py`; it has no `vocabulary_` line.
 - **Fix**: add `"data/vocabulary_well_being_level.xml",` to `data`, before the view.
 - Teaching point: the only reason this was caught is the test. Without tests the vocabulary would simply be absent and
   someone would notice in the UI days later. "A file not listed in the manifest does not exist."

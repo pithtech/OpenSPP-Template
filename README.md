@@ -14,7 +14,8 @@ OpenSPP in Docker, a developer CLI, Claude Code configured for OpenSPP work, and
 ## Before the Training
 
 Install the tools listed in [training/SETUP.md](training/SETUP.md): Docker Desktop, Git, Python 3.11+, Node.js,
-pre-commit, Claude Code. Windows users: read [docs/guides/windows-setup.md](docs/guides/windows-setup.md).
+pre-commit, Claude Code. Windows users: read [docs/guides/windows-setup.md](docs/guides/windows-setup.md), which
+lists the common errors and their fixes.
 
 ## Get Your Own Repository
 
@@ -48,13 +49,16 @@ macOS / Linux:
 ./odoo-project start
 ```
 
-Then open <http://localhost:8069> and log in with `admin` / `admin`. Stop with `odoo-project stop`.
+Then open <http://localhost:8069> and log in with `admin` / `admin`. Stop with `.\odoo-project stop` (macOS /
+Linux: `./odoo-project stop`).
 
 The image is private. Before the first `pull`, log Docker in to GitHub once with a token that has
 `read:packages` (steps in [training/SETUP.md](training/SETUP.md), step 8). If `pull` still fails, run
-`odoo-project build` instead; it takes 10 to 25 minutes.
+`.\odoo-project build` (macOS / Linux: `./odoo-project build`) instead; it takes 10 to 25 minutes.
 
 ## Daily Workflow
+
+On Windows PowerShell write `.\odoo-project` where these examples write `./odoo-project`.
 
 ```bash
 ./odoo-project start                 # start (fast once installed)
@@ -120,8 +124,8 @@ See [docs/guides/claude-code-for-developers.md](docs/guides/claude-code-for-deve
 
 ## Updating to a Newer OpenSPP Release
 
-Change `OPENSPP_REF` in `.env`, then `odoo-project pull` (or `build`), `odoo-project vendor --force`, and
-`odoo-project stop -v -y` followed by `odoo-project start`.
+Change `OPENSPP_REF` in `.env`, then `./odoo-project pull` (or `build`), `./odoo-project vendor --force`, and
+`./odoo-project stop -v -y` followed by `./odoo-project start` (on Windows PowerShell, `.\odoo-project`).
 
 ## Documentation Map
 

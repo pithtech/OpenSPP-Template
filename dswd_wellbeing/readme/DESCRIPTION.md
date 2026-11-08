@@ -1,8 +1,8 @@
 Adds the SWDI well-being level (Survival, Subsistence, Self-Sufficient) to 4Ps households.
 
-This is the first training module. It is the smallest complete `dswd_*` module that extends OpenSPP by data (a
-vocabulary) and by model and view (a field on the household form), the same shape as the production `dswd_4ps_*`
-modules.
+This is the Module 4 training module, built after the plain-Odoo `dswd_asset` of Module 3. It is the smallest complete
+`dswd_*` module that extends OpenSPP by data (a vocabulary) and by model and view (a field on the household form), the
+same shape as the production `dswd_4ps_*` modules.
 
 ## Key Capabilities
 
@@ -25,7 +25,7 @@ Add Manual Code if a deployment needs more levels.
 
 ## UI Location
 
-Registry > Groups > open a household > Profile tab > "4Ps" section (menu root `spp_registry.spp_main_menu_root`).
+Registry > Browse All (Audit) > All Groups > open a household > Profile tab > "4Ps" section (menu root `spp_registry.spp_main_menu_root`).
 The vocabulary itself is under Settings > Vocabularies (`spp_vocabulary.menu_vocabulary_root`).
 
 ## Security

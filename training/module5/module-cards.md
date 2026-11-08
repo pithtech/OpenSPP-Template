@@ -1,9 +1,9 @@
 # Module 5 Module Catalogue
 
 Day 2, 1:00 to 5:00. One card per production module or module family, in the order of the session, then the index of all
-66 modules. Printed as A5 cards for the session and bound as a catalogue participants keep. Facts are counted at
-production commit `ad98dac9` (2026-11-06) of `dswd-4ps-dp-openspp-v2-module`; paths on a card are inside that module
-unless they name another one.
+66 modules. Printed on A4, one card per sheet (front and back), and bound as a catalogue participants keep. Facts are
+counted at production commit `ad98dac9` (2026-11-06) of `dswd-4ps-dp-openspp-v2-module`; paths on a card are inside that
+module unless they name another one.
 
 ## How to read a card
 
@@ -61,7 +61,8 @@ unless they name another one.
    when posted entries exist in another one. A fix to one belongs in all three; starter's migration 19.0.1.2.0 applies
    it to existing databases.
 5. `dswd_4ps_swdi_cms` is not in any bundle's own list; it arrives by `auto_install` once SWDI and CMS are both
-   installed. Nine modules in the repository are `auto_install`.
+   installed (on instance 2 it also comes in as a dependency of `dswd_4ps_bridge_client`). Nine modules in the
+   repository are `auto_install`.
 
 **A ticket usually lands in**
 
@@ -108,7 +109,8 @@ their assigned areas.
    no-center-area branch is still upstream's `[]`, so that rule does not narrow a user with no center areas.
 3. That upstream rule is `noupdate`. The hook rewrites its text in code (adds the `sees_all_areas` bypass, swaps
    `child_of` for `area_scope_ids`), and migrations 19.0.1.6.0, 19.0.1.7.0 and 19.0.1.12.0 repeat it on installed
-   databases. Both helpers leave a hand-tuned domain alone and log a warning.
+   databases. Neither helper overwrites a hand-tuned domain: the bypass wraps whatever domain is there, and the
+   `area_scope_ids` swap skips a domain without the expected `child_of` arm and logs a warning.
 4. `area_scope_ids` in `models/registrant.py` is a performance fix: its comment records 15 to 20 seconds per dashboard
    tile at 7.4 million households, and 99 ms after. Do not "simplify" it back to `child_of`.
 5. `_fail_open_area_rules.py` is a shared migration helper that removes the `area_id = False` branch from other modules'
@@ -356,8 +358,9 @@ status transition.
 1. 21 definitions in 8 files; `data/cr_type_approval_config.xml` links 19 of them to 6 change-request types. The
    manifest description still says 20 definitions across 7 types.
 2. Update Household Info, Update Individual 4Ps and Reinstate Household list candidate definitions: lowest sequence
-   first, the first matching CEL wins, and a transition no definition matches auto-approves (the catch-all RGO
-   definition was removed; migration 19.0.1.3.0 deletes it).
+   first, and the first matching definition wins. In Update Household Info and Update Individual 4Ps, a transition no
+   definition matches auto-approves (migration 19.0.1.3.0 archived the Update Household Info catch-all). Reinstate
+   Household keeps a catch-all RGO definition with no condition at sequence 90, so every reinstatement needs approval.
 3. The Change Address and Update Transfer Account definitions ship dormant (not linked), so those types auto-approve on
    submit. Update Pregnancy has only an exception definition.
 4. All files are `noupdate`: a new approver or transition needs a migration (6 so far), and the migrations check the
@@ -774,7 +777,7 @@ sessions and attendance, equivalencies, outcome (TPP) assessments and the FDS Ac
 4. `security/ir_rule.xml` (`noupdate="1"`) has 14 record rules, 13 of them global (no `groups`), AND-ed with the
    upstream group rules. A user with no center area sees no FDS sessions. A rule change needs a post-migrate script.
 5. The household screens are separate `res.partner` form views at priority 99 opened by the FDS actions, not inherited
-   upstream forms; the module inherits only one view.
+   upstream forms; the module inherits no upstream view.
 
 **A ticket usually lands in**
 
@@ -1323,7 +1326,7 @@ runs as the caller, so the record rules from Module 3 apply), `_check_read_acces
 
 <!-- Not printed on the card: for the slide deck. -->
 
-**Code excerpt** (`dswd_4ps_api/routers/household.py`, lines 96 to 107 at ad98dac9):
+**Code excerpt** (`dswd_4ps_api/routers/household.py`, lines 96 to 106 at ad98dac9):
 
 ```python
 async def read_grantee_history(
@@ -1433,7 +1436,7 @@ Members: `dswd_4ps_portal_api_base` (about 300 lines, 12 tests), `dswd_4ps_porta
 
 | Manifest 3.6 | Models 3.7/4.6 | Fields 3.8 | Views 3.9/4.7-4.8 | Wizards 3.10 | Security 3.11-3.12/4.9 | Tests 3.13/4.10 | ORM 3.15 | Jobs 3.17 | Reports 3.18 | Vocabularies 4.4 | Migrations 4.13 |
 | ------------ | -------------- | ---------- | ----------------- | ------------ | ---------------------- | --------------- | -------- | --------- | ------------ | ---------------- | --------------- |
-| ■ hook       | ■ extends      |            |                   |              | ■ header               | ■ 275           |          |           |              |                  |                 |
+| ■ hook       | ■ extends      |            |                   |              | ■ header               | ■ 275           |          |           |              |                  | ■ 3             |
 
 **Important points**
 
@@ -1446,9 +1449,9 @@ Members: `dswd_4ps_portal_api_base` (about 300 lines, 12 tests), `dswd_4ps_porta
 3. "No data" is not an error. Empty sections return HTTP 200 with null or empty values. 404 means the household was not
    found. `payroll_api` also returns `payrollAvailable=false` when the caller may not read payroll, so the portal can
    tell "never paid" from "not allowed to see".
-4. `payroll_api/services/payroll_service.py` reads `spp.payment`, not the snapshot alone. A snapshot row exists for
-   every household in the run, paid or not. Catch-up payouts come from a second ledger, `dswd.4ps.catchup.transaction`.
-   The last grant counts only payments the bank confirmed (`delivery_status` `success`).
+4. `dswd_4ps_payroll_api/services/payroll_service.py` reads `spp.payment`, not the snapshot alone. A snapshot row exists
+   for every household in the run, paid or not. Catch-up payouts come from a second ledger,
+   `dswd.4ps.catchup.transaction`. The last grant counts only payments the bank confirmed (`delivery_status` `success`).
 5. One path carries a record number: `/payroll/Household/{listahanan_id}/payout/{snapshot_id}` takes the reference that
    the payout history returned. It is checked against the household and answers 404 for any other household.
 
@@ -1498,7 +1501,7 @@ The portal polls the log and confirms what it received.
 
 | Manifest 3.6 | Models 3.7/4.6 | Fields 3.8 | Views 3.9/4.7-4.8 | Wizards 3.10 | Security 3.11-3.12/4.9 | Tests 3.13/4.10 | ORM 3.15 | Jobs 3.17 | Reports 3.18 | Vocabularies 4.4 | Migrations 4.13 |
 | ------------ | -------------- | ---------- | ----------------- | ------------ | ---------------------- | --------------- | -------- | --------- | ------------ | ---------------- | --------------- |
-| ■ hook       | ■ new          |            |                   |              | ■ group                |                 | ■ SQL    | ■ cron    |              |                  |                 |
+| ■ hook       | ■ new          |            |                   |              | ■ group                | ■ 21            | ■ SQL    | ■ cron    |              |                  | ■ 1             |
 
 **Important points**
 
@@ -1561,7 +1564,7 @@ when an approved change request updates a household, and serves the household pr
 
 | Manifest 3.6 | Models 3.7/4.6 | Fields 3.8 | Views 3.9/4.7-4.8 | Wizards 3.10 | Security 3.11-3.12/4.9 | Tests 3.13/4.10 | ORM 3.15 | Jobs 3.17 | Reports 3.18 | Vocabularies 4.4 | Migrations 4.13 |
 | ------------ | -------------- | ---------- | ----------------- | ------------ | ---------------------- | --------------- | -------- | --------- | ------------ | ---------------- | --------------- |
-|              | ■ extends      |            | ■ inherited       |              | ■ rules                | ■ 170           |          | ■ queue   |              |                  |                 |
+|              | ■ extends      |            | ■ inherited       |              | ■ rules                | ■ 170           |          | ■ queue   |              |                  | ■ 1             |
 
 **Important points**
 
@@ -1685,7 +1688,7 @@ user on first sign-in and copies the area claims from the token.
 
 | Manifest 3.6 | Models 3.7/4.6 | Fields 3.8 | Views 3.9/4.7-4.8 | Wizards 3.10 | Security 3.11-3.12/4.9 | Tests 3.13/4.10 | ORM 3.15 | Jobs 3.17 | Reports 3.18 | Vocabularies 4.4 | Migrations 4.13 |
 | ------------ | -------------- | ---------- | ----------------- | ------------ | ---------------------- | --------------- | -------- | --------- | ------------ | ---------------- | --------------- |
-| ■ hook       | ■ extends      |            |                   | ■ OpenID     | ■ group                | ■ 127           |          |           |              |                  |                 |
+| ■ hook       | ■ extends      |            |                   | ■ OpenID     | ■ group                | ■ 127           |          |           |              |                  | ■ 2             |
 
 **Important points**
 
@@ -1694,8 +1697,10 @@ user on first sign-in and copies the area claims from the token.
    first sign-in, not duplicated.
 2. Keycloak is the source of truth for a user's areas (ADR-0012). The claim map in `models/res_users.py` writes them to
    the user. `dswd_4ps_area` turns them into area access.
-3. `data/security_defaults.xml` is not `noupdate`: the hardening values (for example `dswd_4ps_auth.sso_only_login`) are
-   set again on every upgrade.
+3. `data/security_defaults.xml` has two blocks. The hardening values (for example `auth_signup.invitation_scope` and
+   `base.login_cooldown_after`) are not `noupdate` and are set again on every upgrade. The two operational switches,
+   `dswd_4ps_auth.sso_only_login` and `dswd_4ps_auth.oauth_auto_provision`, are `noupdate`: an upgrade leaves them
+   alone, and a new default needs a migration (19.0.1.6.0 carried the SSO default).
 4. The API uses the same Keycloak: `dswd_4ps_api` depends on this module, and `dswd_4ps_bridge_client` does too.
 
 **A ticket usually lands in**
@@ -1765,7 +1770,7 @@ summaries.
 
 | Module                     | What it is for                                                                                                                                                                                                     | Instance | Card |
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- | ---- |
-| `dswd_4ps_payroll`         | 13-step payroll lifecycle for 4Ps cash grants                                                                                                                                                                      | 1        | 13   |
+| `dswd_4ps_payroll`         | 13-step payroll lifecycle for 4Ps cash grants (manifest summary; the code has 17 states from draft to done)                                                                                                        | 1        | 13   |
 | `dswd_4ps_catchup_payroll` | Foundation for the catch-up payroll program: data model, cycle/run state machine, singleton program, sequences, and admin scaffolding. Action bodies for DV / Top-Up / PS / CI / LBP land in sub-tickets #397-#404 | 1        | 14   |
 | `dswd_4ps_retro_payroll`   | Retroactive payroll: overpayment recovery ledger consumed by the regular CV cycle, underpayment (retro payment) ledger, and a ledger-driven retro disbursement cycle                                               | 1        | 15   |
 | `dswd_4ps_pg_partition`    | PostgreSQL LIST partitioning helper for 4Ps payroll snapshot tables                                                                                                                                                | 1        |      |

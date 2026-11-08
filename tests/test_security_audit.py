@@ -89,3 +89,37 @@ def test_manager_group_without_admin_link_is_reported_against_spp_security(tmp_p
     out = _audit(tmp_path, "dswd_nolink")
     assert "spp_security.group_spp_admin" in out
     assert "dswd_security" not in out
+
+
+def _run_script(tmp_path, *args):
+    return subprocess.run(
+        [sys.executable, str(SCRIPT), *args, "--base-path", str(tmp_path)],
+        capture_output=True,
+        text=True,
+    )
+
+
+def test_several_modules_can_be_audited_in_one_call(tmp_path):
+    """`./odoo-project audit-security dswd_a dswd_b` passes every module name to the script."""
+    _module(tmp_path, "dswd_one", '["spp_registry"]')
+    _module(tmp_path, "dswd_two", '["spp_registry"]')
+    result = _run_script(tmp_path, "dswd_one", "dswd_two", "--format", "text")
+    assert result.returncode == 0, result.stderr
+    assert "dswd_one" in result.stdout and "dswd_two" in result.stdout
+
+
+def test_named_module_with_report_audits_only_that_module(tmp_path):
+    _module(tmp_path, "dswd_one", '["spp_registry"]')
+    _module(tmp_path, "dswd_two", '["spp_registry"]')
+    result = _run_script(tmp_path, "dswd_one", "--report", "--format", "text")
+    assert result.returncode == 0, result.stderr
+    assert "dswd_one" in result.stdout and "dswd_two" not in result.stdout
+
+
+def test_json_format_prints_json(tmp_path):
+    import json
+
+    _module(tmp_path, "dswd_one", '["spp_registry"]')
+    result = _run_script(tmp_path, "dswd_one", "--format", "json")
+    assert result.returncode == 0, result.stderr
+    json.loads(result.stdout)

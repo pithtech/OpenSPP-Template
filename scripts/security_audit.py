@@ -6,7 +6,7 @@ This script audits custom Odoo modules for compliance with the new access rights
 architecture defined in ADR-004.
 
 Usage:
-    python scripts/security_audit.py [module_path]
+    python scripts/security_audit.py [module ...]
     python scripts/security_audit.py --all
     python scripts/security_audit.py --report
 
@@ -622,7 +622,7 @@ def generate_text_report(audits: list[ModuleAudit]) -> str:
 
 def main():
     parser = argparse.ArgumentParser(description="Audit custom Odoo modules for access rights compliance (ADR-004)")
-    parser.add_argument("module", nargs="?", help="Module name to audit (e.g., dswd_attendance)")
+    parser.add_argument("module", nargs="*", help="Module name(s) to audit (e.g., dswd_attendance)")
     parser.add_argument("--all", "-a", action="store_true", help="Audit all custom Odoo modules")
     parser.add_argument("--report", "-r", action="store_true", help="Generate full detailed report")
     parser.add_argument(
@@ -638,7 +638,17 @@ def main():
     args = parser.parse_args()
     base_path = args.base_path.resolve()
 
-    if args.all or args.report:
+    if args.module:
+        audits = []
+        for name in args.module:
+            module_path = base_path / name
+            if not module_path.exists():
+                print(f"Module not found: {module_path}", file=sys.stderr)
+                sys.exit(1)
+            audits.append(audit_module(module_path))
+        print(generate_report(audits, args.format))
+
+    elif args.all or args.report:
         modules = find_modules(base_path)
         if not modules:
             print(f"No custom Odoo modules found in {base_path}", file=sys.stderr)
@@ -649,7 +659,7 @@ def main():
         if args.errors_only:
             audits = [a for a in audits if any(i.severity == "ERROR" for i in a.issues)]
 
-        if args.report:
+        if args.report or args.format == "json":
             print(generate_report(audits, args.format))
         else:
             # Print compact summary
@@ -664,15 +674,6 @@ def main():
             total_warnings = sum(1 for a in audits for i in a.issues if i.severity == "WARNING")
             compliant = sum(1 for a in audits if all(i.severity != "ERROR" for i in a.issues))
             print(f"\nTotal: {compliant}/{len(audits)} compliant, {total_errors} errors, {total_warnings} warnings")
-
-    elif args.module:
-        module_path = base_path / args.module
-        if not module_path.exists():
-            print(f"Module not found: {module_path}", file=sys.stderr)
-            sys.exit(1)
-
-        audit = audit_module(module_path)
-        print(generate_report([audit], args.format))
 
     else:
         parser.print_help()

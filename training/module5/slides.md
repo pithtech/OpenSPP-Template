@@ -87,6 +87,46 @@ Code moment: `dswd_4ps_instance1/__manifest__.py`. A manifest is the map of a de
 
 ---
 
+## Primer 1 of 5: record rules (3.12)
+
+An access row says which models a group may use; a record rule says which rows of a model a user may see.
+
+Production: `dswd_4ps_area` shows each user only the areas in or above their center areas, none without one (card 2).
+
+---
+
+## Primer 2 of 5: jobs and scheduled actions (3.17)
+
+A job is work queued with `with_delay()` that runs later in the background; a scheduled action (cron) runs on a clock.
+
+Production: a school attendance event queues a job on `cv_events`, and a daily cron finishes the household (card 11).
+
+---
+
+## Primer 3 of 5: migrations and `noupdate` (4.13)
+
+A `noupdate` data file loads once, at install; changing its records on a running database takes a migration.
+
+Production: every group, role and rule file in `dswd_4ps_roles` is `noupdate`: 20 migrations so far (card 4).
+
+---
+
+## Primer 4 of 5: hooks (5.10)
+
+A hook is code Odoo calls at a fixed moment: `post_init_hook` once after install, `_register_hook` at every load.
+
+Production: the `post_init_hook` of `dswd_4ps_area` loads the PSGC areas at install, and never again (card 2).
+
+---
+
+## Primer 5 of 5: wizards (3.10)
+
+A wizard is a temporary model behind a dialog: the user fills in a small form, and its button does the work.
+
+Production: the payroll Reject + Rewind wizard offers no rewind once credit instructions exist (card 13).
+
+---
+
 ## Foundation: area (card 2)
 
 - PSGC regions to barangays in `spp.area`; about 42,000 barangays queued as jobs at install.
@@ -95,8 +135,6 @@ Code moment: `dswd_4ps_instance1/__manifest__.py`. A manifest is the map of a de
 - `area_scope_ids`: 15 to 20 s per dashboard tile at 7.4 million households, 99 ms after. Do not simplify it.
 
 ---
-
-<!-- _class: excerpt -->
 
 ## Area: a fail-closed record rule (3.12)
 
@@ -132,8 +170,6 @@ Code moment: `dswd_4ps_instance1/__manifest__.py`. A manifest is the map of a de
 - Status 3 is a permanent exit: only a server-side path can move a household out.
 
 ---
-
-<!-- _class: excerpt -->
 
 ## Registry: a status and its category (4.4)
 
@@ -177,11 +213,9 @@ Code moment: `dswd_4ps_instance1/__manifest__.py`. A manifest is the map of a de
 - `approval_multi_group`: several groups per tier, any of them may approve. It replaces two upstream constraints
   **without `super()`**.
 - `approval_flow_data`: 21 definitions, 19 linked to 6 change-request types, chosen by CEL on the status transition.
-- No match: the request approves on submit. Change Address has no linked definition.
+- No match: approves on submit. Reinstate Household keeps a catch-all; Change Address has no linked definition.
 
 ---
-
-<!-- _class: excerpt -->
 
 ## Approval flow data: 24 to 3, two tiers
 
@@ -249,8 +283,6 @@ Stand up. Three symptoms. Category card, then the module.
 
 ---
 
-<!-- _class: excerpt -->
-
 ## Card 8: a type is a data record
 
 `dswd_4ps_change_request/data/cr_type_change_address.xml`, lines 13 to 23
@@ -315,8 +347,6 @@ Back at 3:05
 - The school threshold is the constant 85 in `compliance_pipeline.py`.
 
 ---
-
-<!-- _class: excerpt -->
 
 ## Compliance: an event hands its work to a job (3.17)
 
@@ -476,11 +506,9 @@ Stand up. Three symptoms.
 
 ---
 
-<!-- _class: excerpt -->
-
 ## The API: the caller's rights, an identifier, a service (card 20)
 
-`dswd_4ps_api/routers/household.py`, lines 96 to 107
+`dswd_4ps_api/routers/household.py`, lines 96 to 106
 
 ```python
 async def read_grantee_history(
@@ -520,6 +548,23 @@ In pairs. Eight training scenarios, not real incidents.
 For each: the **module**, the **category card**, the **first file**. Use your catalogue.
 
 Twelve minutes, then report-back.
+
+---
+
+<style scoped>table { font-size: 0.7em; }</style>
+
+## Triage: the answers
+
+| #   | Module (card)              | Letter | First file                                                     |
+| --- | -------------------------- | ------ | -------------------------------------------------------------- |
+| 1   | `area` (2)                 | M or S | `models/registrant.py`, then `hooks.py`                        |
+| 2   | `change_request` (8)       | V      | `views/change_request_views.xml`: the search view              |
+| 3   | `approval_flow_data` (6)   | D      | `data/approval_defs_update_hh_info.xml`                        |
+| 4   | `fds_operations` (12)      | W      | `wizards/fds_parent_group_transfer.py`: the cap, Max Members   |
+| 5   | `supporting_docs_data` (9) | D      | `data/cr_type_add_member_4ps.xml`, then a migration            |
+| 6   | `export` (no card)         | J      | `models/dswd_export_batch.py`: the chunk jobs on `dswd_export` |
+| 7   | `swdi_cms` (18)            | J      | `models/cms_event.py`                                          |
+| 8   | `payroll_api` (22)         | A      | `services/payroll_service.py`                                  |
 
 ---
 

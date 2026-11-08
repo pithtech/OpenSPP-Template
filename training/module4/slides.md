@@ -4,6 +4,9 @@ theme: default
 paginate: true
 size: 16:9
 title: "Module 4: Developing Custom Modules and Extending Odoo Models"
+style: |
+  section pre { font-size: 0.7em; }
+  section table { font-size: 0.8em; }
 ---
 
 <!-- _class: lead -->
@@ -13,7 +16,7 @@ title: "Module 4: Developing Custom Modules and Extending Odoo Models"
 
 ## Developing Custom Modules and Extending Odoo Models
 
-OpenSPP and Odoo Foundations Training, Day 2, 10:00 to 12:00
+OpenSPP and Odoo Foundations Training, Day 2, 10:10 to 12:00
 
 Edwin Gonzales, OpenSPP
 
@@ -22,8 +25,7 @@ Edwin Gonzales, OpenSPP
 ## By noon you can
 
 1. Name the role of every file in a `dswd_*` module, and say why a file not in the manifest does not exist.
-2. Pick the right pattern for a 4Ps requirement: inherit the upstream model, prefix the field `dswd_`, point it at a
-   vocabulary code.
+2. Pick the right pattern for a 4Ps requirement: inherit the upstream model, prefix the field `dswd_`, point it at a vocabulary code.
 3. Explain how a view is extended, and recognise the error when the anchor is wrong.
 4. Read a log excerpt and say which file to open.
 5. Run a module's tests and read the summary line.
@@ -50,7 +52,7 @@ Since EO 120 (July 2026) the level decides whether a household stays past seven 
 
 ## What you will see at noon
 
-![w:1180](images/step3-household-dropdown.png)
+![h:520](images/step3-household-dropdown.png)
 
 ---
 
@@ -86,7 +88,7 @@ dswd_wellbeing/
 └── readme/DESCRIPTION.md                  what the module is for
 ```
 
-Fill in section 2 of your handout as we go.
+Fill in section 2 of your handout as the steps go by.
 
 ---
 
@@ -94,8 +96,7 @@ Fill in section 2 of your handout as we go.
 
 1. **Never edit `upstream/openspp/`.** Read it. Extend it from your module. The next release overwrites it.
 
-2. **Inherit, do not redefine.** `_inherit = "res.partner"` adds to the household. `_name` would create a new table. New
-   fields on upstream models start with `dswd_`.
+2. **Inherit, do not redefine.** `_inherit = "res.partner"` adds to the household. `_name` would create a new table. New fields on upstream models start with `dswd_`.
 
 3. **A file not listed in `__manifest__.py` does not exist.** No error. Just absence.
 
@@ -124,21 +125,22 @@ Installable, does nothing. **Predict**: where will it appear after we install it
 
 ## After step 0: Apps knows the module
 
-![w:1180](images/step0-apps-installed.png)
+![h:520](images/step0-apps-installed.png)
 
 ---
 
 ## The loop
 
-| You changed                                       | Run                                     |
-| ------------------------------------------------- | --------------------------------------- |
-| Nothing yet, new module                           | `./odoo-project install dswd_wellbeing` |
-| A method body, an existing view                   | nothing, the dev server reloads         |
-| Manifest, data, security, a new field, a new view | `./odoo-project update`                 |
-| A record in a `noupdate="1"` file                 | delete the record, or a fresh database  |
-| A test                                            | `./odoo-project test dswd_wellbeing`    |
+| You changed                                       | Run                                                                       |
+| ------------------------------------------------- | ------------------------------------------------------------------------- |
+| Nothing yet, new module                           | `./odoo-project install dswd_wellbeing`                                   |
+| A Python method body                              | `./odoo-project restart` (nothing with `--profile dev`)                   |
+| An existing view's XML                            | `./odoo-project update` (nothing with `--profile dev`)                    |
+| Manifest, data, security, a new field, a new view | `./odoo-project update`                                                   |
+| A record in a `noupdate="1"` file                 | a fresh database (shipped codes of a system vocabulary cannot be deleted) |
+| A test                                            | `./odoo-project test dswd_wellbeing`                                      |
 
-`update` **cannot install** a new module. `./odoo-project logs` is where errors live.
+`update` **cannot install** a new module. `install` and `update` print their errors where you ran them; `./odoo-project logs` shows the running server.
 
 ---
 
@@ -168,7 +170,7 @@ Installable, does nothing. **Predict**: where will it appear after we install it
 
 ## After step 1: Settings > Vocabularies
 
-![w:1180](images/step1-vocabulary-codes.png)
+![h:520](images/step1-vocabulary-codes.png)
 
 ---
 
@@ -182,7 +184,7 @@ level = fields.Selection([("1", "Survival"), ("2", "Subsistence"), ("3", "Self-S
 - A code list changes without a release: Settings > Vocabularies, no code change.
 - Deployments differ: a region can hide codes with a deployment profile.
 - Every code has a URI (`urn:dswd:4ps:well-being-level#survival`) other systems can match.
-- 32 client statuses, 2,000 IP groups: nobody wants those in Python.
+- 32 client statuses, 394 IP groups: nobody wants those in Python.
 
 Static selections are for internal workflow states only.
 
@@ -230,7 +232,7 @@ A field without a view is invisible, not broken.
 
 ## Where a field without a view shows up
 
-![w:1180](images/step2-technical-fields.png)
+![h:520](images/step2-technical-fields.png)
 
 ---
 
@@ -244,20 +246,24 @@ A field without a view is invisible, not broken.
     <field name="arch" type="xml">
         <xpath expr="//group[@name='group_tags_section']" position="after">
             <group name="dswd_4ps_section" string="4Ps">
-                <field name="dswd_well_being_level_id" options="{'no_create': True, 'no_open': True}" />
+                <field
+                    name="dswd_well_being_level_id"
+                    readonly="disabled"
+                    options="{'no_create': True, 'no_open': True}"
+                />
             </group>
         </xpath>
     </field>
 </record>
 ```
 
-Find the anchor first: `grep -n 'name="group_' upstream/openspp/spp_registry/views/individual_views.xml`
+Find the anchor first: open `upstream/openspp/spp_registry/views/individual_views.xml` and search for `name="group_` (Ctrl+F in VS Code).
 
 ---
 
 ## After step 3: the household Profile page
 
-![w:1180](images/step3-household-saved.png)
+![h:520](images/step3-household-saved.png)
 
 ---
 
@@ -270,15 +276,14 @@ odoo.tools.convert.ParseError: while parsing
 ```
 
 ```
-Element '<xpath expr="//group[@name='group_tag_section']">' cannot be located in parent view
-View error context: {'xmlid': 'view_res_partner_form_wellbeing', ...}
+Element '<xpath expr="//group[@name=&#39;group_tag_section&#39;]">' cannot be located in parent view
+View error context:
+{'file': '.../dswd_wellbeing/views/res_partner_views.xml', ..., 'xmlid': 'view_res_partner_form_wellbeing'}
 ```
 
-1. Find the first line that names a file in **your** module.
-2. Open that file at that line.
-3. Compare against the upstream definition (the selection, the view).
+Find the first line that names a file in **your** module, open it there, compare it with upstream (the selection, the view).
 
-Lint passed on both. Lint checks shape, not meaning.
+Lint passed on both: lint checks shape, not meaning.
 
 ---
 
@@ -323,10 +328,10 @@ Run the tests. Keep or discard. The tool types; you decide.
 
 | Mistake                                        | Symptom                            | Look at                                    |
 | ---------------------------------------------- | ---------------------------------- | ------------------------------------------ |
-| Data file not in the manifest                  | clean update, nothing appears      | `grep` the manifest                        |
+| Data file not in the manifest                  | clean update, nothing appears      | the manifest's `data` list                 |
 | Invalid value in a data file                   | `ParseError`, registry fails       | the upstream field definition              |
 | Import missing in `models/__init__.py`         | no error, field absent             | Settings > Technical > Fields              |
-| XPath anchor misspelled                        | `cannot be located in parent view` | `grep 'name="group_'` in the upstream view |
+| XPath anchor misspelled                        | `cannot be located in parent view` | search `name="group_` in the upstream view |
 | `restart` instead of `update`, `noupdate` data | change never shows                 | the loop table                             |
 
 Drill time: three real excerpts, in pairs, 12 minutes.
@@ -335,15 +340,15 @@ Drill time: three real excerpts, in pairs, 12 minutes.
 
 ## Recap, and what comes next
 
-**Today**: manifest, data, model, view, security, tests. Inherit, prefix, point at a vocabulary. Read errors bottom up.
-Run the tests.
+**Today**: manifest, data, model, view, security, tests. Inherit, prefix, point at a vocabulary. Read errors bottom up. Run the tests.
 
 **Module 5 (this afternoon)**: the production 4Ps modules, read through today's parts.
 
 **Module 6 (Day 3)**: your hands on the keyboard.
 
 ```bash
-./odoo-project start && ./odoo-project install dswd_wellbeing   # the module is already in your repository
+./odoo-project start
+./odoo-project install dswd_wellbeing   # the module is already in your repository
 ```
 
 No Docker on your laptop? Tier 1 of the Day 3 exercise needs only the folder and your eyes. Lunch triage table today.

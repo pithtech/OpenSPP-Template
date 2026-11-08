@@ -14,7 +14,8 @@ symptom comes from a card's "a ticket usually lands in" list, checked at product
 | Spare: "A household at status 3 cannot be reinstated."                                    | M           | `dswd_4ps_registry`, `models/res_partner.py` (card 3)                     |
 | Spare: "We changed the approver in the XML but production still routes to the old group." | D           | `dswd_4ps_approval_flow_data`, `migrations/` (card 6)                     |
 
-Point to make after set 1: two of these end in a migration, because the data is `noupdate`.
+Point to make after set 1: the barangay item (and the spare about the approver, if used) ends in a migration, because
+the data is `noupdate`.
 
 ## Set 2: after payroll (3:55)
 
@@ -28,3 +29,9 @@ Point to make after set 1: two of these end in a migration, because the data is 
 
 Point to make after set 2: the payroll item is not a bug. "Sometimes the answer to a ticket is: this is how it must
 work, and here is why."
+
+Follow-up to the payroll item (objective 4), one pair answers aloud: "A colleague wants to let `write()` change the name
+on the snapshot to fix this. What breaks?" Answer: the snapshot is frozen to preserve the audit, and every later
+document (the NAPA Summary, the payroll summary, the ORS and DV) reads it; a name changed after the seal would disagree
+with documents already produced. The correction is a rewind before the point of no return, not a wider allowlist (card
+13).

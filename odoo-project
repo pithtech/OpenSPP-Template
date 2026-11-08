@@ -327,7 +327,13 @@ def _validate_db_name(name: str) -> bool:
 
 
 def _database_exists(db_name: str) -> bool:
-    """Return True if the database exists on the (started) db service."""
+    """Return True if the database exists AND Odoo has initialized it.
+
+    The compose db container creates the database itself (POSTGRES_DB), so its
+    presence in pg_database says nothing. A fresh volume counts as "no database"
+    until the module table exists, otherwise `start` would return before the
+    first install and a following `install` would race it.
+    """
     if not _validate_db_name(db_name):
         error(f"Invalid database name '{db_name}'")
         sys.exit(1)
@@ -348,9 +354,9 @@ def _database_exists(db_name: str) -> bool:
             "-U",
             "odoo",
             "-d",
-            "postgres",
+            db_name,
             "-tAc",
-            f"SELECT 1 FROM pg_database WHERE datname = '{db_name}'",  # nosec B608 - validated identifier
+            "SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'ir_module_module'",
         ),
         capture=True,
         check=False,
@@ -1024,6 +1030,12 @@ def cmd_install(args):
     service, profile = _find_running_odoo()
     if not service:
         print("Error: No Odoo container running. Start with './odoo-project start' first.")
+        sys.exit(1)
+    if not _database_exists(db_name):
+        print(
+            f"Error: database '{db_name}' is still initializing (the first start installs the base modules). "
+            "Wait for './odoo-project start' to finish, then run install again."
+        )
         sys.exit(1)
 
     print(f"Installing {modules} into database '{db_name}'...")

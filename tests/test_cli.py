@@ -220,11 +220,21 @@ class TestVendor:
 
 
 class TestFreshStart:
-    def test_database_exists_queries_pg_database(self, cli, monkeypatch):
-        rec = Recorder(returncodes=[0, 0, 0], stdout="1\n")
+    def test_database_exists_means_initialized(self, cli, monkeypatch):
+        """The compose db container creates the `odoo` database itself, so presence in pg_database says nothing.
+
+        A fresh volume must count as "no database" until Odoo has initialized it (module table present),
+        otherwise `start` returns before the first install and a following `install` races it.
+        """
+        rec = Recorder(stdout="1\n")
         monkeypatch.setattr(cli, "run", rec)
         assert cli._database_exists("odoo") is True
-        assert any("pg_database" in " ".join(call) for call in rec.calls)
+        psql = [c for c in rec.calls if "psql" in c][-1]
+        assert psql[psql.index("-d") + 1] == "odoo"
+        assert "ir_module_module" in psql[-1]
+        rec = Recorder(returncodes=[0, 0, 2], stdout="")  # up, pg_isready, psql fails: database missing
+        monkeypatch.setattr(cli, "run", rec)
+        assert cli._database_exists("odoo") is False
 
     def test_database_exists_rejects_bad_names(self, cli, monkeypatch):
         monkeypatch.setattr(cli, "run", Recorder())
@@ -362,6 +372,7 @@ class TestInstall:
 
     def test_install_runs_odoo_init_in_the_running_container_then_restarts(self, cli, monkeypatch):
         monkeypatch.setattr(cli, "_find_running_odoo", lambda: ("odoo-app", "ui"))
+        monkeypatch.setattr(cli, "_database_exists", lambda name: True)
         rec = Recorder()
         monkeypatch.setattr(cli, "run", rec)
         monkeypatch.setattr(cli, "_show_url", lambda: None)
@@ -375,6 +386,17 @@ class TestInstall:
         assert "--stop-after-init" in odoo_args and "--no-http" in odoo_args
         restart_calls = [c for c in rec.calls if "restart" in c]
         assert restart_calls and rec.calls.index(restart_calls[0]) > rec.calls.index(cmd)
+
+    def test_install_refuses_while_the_database_is_initializing(self, cli, monkeypatch, capsys):
+        monkeypatch.setattr(cli, "_find_running_odoo", lambda: ("odoo-app", "ui"))
+        monkeypatch.setattr(cli, "_database_exists", lambda name: False)
+        rec = Recorder()
+        monkeypatch.setattr(cli, "run", rec)
+        with pytest.raises(SystemExit) as exc:
+            cli.cmd_install(SimpleNamespace(modules=["dswd_wellbeing"], db="odoo"))
+        assert exc.value.code == 1
+        assert "initializ" in capsys.readouterr().out.lower()
+        assert not any("exec" in c for c in rec.calls)
 
     def test_install_without_running_container_exits_with_start_hint(self, cli, monkeypatch, capsys):
         monkeypatch.setattr(cli, "_find_running_odoo", lambda: (None, None))

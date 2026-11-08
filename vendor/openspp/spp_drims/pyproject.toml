@@ -1,6 +1,0 @@
-[project]
-name = "odoo-addon-spp_drims"
-
-[build-system]
-requires = ["whool"]
-build-backend = "whool.buildapi"

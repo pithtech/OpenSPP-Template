@@ -14,6 +14,8 @@ dropped.
 - The test database is warm: `./odoo-project test dswd_wellbeing` has run once today (about 20 s per run after).
 - Handouts and drill sheets printed; answer keys with you.
 - Two volunteer helpers recruited during Module 3 (anyone whose `./odoo-project doctor` is all green).
+- Pre-flight on the demo laptop, same as the participants' Day 3 list: `doctor` clean, `start`, log in, page styled
+  (otherwise `./odoo-project resetassets`), `test dswd_wellbeing` 5 passed.
 
 ## Block 1, 10:00 to 10:05: the end state (demo)
 

@@ -134,3 +134,23 @@ class TestCompose:
             text=True,
         )
         assert result.returncode == 0, result.stderr
+
+
+@pytest.fixture(scope="module")
+def ci():
+    return (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+
+
+class TestCIParticipantFlow:
+    """The smoke job must walk the participant's path through the CLI and fail on a broken stylesheet build."""
+
+    def test_smoke_runs_the_cli_participant_flow(self, ci):
+        for step in ("./odoo-project vendor", "./odoo-project start", "./odoo-project install dswd_wellbeing"):
+            assert step in ci, step
+
+    def test_smoke_fails_on_the_css_error_stub(self, ci):
+        assert "css error" in ci.lower()
+        assert "assetsbundle" in ci
+
+    def test_cli_changes_trigger_the_smoke_job(self, ci):
+        assert "odoo-project" in ci.split("image_changed=true")[0].rsplit("grep", 1)[-1]

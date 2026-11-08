@@ -184,24 +184,32 @@ class TestVendor:
         assert cli.VENDOR_DIR == cli.PROJECT_ROOT / "upstream" / "openspp"
         assert "vendor" not in cli.VENDOR_DIR.relative_to(cli.PROJECT_ROOT).parts
 
-    def test_stale_vendor_dir_is_detected(self, cli, monkeypatch, tmp_path):
-        monkeypatch.setattr(cli, "PROJECT_ROOT", tmp_path)
-        assert cli._stale_vendor_dir() is None
-        (tmp_path / "vendor").mkdir()
-        assert cli._stale_vendor_dir() == tmp_path / "vendor"
+    def test_reserved_root_dir_names_match_odoo_scss_import_roots(self, cli):
+        """Odoo's SCSS importer resolves `@import "<dir>/..."` against any addons root holding a `<dir>` folder."""
+        assert cli.RESERVED_ROOT_DIRS == ("forms", "helpers", "mixins", "utilities", "vendor")
 
-    def test_start_warns_about_a_stale_vendor_dir(self, cli, monkeypatch, tmp_path, capsys):
+    def test_reserved_root_dirs_are_detected(self, cli, monkeypatch, tmp_path):
         monkeypatch.setattr(cli, "PROJECT_ROOT", tmp_path)
+        assert cli._reserved_root_dirs() == []
+        (tmp_path / "helpers").mkdir()
         (tmp_path / "vendor").mkdir()
+        (tmp_path / "forms.txt").write_text("a file, not a directory")
+        assert cli._reserved_root_dirs() == ["helpers", "vendor"]
+
+    def test_start_refuses_when_a_reserved_root_dir_exists(self, cli, monkeypatch, tmp_path, capsys):
+        monkeypatch.setattr(cli, "PROJECT_ROOT", tmp_path)
+        (tmp_path / "helpers").mkdir()
         monkeypatch.setattr(cli, "_check_image_freshness", lambda *a, **k: True)
         monkeypatch.setattr(cli, "_database_exists", lambda name: True)
-        monkeypatch.setattr(cli, "run", Recorder())
-        monkeypatch.setattr(cli, "_wait_for_module_installed", lambda *a, **k: (True, None))
+        rec = Recorder()
+        monkeypatch.setattr(cli, "run", rec)
         args = SimpleNamespace(demo=None, profile="ui", no_build=False, no_watch=True, wipe=False, yes=True)
-        cli.cmd_start(args)
-        captured = capsys.readouterr()
-        assert "vendor" in captured.out + captured.err
-        assert "stylesheet" in captured.out + captured.err
+        with pytest.raises(SystemExit) as exc:
+            cli.cmd_start(args)
+        assert exc.value.code == 1
+        out = capsys.readouterr()
+        assert "helpers" in out.out + out.err and "stylesheet" in out.out + out.err
+        assert not any("up" in c for c in rec.calls)
 
     def test_vendor_status(self, cli, project):
         assert cli._vendor_status() == ("missing", None)
@@ -374,6 +382,39 @@ class TestInstall:
         monkeypatch.setattr(cli, "run", rec)
         with pytest.raises(SystemExit) as exc:
             cli.cmd_install(SimpleNamespace(modules=["dswd_wellbeing"], db="odoo"))
+        assert exc.value.code == 1
+        assert "start" in capsys.readouterr().out
+        assert not rec.calls
+
+
+class TestResetAssets:
+    """`resetassets` deletes the stored asset bundles so Odoo recompiles them on the next page load."""
+
+    def test_resetassets_is_registered(self, cli):
+        assert "resetassets" in cli.COMMANDS
+        assert "resetassets" in {name for name, _ in cli.MAIN_COMMANDS}
+        parser = cli.build_parser()
+        assert "resetassets" in set(parser._subparsers._group_actions[0].choices)
+
+    def test_resetassets_deletes_bundles_then_restarts(self, cli, monkeypatch):
+        monkeypatch.setattr(cli, "_find_running_odoo", lambda: ("odoo-app", "ui"))
+        rec = Recorder()
+        monkeypatch.setattr(cli, "run", rec)
+        monkeypatch.setattr(cli, "_show_url", lambda: None)
+        cli.cmd_resetassets(SimpleNamespace(db="odoo"))
+        psql = [c for c in rec.calls if "psql" in c]
+        assert len(psql) == 1, rec.calls
+        sql = psql[0][psql[0].index("-c") + 1]
+        assert "DELETE FROM ir_attachment" in sql and "/web/assets/%" in sql
+        restart = [c for c in rec.calls if "restart" in c]
+        assert restart and rec.calls.index(restart[0]) > rec.calls.index(psql[0])
+
+    def test_resetassets_without_running_container_exits_with_hint(self, cli, monkeypatch, capsys):
+        monkeypatch.setattr(cli, "_find_running_odoo", lambda: (None, None))
+        rec = Recorder()
+        monkeypatch.setattr(cli, "run", rec)
+        with pytest.raises(SystemExit) as exc:
+            cli.cmd_resetassets(SimpleNamespace(db="odoo"))
         assert exc.value.code == 1
         assert "start" in capsys.readouterr().out
         assert not rec.calls

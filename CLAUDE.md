@@ -132,10 +132,12 @@ Layer 0: ODOO CORE + OCA       (base, mail, web; base_user_role, job_worker, fas
 
 ### Repo Layout
 
-- No top-level directory in this repo may be called `vendor`. The repo root is mounted as an addons root and Odoo's SCSS
-  importer resolves Bootstrap's `@import "vendor/rfs"` against any addons root that contains a `vendor` directory, which
-  breaks every stylesheet build. The OpenSPP checkout therefore lives in `upstream/openspp`; `doctor` and `start` warn
-  if a stale `vendor/` is still present.
+- No top-level directory may be called `forms`, `helpers`, `mixins`, `utilities` or `vendor`. The repo root is mounted
+  as an addons root and Odoo's SCSS importer resolves a relative `@import "<dir>/..."` against any addons root that
+  contains a `<dir>` folder, which breaks every stylesheet build. The OpenSPP checkout therefore lives in
+  `upstream/openspp`; `doctor` reports and `start` refuses such folders, and a pre-commit hook blocks them.
+- Odoo keeps a compiled asset bundle while its version hash matches, and the hash comes from the source files, not from
+  a successful compile. After any broken stylesheet build, run `./odoo-project resetassets`.
 
 ### Docs and Markdown
 

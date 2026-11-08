@@ -1634,10 +1634,9 @@ styled page, `test dswd_wellbeing` at 5 passed. Then:
 
 ## Module 5: DSWD-specific implementation of OpenSPP
 
-The session discusses the production DSWD 4Ps modules, the repository `dswd-4ps-dp-openspp-v2-module`. It is not a
-tutorial of the system: the screens are covered by the NL training team. It reads the modules through the parts of a
-module you met in Modules 3 and 4, in the order of the 4Ps business process, and asks one question of each: if a ticket
-lands here, which file do I open?
+The session discusses the production DSWD 4Ps modules, the repository `dswd-4ps-dp-openspp-v2-module`. It reads the
+modules through the parts of a module you met in Modules 3 and 4, in the order of the 4Ps business process, and asks one
+question of each: if a ticket lands here, which file do I open?
 
 The companion to this chapter is the module catalogue, `training/module5/module-cards.md`: one card per module or module
 family, and an index of all 66 modules. This chapter gives the map and the points to remember; the cards give the

@@ -4,9 +4,9 @@ Day 2, 10:10 to 12:00, after the ten-minute break that follows Module 3. Trainer
 rationale are in [docs/planning/module4-training-design.md](../../docs/planning/module4-training-design.md); this page
 is only what to do and say, with the commands and the real error lines.
 
-**Cut-offs are hard, and there is no buffer.** Drop order if late: the Claude Code part of block 8 (keep the workflow
-slides, 5 minutes), then breakage 4 in block 6. Blocks 9 and 10 are never dropped. Block numbers follow the design;
-there is no block 5.
+**Cut-offs are hard, and there is no buffer.** Drop order if late: the live commit and push in block 8 (show slide 21's
+table and go straight to the prepared pull request, 5 minutes), then breakage 4 in block 6. Blocks 9 and 10 are never
+dropped. Block numbers follow the design; there is no block 5.
 
 ## Before the session
 
@@ -144,40 +144,48 @@ Slide 20.
 
 ## Block 8, 11:25 to 11:35: from a change to a merge (demo only)
 
-Slides 21 to 24.
+Slides 21 to 23. The change is made by hand; Claude Code is in Module 5 this afternoon.
 
 Prepare the evening before, in a repository of your own created from the template (never the template itself):
 
-- Clone it next to the template clone, run `./odoo-project vendor` and `./odoo-project test dswd_wellbeing` in it once
-  (a rehearsal of item 1), and open it in a second VS Code window. The template clone's `origin` is the template
-  repository, so nothing in this block is pushed from it; check `git remote -v` in the clone you push from.
-- In it, open a pull request for a small change (for example the `graduated` level below) and let its CI finish green,
-  so the room does not wait for the image build.
+- Clone it next to the template clone, run `./odoo-project vendor` and `./odoo-project test dswd_wellbeing` in it once,
+  and open it in a second VS Code window. The template clone's `origin` is the template repository, so nothing in this
+  block is pushed from it; check `git remote -v` in the clone you push from.
+- Write the edit and keep it in a scratch file outside the clone: in `data/vocabulary_well_being_level.xml`, a fourth
+  record `code_well_being_graduated` (a copy of the `self_sufficient` record with code `graduated`, display `Graduated`,
+  sequence 40), and in `tests/test_wellbeing.py` a test that `self.VocabCode.get_code(NAMESPACE, "graduated")` resolves
+  with display `Graduated`. Rehearse it in the clone once (6 tests, all green), then `git restore` the two files. On
+  stage the change is one pasted record and one pasted test.
+- Open a pull request for the same change on another branch (for example `feat/graduated-rehearsal`) and let its CI
+  finish green, so the room does not wait for the image build.
 - Leave the clone on an up-to-date `main` (`git switch main`, `git pull`), so the live change starts at 7.4 step 1.
 
-1. **Claude Code makes a change** (3 min), slide 21. In your own repository's clone, in the module folder: ask Claude
-   Code to "add a fourth well-being level, `graduated`, with sequence 40, and a test that it resolves". Review the diff
-   on screen: is the record in the right file and vocabulary? Is the file still in the manifest? Does the test assert
-   something that could fail? Run the tests (`./odoo-project test dswd_wellbeing` in that clone). Say: "The review is
-   the job. The tool types."
-2. **The path to `main`** (4 min), slide 22: in the same clone, on its up-to-date `main`,
-   `git switch -c feat/graduated`, `git add` the two files by name, `git status`,
+Drop rule: if block 7 ran over, skip item 2's live commit and push. Show slide 21's table, say which row is which, and
+go straight to item 3 on the prepared pull request (5 minutes).
+
+1. **The change, by hand** (3 min), slide 21: in the clone, on its up-to-date `main`, `git switch -c feat/graduated`.
+   Paste the test into `tests/test_wellbeing.py` and the `graduated` record into the data file. Show the diff
+   (`git diff`): the record sits under the well-being vocabulary, the data file is still in the manifest, and the test
+   asserts something that could fail. Run `./odoo-project test dswd_wellbeing` in that clone (about 20 s):
+   `0 failed, 0 error(s) of 6 tests`.
+2. **The path to `main`** (4 min), slide 21: `git add` the two files by name, `git status`,
    `git commit -m "feat(wellbeing): add the graduated level"` (the hooks run on screen; if one reformats a file,
    `git add` it again and commit again), `git push -u origin feat/graduated`. Open the link it prints: the pull request,
    the template headings. Say: "CI starts now; its first run builds the image, so we look at the one I opened
    yesterday."
-3. **CI, review, merge** (3 min), slides 23 and 24, on the prepared pull request: the **Checks** tab (pre-commit, build,
+3. **CI, review, merge** (3 min), slides 22 and 23, on the prepared pull request: the **Checks** tab (pre-commit, build,
    the module's test job), a failed run's **Details** if you have one, then **Files changed**: leave one review comment,
    approve, **Merge pull request**, **Delete branch**. Back in the clone: `git switch main`, `git pull`,
    `git branch -d <the prepared branch>`, and `update` if the merge changed a module on your stack (guide 7.4, step 15).
    "Tomorrow you do steps 1 to 11 yourselves; the review is not required in the exercise."
-4. Close the demo branch's pull request without merging, or keep it as an example.
+4. Close the live branch's pull request without merging (the prepared one already carries the change), or keep it as an
+   example.
 
 ## Block 9, 11:35 to 11:50: troubleshooting drill (pairs, paper)
 
-Slide 25.
+Slide 24.
 
-1. Slide 25: the five mistakes, four of which the room watched this morning. Hand out [drill.md](drill.md). 12 minutes,
+1. Slide 24: the five mistakes, four of which the room watched this morning. Hand out [drill.md](drill.md). 12 minutes,
    three excerpts, pairs.
 2. Walk the room; note which pairs reach C (the silent one) and start the debrief with one of them.
 3. Debrief with [drill-answers.md](drill-answers.md): C first, then A, then B. One pair reports each. Bonus D if a pair
@@ -185,15 +193,16 @@ Slide 25.
 
 ## Block 10, 11:50 to 12:00: recap and handoff
 
-Slide 26 (and slide 2).
+Slide 25 (and slide 2).
 
 1. Go back to slide 2, the objectives: read the five, ask for a thumbs up on each.
 2. What moves to Module 5: the production modules read through this morning's parts: the module map, the registry and
-   its hierarchical vocabularies, roles and approvals, change requests, compliance, payroll, casework, APIs.
+   its hierarchical vocabularies, roles and approvals, change requests, compliance, payroll, casework, APIs; and, at the
+   end of the afternoon, Claude Code in development.
 3. Point to Module 6: "Tomorrow you build three modules of your own, starting from `dswd_asset` and `dswd_wellbeing`.
    Before 8:30: `./odoo-project start` and `./odoo-project test dswd_wellbeing` (`0 failed, 0 error(s) of 5 tests`). If
    your laptop does not run Docker, sit with a pair that has a working one."
-4. Back to slide 26. Point to the lunch triage table.
+4. Back to slide 25. Point to the lunch triage table.
 
 ## If the demo machine fails
 

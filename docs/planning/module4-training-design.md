@@ -4,8 +4,9 @@
 > [training/module4/runbook.md](../../training/module4/runbook.md) are current; this design is the rationale. As built:
 > Module 4 runs 10:10 to 12:00 after a ten-minute break; block 1 shows the end state from screenshots, and the live
 > build starts on a database that has never had `dswd_wellbeing` (an uninstall leaves the system vocabulary's codes
-> behind); block 2 is five minutes and there is no buffer block; the constraint is pre-built in `m4-step-5` and block 8
-> asks Claude Code for a fourth level; the quiz is an optional self-check, with no pre-test, post-test or observation
+> behind); block 2 is five minutes and there is no buffer block; the constraint is pre-built in `m4-step-5`; block 8 is
+> the change-to-merge workflow only, with the fourth level (`graduated`) made by hand, and Claude Code moved to Module 5
+> ([module5-claude-code-design.md](module5-claude-code-design.md)); the quiz is an optional self-check, with no pre-test, post-test or observation
 > checklist; participants' repositories have no tags.
 
 > **Status**: proposal for Edwin's review (2026-11-08). Synthesised from

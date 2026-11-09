@@ -9,7 +9,7 @@ commit, no history and no tags, and already holds the finished module.
 | File                                             | For                | Use                                                                                                                                                                                                                           |
 | ------------------------------------------------ | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [runbook.md](runbook.md)                         | Trainer            | Run of show with commands, the four planted faults and their real log lines, cut-offs, fallbacks                                                                                                                              |
-| [slides.md](slides.md)                           | Trainer, projected | Marp deck, 26 slides (21 content, 5 screenshots) one per block or step, with the change-to-merge workflow in block 8; render with the VS Code Marp extension or `npx @marp-team/marp-cli slides.md -o slides.pdf`             |
+| [slides.md](slides.md)                           | Trainer, projected | Marp deck, 25 slides (20 content, 5 screenshots) one per block or step, with the change-to-merge workflow in block 8; render with the VS Code Marp extension or `npx @marp-team/marp-cli slides.md -o slides.pdf`             |
 | [handout-anatomy.md](handout-anatomy.md)         | Everyone, printed  | Fill-in file map, the three rules, the loop, the five mistakes, the code of every step                                                                                                                                        |
 | [drill.md](drill.md)                             | Pairs, printed     | Three real log excerpts to diagnose in block 9                                                                                                                                                                                |
 | [drill-answers.md](drill-answers.md)             | Trainer            | Answer key for the drill                                                                                                                                                                                                      |
@@ -35,9 +35,11 @@ commit, no history and no tags, and already holds the finished module.
 5. Run `./odoo-project test dswd_wellbeing` once so the image and the test database are warm (about 20 s after that).
 6. Print the handout and the drill for every participant, the answer keys for yourself.
 7. For block 8: clone a repository of your own created from the template (never push from the template clone: its
-   `origin` is the template), run `./odoo-project vendor` and `./odoo-project test dswd_wellbeing` in it once, open a
-   small pull request there (the `graduated` level) and let its CI finish green, so the demo shows CI, a review and a
-   merge without waiting for the image build. Leave the clone on an up-to-date `main`.
+   `origin` is the template), run `./odoo-project vendor` and `./odoo-project test dswd_wellbeing` in it once. Write the
+   `graduated` level by hand (one record in the data file, one test) and keep it in a scratch file, so on stage it is a
+   paste; rehearse it once in the clone, then restore the two files. Open a small pull request for the same change on a
+   rehearsal branch and let its CI finish green, so the demo shows CI, a review and a merge without waiting for the
+   image build. Leave the clone on an up-to-date `main`. Claude Code is not used in Module 4; it is in Module 5.
 8. Render the deck once (`npx @marp-team/marp-cli training/module4/slides.md -o slides.pdf`) and keep the PDF on the
    laptop as the projector fallback.
 

@@ -1,7 +1,7 @@
 # Plan: Modules 3 to 6 as PowerPoint decks, in sync with the guide
 
-> **Status**: plan for Edwin's review (2026-11-09). Nothing built yet. Annotate inline (`> NOTE:`) and I address every
-> note before implementing.
+> **Status**: approved by Edwin (2026-11-09, "OK let's proceed"), with the recommended answer to each decision in
+> section 5 (recorded there).
 > **Edwin's decisions so far**: PowerPoint (`.pptx`, which also imports into Google Slides); the Markdown decks
 > (`training/moduleN/slides.md`) stay the source and a build script generates the `.pptx`; the lecture notes go into the
 > speaker notes of a **private copy** written outside the repository, and the copy in the repository has no notes.
@@ -132,14 +132,13 @@ Two pull requests, so the build can be reviewed before the content moves:
    renumbered, the guide edits and the PDF rebuilt, the decks rebuilt and checked slide by slide, then your copies with
    notes.
 
-## 5. For Edwin to decide
+## 5. Decisions
 
-1. **Where you present from**, which sets the code font: PowerPoint on Windows (Consolas: the most readable, ships with
-   Windows and Office), PowerPoint on a Mac (Consolas comes with Office for Mac too), or Keynote (Menlo). Courier New is
-   on every machine but thin on a projector; I recommend Consolas unless you present from Keynote.
-2. **Module 3's title slide**: keep it (my recommendation) or merge it into the door slide as the audit proposes.
-3. **Module 5's primer**: one table slide (the audit's proposal) or two.
-4. **Module 4's slide 16** (the Fields-screen screenshot): merge it (the audit's proposal), or keep it full size as the
-   fallback when Docker fails.
-5. **The Marp decks**: `slides.md` stays the source and stays valid Marp, so the HTML rendering still works as a
-   fallback. Keep that, or drop the Marp-specific parts.
+Edwin approved the plan as written on 2026-11-09, so each decision takes the recommendation:
+
+1. **Code font**: Consolas (PowerPoint on Windows or Mac). Fit is computed at 0.6em per character, the widest common
+   monospace, so code also fits where Consolas is replaced (Keynote, Google Slides).
+2. **Module 3's title slide**: kept as the branded cover.
+3. **Module 5's primer**: one table slide.
+4. **Module 4's slide 16** (the Fields-screen screenshot): merged into slide 15, as the audit proposes.
+5. **The Marp decks**: `slides.md` stays valid Marp, so the HTML rendering remains a fallback.

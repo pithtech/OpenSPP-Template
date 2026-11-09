@@ -22,6 +22,8 @@ Edwin Gonzales, OpenSPP
 
 ---
 
+<!-- _footer: "Guide 0.3" -->
+
 ## Before we start
 
 ```bash
@@ -30,7 +32,7 @@ Edwin Gonzales, OpenSPP
 
 Log in with `admin` / `admin`. Settings, scroll to the bottom, **Activate the developer mode**.
 
-Then wait. Nothing in the next twenty minutes needs your laptop.
+Then wait. Nothing before 8:50 needs your laptop.
 
 ---
 
@@ -123,7 +125,7 @@ Fill in the file map on your handout, section 3, as we go. Every file and its ro
 }
 ```
 
-Odoo needs a folder and a manifest, nothing more. The `dswd_` prefix is **our** project's rule, the way `spp_` is OpenSPP's: it says who owns the code, not what it is about.
+Abridged: the full manifest is in Guide 3.6. Odoo needs a folder and a manifest, nothing more. The `dswd_` prefix is **our** project's rule, the way `spp_` is OpenSPP's: it says who owns the code, not what it is about.
 
 A file not listed in `data` does not exist to Odoo: no error, it is simply ignored.
 
@@ -140,18 +142,16 @@ class DswdAsset(models.Model):
     _name = "dswd.asset"
     _description = "IT Asset"
     _order = "name"
-
     name = fields.Char(string="Asset Tag", required=True)
     model_name = fields.Char(string="Make and Model")
     asset_type = fields.Selection(
-        [("laptop", "Laptop"), ("desktop", "Desktop"), ("printer", "Printer"), ("other", "Other")],
-        required=True, default="laptop",
-    )
-    custodian_id = fields.Many2one("res.users", string="Custodian", default=lambda self: self.env.user)
+        [("laptop", "Laptop"), ("desktop", "Desktop"), ("printer", "Printer"),
+         ("other", "Other")], required=True, default="laptop")
+    custodian_id = fields.Many2one(
+        "res.users", string="Custodian", default=lambda self: self.env.user)
     purchase_date = fields.Date()
     warranty_end_date = fields.Date()
     is_in_use = fields.Boolean(default=True)
-    is_under_warranty = fields.Boolean(compute="_compute_is_under_warranty")
 ```
 
 Plus `from . import dswd_asset` in `models/__init__.py` and `from . import models` in `__init__.py`; forget either and the model is silently absent.
@@ -165,17 +165,20 @@ Plus `from . import dswd_asset` in `models/__init__.py` and `from . import model
 ## Computed and constrained
 
 ```python
-    @api.depends("warranty_end_date")
-    def _compute_is_under_warranty(self):
-        today = fields.Date.context_today(self)
-        for asset in self:
-            asset.is_under_warranty = bool(asset.warranty_end_date and asset.warranty_end_date >= today)
-
-    @api.constrains("purchase_date", "warranty_end_date")
-    def _check_warranty_after_purchase(self):
-        for asset in self:
-            if asset.purchase_date and asset.warranty_end_date and asset.warranty_end_date < asset.purchase_date:
-                raise ValidationError(_("The warranty end date must be on or after the purchase date."))
+is_under_warranty = fields.Boolean(compute="_compute_is_under_warranty")
+@api.depends("warranty_end_date")
+def _compute_is_under_warranty(self):
+    today = fields.Date.context_today(self)
+    for asset in self:
+        asset.is_under_warranty = bool(
+            asset.warranty_end_date and asset.warranty_end_date >= today)
+@api.constrains("purchase_date", "warranty_end_date")
+def _check_warranty_after_purchase(self):
+    for asset in self:
+        if (asset.purchase_date and asset.warranty_end_date
+                and asset.warranty_end_date < asset.purchase_date):
+            raise ValidationError(
+                _("The warranty end date must be on or after the purchase date."))
 ```
 
 A computed field is never typed in; it is not stored, so it cannot be searched or filtered without a `search=` method (Guide 3.8). A constraint refuses bad data with a sentence the user reads.
@@ -194,12 +197,12 @@ A computed field is never typed in; it is not stored, so it cannot be searched o
 
 ## The warning you will meet again
 
-<style scoped>section pre { font-size: 0.5em; }</style>
-
 ```
-WARNING ... odoo.modules.loading: The models ['dswd.asset'] have no access rules in module dswd_asset, consider adding some, like:
+WARNING ... odoo.modules.loading: The models ['dswd.asset']
+  have no access rules in module dswd_asset, consider adding some, like:
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-dswd_asset.access_dswd_asset,access_dswd_asset,dswd_asset.model_dswd_asset,base.group_user,1,0,0,0
+dswd_asset.access_dswd_asset,access_dswd_asset,dswd_asset.model_dswd_asset,
+  base.group_user,1,0,0,0
 ```
 
 Odoo even suggests a row; ours will have four, with the system row first.
@@ -210,9 +213,7 @@ Nothing is broken yet. Nobody can open the table either. Remember this warning: 
 
 <!-- _footer: "Guide 3.9" -->
 
-## Step 2: views draw the table, a menu opens it
-
-<style scoped>section { padding-top: 24px; padding-bottom: 48px; } section pre { font-size: 0.6em; } section p { font-size: 0.85em; }</style>
+## Step 2: a list view draws the table
 
 ```xml
 <record id="view_dswd_asset_list" model="ir.ui.view">
@@ -229,7 +230,17 @@ Nothing is broken yet. Nobody can open the table either. Remember this warning: 
         </list>
     </field>
 </record>
+```
 
+Abridged: the form and search views are in Guide 3.9. Odoo 19: `<list>`, not `<tree>`.
+
+---
+
+<!-- _footer: "Guide 3.9" -->
+
+## Step 2: an action and a menu open it
+
+```xml
 <record id="action_dswd_asset" model="ir.actions.act_window">
     <field name="name">IT Assets</field>
     <field name="res_model">dswd.asset</field>
@@ -237,31 +248,23 @@ Nothing is broken yet. Nobody can open the table either. Remember this warning: 
     <field name="context">{'search_default_filter_in_use': 1}</field>
 </record>
 
-<menuitem id="menu_dswd_asset_root" name="IT Assets" web_icon="dswd_asset,static/description/icon.png" sequence="95" />
-<menuitem id="menu_dswd_asset" name="Assets" parent="menu_dswd_asset_root" action="action_dswd_asset" sequence="10" />
+<menuitem id="menu_dswd_asset_root" name="IT Assets"
+          web_icon="dswd_asset,static/description/icon.png" sequence="95" />
+<menuitem id="menu_dswd_asset" name="Assets" parent="menu_dswd_asset_root"
+          action="action_dswd_asset" sequence="10" />
 ```
 
-Abridged: the form and search views are in Guide 3.9. Odoo 19: `<list>`, not `<tree>`. **Predict**: where will it appear?
-
----
-
-<!-- _footer: "Guide 3.9" -->
-
-## After step 2: no tile, even for admin
-
-Odoo hides a menu whose model you cannot read, so the IT Assets tile does not appear.
-
-Open the action by its URL instead:
-
-`http://localhost:8069/odoo/action-dswd_asset.action_dswd_asset`
+Abridged: the action's `help` text is in the file (Guide 3.9). **Predict**: where will it appear?
 
 ---
 
 <!-- _footer: "Guide 3.9 · then read 3.10" -->
 
-## The warning became an error
+## After step 2: no tile, and an error even for admin
 
-![h:470](images/step2-access-error.png)
+Odoo hides a menu whose model you cannot read, and `admin` is not the superuser: no IT Assets tile. Open the action by its URL instead: `http://localhost:8069/odoo/action-dswd_asset.action_dswd_asset` (dev profile: the port `start` printed).
+
+![h:360](images/step2-access-error.png)
 
 ---
 
@@ -289,25 +292,19 @@ access_dswd_asset_officer,dswd.asset officer,model_dswd_asset,group_asset_office
 access_dswd_asset_manager,dswd.asset manager,model_dswd_asset,group_asset_manager,1,1,1,1
 ```
 
-Viewer reads. Officer reads, writes, creates. Manager also deletes. The last record makes every OpenSPP admin an asset manager.
-
----
-
-<!-- _footer: "Guide 3.11" -->
-
-## After step 3: the app tile
-
-![h:470](images/step2-app-tile.png)
+Abridged: the category, privilege, viewer and manager records are in Guide 3.11. Viewer reads. Officer reads, writes, creates. Manager also deletes. The last record makes every OpenSPP admin an asset manager.
 
 ---
 
 <!-- _footer: "Guide 3.11 · then read 3.12" -->
 
-## Your turn: register the laptop in front of you
+## After step 3: the tile opens. Your turn
 
-![h:420](images/step3-asset-list.png)
+`update`: the IT Assets tile appears and the list opens.
 
-Then set a warranty end date **before** the purchase date, and read the dialog.
+![h:380](images/step3-asset-list.png)
+
+**Your turn:** register the laptop in front of you. Then group by Type. Then set a warranty end date **before** the purchase date, and read the dialog.
 
 ---
 
@@ -321,11 +318,13 @@ class TestDswdAsset(TransactionCase):
     def setUp(self):
         super().setUp()
         self.Asset = self.env["dswd.asset"]
-        self.asset = self.Asset.create({"name": "LT-0001", "model_name": "Dell Latitude 5440"})
+        self.asset = self.Asset.create(
+            {"name": "LT-0001", "model_name": "Dell Latitude 5440"})
 
     def test_warranty_before_purchase_is_refused(self):
         with self.assertRaises(ValidationError):
-            self.asset.write({"purchase_date": date(2026, 1, 10), "warranty_end_date": date(2025, 12, 31)})
+            self.asset.write({"purchase_date": date(2026, 1, 10),
+                              "warranty_end_date": date(2025, 12, 31)})
 ```
 
 ```
@@ -333,7 +332,7 @@ $ ./odoo-project test dswd_asset
 0 failed, 0 error(s) of 12 tests
 ```
 
-Written with each step: the demo tag runs 8, your copy 12. **Start yours now**; read the summary line at 9:56.
+Abridged: the full files hold more tests (Guide 3.13). Written with each step: the demo tag runs 8, your copy 12. **Start yours now**; read the summary line at 9:56.
 
 ---
 
@@ -341,35 +340,26 @@ Written with each step: the demo tag runs 8, your copy 12. **Start yours now**; 
 
 ## Step 5: the ORM, in a method
 
-<style scoped>section { padding-top: 24px; padding-bottom: 48px; } section pre { font-size: 0.6em; } section p { font-size: 0.85em; }</style>
-
 ```python
-    def action_assign_to_me(self):
-        self.write({"custodian_id": self.env.user.id})
+def action_assign_to_me(self):
+    self.write({"custodian_id": self.env.user.id})
 
-    @api.model
-    def find_warranty_expiring(self, days=30):
-        today = fields.Date.context_today(self)
-        return self.search(
-            [("is_in_use", "=", True), ("warranty_end_date", ">=", today),
-             ("warranty_end_date", "<=", fields.Date.add(today, days=days))],
-            order="warranty_end_date",
-        )
+@api.model
+def find_warranty_expiring(self, days=30):
+    today = fields.Date.context_today(self)
+    return self.search(
+        [("is_in_use", "=", True), ("warranty_end_date", ">=", today),
+         ("warranty_end_date", "<=", fields.Date.add(today, days=days))],
+        order="warranty_end_date",
+    )
 ```
 
 ```xml
-<header>
-    <button
-        name="action_assign_to_me"
-        type="object"
-        string="Assign to me"
-        class="btn-primary"
-        groups="dswd_asset.group_asset_officer"
-    />
-</header>
+<button name="action_assign_to_me" type="object" string="Assign to me"
+        class="btn-primary" groups="dswd_asset.group_asset_officer" />
 ```
 
-No decorator: `self` is the record. `@api.model`: works on the whole table. Five operations: `search`, `browse`, `create`, `write`, `unlink` (Guide 3.14).
+The button sits in the form's `<header>`; `type="object"` calls the method of that name on the record. No decorator: `self` is the record. `@api.model`: works on the whole table. Five operations: `search`, `browse`, `create`, `write`, `unlink` (Guide 3.14).
 
 ---
 
@@ -392,20 +382,15 @@ True
 'OdooBot'
 >>> Asset.find_warranty_expiring(365).mapped("name")
 ['LT-0001']
->>> a.unlink()
-True
->>> env.cr.commit()      # the shell does not save until you say so: shell only, never in module code
 ```
 
-A Many2one is itself a record: `a.custodian_id.name` walks the link. Nothing is saved until `env.cr.commit()`, and that line belongs in the shell only.
+Then `a.unlink()` (`True`) and `env.cr.commit()`. A Many2one is itself a record: `a.custodian_id.name` walks the link. Nothing is saved until `env.cr.commit()`, and that line belongs in the shell only, never in module code.
 
 ---
 
 <!-- _footer: "Guide 3.18" -->
 
 ## Step 6: a PDF report
-
-<style scoped>section { padding-top: 24px; padding-bottom: 48px; } section pre { font-size: 0.6em; } section p { font-size: 0.85em; }</style>
 
 ```xml
 <record id="action_report_dswd_asset" model="ir.actions.report">
@@ -415,25 +400,20 @@ A Many2one is itself a record: `a.custodian_id.name` walks the link. Nothing is 
     <field name="report_name">dswd_asset.report_dswd_asset</field>
     <field name="binding_model_id" ref="model_dswd_asset" />
 </record>
+```
 
+```xml
 <template id="report_dswd_asset">
     <t t-call="web.html_container">
         <t t-foreach="docs" t-as="asset">
             <t t-call="web.external_layout">
                 <div class="page">
                     <h2>Asset Sheet: <span t-field="asset.name" /></h2>
-                    <table class="table table-sm">
-                        <tr><th>Custodian</th><td><span t-field="asset.custodian_id" /></td></tr>
-                        <tr><th>Warranty End</th><td><span t-field="asset.warranty_end_date" /></td></tr>
-                    </table>
-                </div>
-            </t>
-        </t>
-    </t>
-</template>
+                    <table class="table table-sm o_main_table">
+                        <tbody>
 ```
 
-Abridged; the full file is in Guide 3.18. `binding_model_id` puts it in the Print menu. `docs` is what is being printed. HTML, then PDF.
+Abridged: the six rows and the closing tags are in Guide 3.18. `binding_model_id` puts it in the Print menu. `docs` is what is being printed. HTML, then PDF.
 
 ---
 
@@ -477,10 +457,12 @@ Hundreds of columns, from several modules. A new `dswd.household` would mean two
 ## The tablet, resolved
 
 ```python
-    asset_type = fields.Selection(
-        [("laptop", "Laptop"), ("desktop", "Desktop"), ("printer", "Printer"), ("tablet", "Tablet"), ("other", "Other")],
-        required=True, default="laptop",
-    )
+asset_type = fields.Selection(
+    [("laptop", "Laptop"), ("desktop", "Desktop"), ("printer", "Printer"),
+     ("tablet", "Tablet"),
+     ("other", "Other")],
+    required=True, default="laptop",
+)
 ```
 
 One word cost: a code change, a release, an `update` on every server.

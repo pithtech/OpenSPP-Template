@@ -91,7 +91,7 @@ for Claude Code comes from the tours, and the triage moves before it.
 | --- | --- | --- | --- |
 | 1:00 | Opener: objectives, how to read a card, warm-up ticket with category cards | | 5 |
 | 1:05 | The map: 66 modules on the poster, layers, the two-instance split, bundles (`starter`, `instance1`, `instance2`), "26 cards today" | | 8 |
-| 1:13 | Primer: five slides of one sentence and one production example each, read aloud: record rules (3.12), jobs and scheduled actions (3.17), migrations and `noupdate` (4.13), hooks (`post_init_hook`, `_register_hook`; 5.10), wizards (3.10) | | 5 |
+| 1:13 | Primer: one table slide, one sentence and one production example per concept, read aloud: record rules (3.12), jobs and scheduled actions (3.17), migrations and `noupdate` (4.13), hooks (`post_init_hook`, `_register_hook`; 5.10), wizards (3.10) | | 5 |
 | 1:18 | Foundation: area (7), registry (12), roles (8), approvals (6), period (2) | Deep | 35 |
 | 1:53 | Checkpoint 1: three quick tickets, standing vote | | 5 |
 | 1:58 | Change requests: upstream architecture, 4Ps types, approvals, documents, limits, batching and cancellation, access mixin, code moments | Deep | 35 |
@@ -247,7 +247,7 @@ Built in `training/module5/` (see its README):
 
 | Material | File |
 | --- | --- |
-| Deck, 45 slides, excerpts copied from the cards; slides 35 to 43 are the Claude Code hour | `slides.md` |
+| Deck, 43 slides, excerpts copied from the cards (some abridged); slides 31 to 41 are the Claude Code hour | `slides.md` |
 | Trainer runbook: cut-offs, drop order, code moments in tab order, prompts per card | `runbook.md` |
 | 26 module cards and the index of all 66 modules | `module-cards.md` |
 | Module map poster (A1) | `module-map.md` |

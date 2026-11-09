@@ -147,7 +147,7 @@ brand-new module: `install`. The Module 4 handout gets the same two-line correct
 | ------------------------------------------------------------ | ------------------- |
 | `dswd_asset` at the repo root, test-first, tags `m3-step-0` to `m3-step-6`, `auto_install: False` | Essential |
 | `runbook.md`: commands per block, the planted fault with its real log line, cut-offs, drop order  | Essential |
-| `slides.md`: Marp, about 16 slides, screenshots from the real stack                                | Essential |
+| `slides.md`: Marp, 26 slides, screenshots from the real stack                                      | Essential |
 | `handout-anatomy.md`: fill-in file map, the field-type table, the loop, the mistakes, the code per step, the side-by-side table on the back | Essential |
 | `command-card.md`: half a page: `start`, `install dswd_asset`, `test dswd_asset`, `resetassets`, `logs` | Essential |
 | `quiz.md` and `quiz-answers.md`: not built; no Module 3 quiz, no pre-test or post-test             | Dropped   |

@@ -22,6 +22,8 @@ Edwin Gonzales, OpenSPP
 
 ---
 
+<!-- _footer: "Guide 6.2" -->
+
 ## Before 8:30
 
 Open PowerShell in your repository. Log in once the stack is up; wait for `0 failed, 0 error(s) of 5 tests`; then create the morning's branch.
@@ -42,15 +44,15 @@ No working laptop? Sit with a pair that has one.
 
 ## Three modules, one per skill
 
-| #   | Skill         | Module             | The 4Ps request                            | Copy from        |
-| --- | ------------- | ------------------ | ------------------------------------------ | ---------------- |
-| 1   | Development   | `dswd_fds_session` | A register of Family Development Sessions  | `dswd_asset`     |
-| 2   | Extending     | `dswd_listahanan`  | A unique Listahanan ID on every household  | `dswd_wellbeing` |
-| 3   | Customization | `dswd_id_types`    | PhilSys as an ID type, with a format check | `dswd_wellbeing` |
+| #   | Skill         | Module             | The 4Ps request                      | Copy from        |
+| --- | ------------- | ------------------ | ------------------------------------ | ---------------- |
+| 1   | Development   | `dswd_fds_session` | Register of FDS sessions             | `dswd_asset`     |
+| 2   | Extending     | `dswd_listahanan`  | Unique Listahanan ID per household   | `dswd_wellbeing` |
+| 3   | Customization | `dswd_id_types`    | PhilSys ID type, with a format check | `dswd_wellbeing` |
 
 ---
 
-<!-- _footer: "Guide 6.4, 7.4" -->
+<!-- _footer: "Guide 6.2, 6.4, 7.4" -->
 
 ## Done means three proofs
 
@@ -58,11 +60,11 @@ No working laptop? Sit with a pair that has one.
 2. `.\odoo-project test <module>` prints `0 failed`
 3. You can show the result on screen
 
-Read every command's output to the end. If it does not print the "complete" line, it failed, and the browser still shows the old screens.
+Read every output to the end: no "complete" line means it failed, and the browser still shows the old screens.
 
-After each exercise: `git add <module>` (its folder), `git status`, `git commit -m "feat(...): ..."`.
+After each exercise: `git add <module>` (its folder), `git status`, `git commit`.
 
-Pairs: one types, one reads. Swap at each exercise. Ask your pair, your row, a helper, then me.
+Pairs: one types, one reads; swap at each exercise. Ask your pair, your row, a helper, then me.
 
 ---
 
@@ -128,7 +130,7 @@ Open the link it prints, create the pull request, answer the template's headings
 
 Finish an exercise later? Commit it and `git push` again: the pull request updates itself.
 
-CI builds the image first, so it ends after the session. When it is green: merge and delete the branch, then `git switch main`, `git pull`, `git branch -d module6` (guide 7.4, steps 12 to 15).
+CI builds the image first, so it ends after the session. When green: merge, delete the branch, `git switch main`, `git pull`, `git branch -d module6` (7.4, steps 12 to 15).
 
 ---
 
@@ -149,8 +151,8 @@ The three modules are yours: once CI is green, merge the pull request and bring 
 
 Each one has a production counterpart you can now read:
 
-| Your module        | In production                                                                           |
-| ------------------ | --------------------------------------------------------------------------------------- |
-| `dswd_fds_session` | the FDS operations module (Module 5, card 12)                                           |
-| `dswd_listahanan`  | the Listahanan ID on the registry (card 3)                                              |
-| `dswd_id_types`    | the PhilSys, 4Ps ID card and PhilHealth ID types in the registry module's data (card 3) |
+| Your module        | In production                                                     |
+| ------------------ | ----------------------------------------------------------------- |
+| `dswd_fds_session` | FDS operations module (Module 5, card 12)                         |
+| `dswd_listahanan`  | Listahanan ID on the registry (card 3)                            |
+| `dswd_id_types`    | PhilSys, 4Ps ID card, PhilHealth ID types: registry data (card 3) |

@@ -55,7 +55,7 @@ Edwin's decision: the hour comes from the tours. The triage moves before the hou
 | 4:55      | Closing                                          | 7              | 5      |
 | (dropped) | Buffer                                           | 3              | 0      |
 
-Total 300 minutes, 1:00 to 5:00. **What the trims cost**: the primer becomes one slide per concept read aloud; payroll
+Total 300 minutes, 1:00 to 5:00. **What the trims cost**: the primer becomes one sentence per concept read aloud (one table slide); payroll
 keeps the point of no return and the sealed snapshot only; casework keeps SWDI levels and the trigger-to-case job;
 integration becomes one slide (the API's rules, then "the rest is on cards 21 to 26"); checkpoint 2 goes (its payroll
 item moves into the payroll tour as a question). Every cut topic stays on its card and in guide chapter 5. There is no

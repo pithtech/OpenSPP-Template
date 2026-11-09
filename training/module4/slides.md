@@ -26,11 +26,11 @@ Edwin Gonzales, OpenSPP
 
 ## By noon you can
 
-1. Name the role of every file in a `dswd_*` module, and say why a file not in the manifest does not exist.
-2. Pick the right pattern for a 4Ps requirement: inherit the upstream model, prefix the field `dswd_`, point it at a vocabulary code.
-3. Explain how a view is extended, and recognise the error when the anchor is wrong.
-4. Read a log excerpt and say which file to open.
-5. Run a module's tests and read the summary line.
+1. Name the role of each file in a `dswd_*` module and state that a file not listed in the manifest does not exist.
+2. Given a 4Ps requirement, pick the right pattern: `_inherit` on the upstream model, a `dswd_` field, a Many2one to a vocabulary code; never a new model for an attribute, never a static Selection for a code list, never an edit under `upstream/openspp/`.
+3. Explain view inheritance (`inherit_id` plus one XPath on a named anchor) and recognise the error when the anchor does not exist.
+4. Given a log excerpt, say which step failed and which file to open.
+5. Run the tests of a module and read the pass/fail summary.
 
 Nothing today needs your laptop. Read, predict, diagnose. Keyboard time is Day 3.
 
@@ -48,7 +48,7 @@ The SWDI assessment places every 4Ps household at one of three levels:
 | 2     | `subsistence`     | meets basic needs, no buffer               |
 | 3     | `self_sufficient` | can sustain itself, may exit the program   |
 
-Since Executive Order 120 (July 2026) the level decides whether a household stays past seven years.
+Since Executive Order 120 (July 2026) the level decides whether a household stays in the program past seven years.
 
 **Today**: put that level on the household record in OpenSPP, as a dropdown on the household Profile page.
 
@@ -79,27 +79,6 @@ In production the household's level is copied from the latest SWDI assessment (`
 
 ---
 
-<!-- _footer: "Guide 4.3" -->
-
-## Anatomy of a module
-
-```
-dswd_wellbeing/
-├── __manifest__.py                        depends on spp_registry and spp_vocabulary
-├── __init__.py                            imports models
-├── data/vocabulary_well_being_level.xml   the vocabulary and its three codes
-├── models/__init__.py                     imports res_partner
-├── models/res_partner.py                  the field on the household, and a constraint
-├── views/res_partner_views.xml            where the field shows on the household form
-├── security/ir.model.access.csv           header only: no new model, no rows
-├── tests/test_wellbeing.py                what "working" means
-└── readme/DESCRIPTION.md                  what the module is for
-```
-
-Fill in section 2 of your handout as the steps go by.
-
----
-
 <!-- _footer: "Guide 4.2" -->
 
 ## The three rules
@@ -109,6 +88,27 @@ Fill in section 2 of your handout as the steps go by.
 2. **Inherit, do not redefine.** `_inherit = "res.partner"` adds to the household. `_name` would create a new table. New fields on upstream models start with `dswd_`.
 
 3. **A file not listed in `__manifest__.py` does not exist.** Data and view files load only if they are in `data`. No error. Just absence.
+
+---
+
+<!-- _footer: "Guide 4.3" -->
+
+## Anatomy of a module
+
+```
+dswd_wellbeing/
+├── __manifest__.py                      depends on spp_registry and spp_vocabulary
+├── __init__.py                          imports models
+├── data/vocabulary_well_being_level.xml the vocabulary and its three codes
+├── models/__init__.py                   imports res_partner
+├── models/res_partner.py                the field on the household, and a constraint
+├── views/res_partner_views.xml          where the field shows on the household form
+├── security/ir.model.access.csv         header only: no new model, no rows
+├── tests/test_wellbeing.py              what "working" means
+└── readme/DESCRIPTION.md                what the module is for
+```
+
+Fill in section 2 of your handout as the steps go by.
 
 ---
 
@@ -132,11 +132,13 @@ Fill in section 2 of your handout as the steps go by.
 }
 ```
 
+Abridged: the file at `m4-step-0` also has `summary`, `website`, `development_status`, `maintainers` and `auto_install`.
+
 Installable, does nothing. **Predict**: where will it appear after we install it?
 
 ---
 
-<!-- _footer: "Guide 3.6" -->
+<!-- _footer: "Guide 4.3" -->
 
 ## After step 0: Apps knows the module
 
@@ -145,10 +147,6 @@ Installable, does nothing. **Predict**: where will it appear after we install it
 ---
 
 <!-- _footer: "Guide 0.4" -->
-
-<style scoped>
-section { font-size: 23px; }
-</style>
 
 ## The loop
 
@@ -161,24 +159,18 @@ section { font-size: 23px; }
 | A record in a `noupdate="1"` data file                                          | a fresh database (`stop -v -y`, `start`, `install`); guide 4.4   |
 | A test                                                                          | `./odoo-project test dswd_wellbeing`, then read the summary line |
 
-`update` never installs a new module; `install` does. Both print their errors where you ran them; `./odoo-project logs` shows the running server.
+`update` never installs a new module; `install` does. Both restart the server.
 
 ---
 
 <!-- _footer: "Guide 4.4" -->
-
-<style scoped>
-pre { font-size: 0.6em; }
-</style>
 
 ## Step 1: the vocabulary
 
 ```xml
 <odoo noupdate="1">
     <record id="vocab_well_being_level" model="spp.vocabulary">
-        <field name="name">4Ps Well-Being Level</field>
         <field name="namespace_uri">urn:dswd:4ps:well-being-level</field>
-        <field name="description">Household well-being level from the SWDI assessment</field>
         <field name="is_system" eval="True" />
         <field name="domain">social_assistance</field>
     </record>
@@ -187,13 +179,12 @@ pre { font-size: 0.6em; }
         <field name="vocabulary_id" ref="vocab_well_being_level" />
         <field name="code">survival</field>
         <field name="display">Survival</field>
-        <field name="definition">SWDI level 1: the household cannot meet basic needs without assistance.</field>
         <field name="target_type">group</field>
         <field name="sequence">10</field>
     </record>
-    <!-- subsistence (sequence 20) and self_sufficient (sequence 30) follow the same shape -->
-</odoo>
 ```
+
+Abridged (full file: guide 4.4): `name`, `description` and `definition` left out; `subsistence` (sequence 20) and `self_sufficient` (sequence 30) follow the same shape.
 
 **Predict**: after `update`, where will the three codes show?
 
@@ -213,7 +204,11 @@ pre { font-size: 0.6em; }
 
 ```python
 # Not this
-level = fields.Selection([("1", "Survival"), ("2", "Subsistence"), ("3", "Self-Sufficient")])
+level = fields.Selection([
+    ("1", "Survival"),
+    ("2", "Subsistence"),
+    ("3", "Self-Sufficient"),
+])
 ```
 
 - A code list changes without a release: Settings > Vocabularies, no code change.
@@ -234,7 +229,6 @@ from odoo import fields, models
 
 WELL_BEING_NAMESPACE = "urn:dswd:4ps:well-being-level"
 
-
 class ResPartner(models.Model):
     _inherit = "res.partner"
 
@@ -243,10 +237,11 @@ class ResPartner(models.Model):
         string="Well-Being Level",
         domain=[("namespace_uri", "=", WELL_BEING_NAMESPACE)],
         ondelete="restrict",
+        help="SWDI level from the latest assessment: ...",
     )
 ```
 
-Plus `from . import res_partner` in `models/__init__.py`. **Predict**: after `update`, what changes on screen?
+Abridged: the full `help` text is in guide 4.5. Plus `from . import res_partner` in `models/__init__.py`. **Predict**: after `update`, what changes on screen?
 
 ---
 
@@ -261,50 +256,32 @@ Plus `from . import res_partner` in `models/__init__.py`. **Predict**: after `up
 from . import res_partner      # <- the line that was missing
 ```
 
-Python never imported the file, so Odoo never saw the class.
+Python never imported the file, so Odoo never saw the class. Where to look: **Settings > Technical > Fields**, search `dswd_`. A field without a view is invisible, not broken.
 
-Where to look: **Settings > Technical > Fields**, search `dswd_`.
-
-A field without a view is invisible, not broken.
-
----
-
-<!-- _footer: "Guide 4.5" -->
-
-## Where a field without a view shows up
-
-![h:470](images/step2-technical-fields.png)
+![h:250](images/step2-technical-fields.png)
 
 ---
 
 <!-- _footer: "Guide 4.7" -->
 
-<style scoped>
-pre { font-size: 0.6em; }
-</style>
-
 ## Step 3: the view
 
 ```xml
-<record id="view_res_partner_form_wellbeing" model="ir.ui.view">
-    <field name="name">res.partner.form.dswd.wellbeing</field>
-    <field name="model">res.partner</field>
-    <field name="inherit_id" ref="spp_registry.view_individuals_form" />
-    <field name="arch" type="xml">
-        <xpath expr="//group[@name='group_tags_section']" position="after">
-            <group name="dswd_4ps_section" string="4Ps">
-                <field
-                    name="dswd_well_being_level_id"
-                    readonly="disabled"
-                    options="{'no_create': True, 'no_open': True}"
-                />
-            </group>
-        </xpath>
-    </field>
-</record>
+<field name="inherit_id" ref="spp_registry.view_individuals_form" />
+<field name="arch" type="xml">
+    <xpath expr="//group[@name='group_tags_section']" position="after">
+        <group name="dswd_4ps_section" string="4Ps">
+            <field
+                name="dswd_well_being_level_id"
+                readonly="disabled"
+                options="{'no_create': True, 'no_open': True}"
+            />
+        </group>
+    </xpath>
+</field>
 ```
 
-Find the anchor first: open `upstream/openspp/spp_registry/views/individual_views.xml` and search for `name="group_` (Ctrl+F in VS Code).
+Abridged from the finished file (guide 4.7 has the whole record). Find the anchor first: search `name="group_` in `upstream/openspp/spp_registry/views/individual_views.xml`.
 
 ---
 
@@ -322,27 +299,23 @@ Find the anchor first: open `upstream/openspp/spp_registry/views/individual_view
 
 ```
 ValueError: Wrong value for spp.vocabulary.domain: 'administrative'
-odoo.tools.convert.ParseError: while parsing
-  /mnt/extra-addons/custom/dswd_wellbeing/data/vocabulary_well_being_level.xml:10
+odoo.tools.convert.ParseError: while parsing .../vocabulary_well_being_level.xml:10
 ```
 
 ```
-Element '<xpath expr="//group[@name=&#39;group_tag_section&#39;]">' cannot be located in parent view
-View error context:
-{'file': '.../dswd_wellbeing/views/res_partner_views.xml', ..., 'xmlid': 'view_res_partner_form_wellbeing'}
+odoo.tools.convert.ParseError: while parsing .../views/res_partner_views.xml:8
+Element '<xpath ...>' cannot be located in parent view
 ```
+
+Paths and the XPath shortened with `...`; the full lines are in guide 4.11.
 
 Find the first line that names a file in **your** module, open it there, compare it with upstream (the selection, the view). Lint passed on both: it checks shape, not meaning.
 
 ---
 
-<!-- _footer: "Guide 4.5, 4.9, 4.10" -->
+<!-- _footer: "Guide 4.10, 4.9" -->
 
-<style scoped>
-section { font-size: 23px; padding-top: 30px; } section pre { font-size: 0.66em; } section h2 { margin-bottom: 6px; } section p { margin: 8px 0; }
-</style>
-
-## Steps 4 and 5: the tests
+## Step 4: the test
 
 ```python
 @tagged("post_install", "-at_install")
@@ -352,6 +325,14 @@ class TestHouseholdWellBeing(RegistryCommon):
         self.group.dswd_well_being_level_id = subsistence
         self.assertEqual(self.group.dswd_well_being_level_id.display, "Subsistence")
 ```
+
+`security/ir.model.access.csv`: header only. No new model, no rows; access to the field follows `res.partner`.
+
+---
+
+<!-- _footer: "Guide 4.10, 4.5" -->
+
+## Step 5: run the tests
 
 ```
 $ ./odoo-project test dswd_wellbeing
@@ -363,54 +344,38 @@ Full log: .../odoo-test-logs/dswd_wellbeing_unittest_<date>_<time>.log
 
 A `Many2one` `domain` only filters the dropdown: step 5 adds an `@api.constrains` so code and the API are guarded too.
 
-`security/ir.model.access.csv`: header only. No new model, no rows; access to the field follows `res.partner`.
-
 ---
 
 <!-- _footer: "Guide 7.4" -->
-
-<style scoped>
-section { font-size: 24px; }
-</style>
 
 ## From a change to a merge
 
-| On your laptop                                   | On GitHub                                                   |
-| ------------------------------------------------ | ----------------------------------------------------------- |
-| 1. `git switch main`, `git pull`                 | 11. Open a pull request (base `main`)                       |
-| 2. `git switch -c feat/...`                      | 12. CI: pre-commit, image build, module tests               |
-| 3. Test first, then code                         | 13. Review: a second person reads the diff                  |
-| 4. `install` or `update` on your stack           | 14. Merge, delete the branch                                |
-| 5. Check the screen                              |                                                             |
-| 6. `.\odoo-project test <module>`: `0 failed`    | Back on your laptop:                                        |
-| 7. `lint`, `audit-security`                      | 15. `git switch main`, `git pull`, `git branch -d feat/...` |
-| 8. `git add <files>`, `git status`               |                                                             |
-| 9. `git commit -m "feat(scope): ..."`: hooks run |                                                             |
-| 10. `git push -u origin feat/...`                |                                                             |
+| On your laptop                                            | On GitHub                                                   |
+| --------------------------------------------------------- | ----------------------------------------------------------- |
+| 1. `git switch main`, `git pull`                          | 11. Open a pull request (base `main`)                       |
+| 2. `git switch -c feat/...`                               | 12. CI: pre-commit, image build, module tests               |
+| 3. Test first, then code                                  | 13. Review: a second person reads the diff                  |
+| 4. `install` or `update` on your stack                    | 14. Merge, delete the branch                                |
+| 5. Check the screen                                       |                                                             |
+| 6. `.\odoo-project test <module>`: `0 failed, 0 error(s)` | Back on your laptop:                                        |
+| 7. `lint`, `audit-security`                               | 15. `git switch main`, `git pull`, `git branch -d feat/...` |
+| 8. `git add <files>`, `git status`                        |                                                             |
+| 9. `git commit -m "feat(scope): ..."`: hooks run          |                                                             |
+| 10. `git push -u origin feat/...`                         |                                                             |
 
 ---
 
 <!-- _footer: "Guide 7.4" -->
 
-## CI: the same checks, on a clean machine
+## CI, review, merge
 
-Every pull request to `main` runs **pre-commit** and **CI**: the image is built, each changed module is installed in a fresh database, its tests run, coverage must reach 85%.
-
-The first run builds the image: 10 to 25 minutes. Later runs reuse the cache.
+Every pull request to `main` runs **pre-commit** and **CI**: the image is built, each changed module is installed in a fresh database, its tests run, coverage must reach 85%. The first run builds the image: 10 to 25 minutes; later runs reuse the cache.
 
 Red? **Details**, read the log bottom up, reproduce on your laptop with the same command, fix, push again. Never merge red.
 
----
+The reviewer reads **Files changed**: tests that could fail, every file in the manifest, nothing under `upstream/`, names that follow the rules, no secrets. Comments on lines; the author pushes fixes; the reviewer approves; **Merge pull request**, then **Delete branch**.
 
-<!-- _footer: "Guide 7.4" -->
-
-## Review, then merge
-
-The reviewer reads **Files changed**: tests that could fail, every file in the manifest, nothing under `upstream/`, names that follow the rules, no secrets.
-
-Comments on lines; the author pushes fixes; the reviewer approves; **Merge pull request**, then **Delete branch**.
-
-Then on your laptop: `git switch main`, `git pull`, `git branch -d feat/...`, and `update` if the merge changed a module on your stack. The next change starts at step 1.
+Back on your laptop: step 15, and `update` if the merge changed a module on your stack.
 
 ---
 
@@ -418,13 +383,13 @@ Then on your laptop: `git switch main`, `git pull`, `git branch -d feat/...`, an
 
 ## The five mistakes
 
-| Mistake                                                  | Symptom                                                                | Look at                                    |
-| -------------------------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------ |
-| Data file written but not in manifest `data`             | update clean, UI unchanged                                             | the manifest's `data` list                 |
-| Invalid value in a data file (`domain`)                  | `ParseError`, the registry fails to load                               | the upstream field definition              |
-| Import missing in `models/__init__.py`                   | no error, field absent; `Field ... does not exist` once a view uses it | Settings > Technical > Fields              |
-| Wrong XPath anchor (`group_tag_section`, `@class=`)      | `cannot be located in parent view`                                     | search `name="group_` in the upstream view |
-| `restart` instead of `update`, or edited `noupdate` data | change never shows                                                     | the loop table (guide 0.4)                 |
+| Mistake                                                  | Symptom                                                                | Look at                                                     |
+| -------------------------------------------------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------- |
+| Data file written but not in manifest `data`             | update clean, UI unchanged                                             | the manifest's `data` list                                  |
+| Invalid value in a data file (`domain`)                  | `ParseError` in the `update` output, the registry fails to load        | the upstream field definition                               |
+| Import missing in `models/__init__.py`                   | no error, field absent; `Field ... does not exist` once a view uses it | Settings > Technical > Fields                               |
+| Wrong XPath anchor (`group_tag_section`, `@class=`)      | `cannot be located in parent view`                                     | search `name="group_` in the upstream view                  |
+| `restart` instead of `update`, or edited `noupdate` data | change never shows                                                     | `update`; `noupdate`: a fresh database or a migration (4.4) |
 
 Drill time: three real excerpts, in pairs, 12 minutes.
 

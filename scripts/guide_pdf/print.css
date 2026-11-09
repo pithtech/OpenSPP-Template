@@ -1,4 +1,6 @@
-/* Print layout for the participant guide: A4, page numbers as "page/total", a contents list with page numbers. */
+/* Print layout for the participant guide: A4, page numbers as "page/total", a contents list with page numbers.
+   Colours from the DSWD and 4Ps logos on pantawid.dswd.gov.ph: DSWD blue #194998, navy #003761, red #ec202b,
+   4Ps golden yellow #fdc22d. */
 
 @page {
     size: A4;
@@ -43,7 +45,7 @@
 
 @page :first {
     margin: 0;
-    background: #0f3d6e;
+    background: #003761;
     @top-left {
         content: none;
     }
@@ -56,6 +58,10 @@
     @bottom-right {
         content: none;
     }
+}
+
+body {
+    margin: 0;
 }
 
 html {
@@ -71,7 +77,8 @@ html {
     height: 297mm;
     box-sizing: border-box;
     padding: 62mm 24mm 24mm 24mm;
-    background: #0f3d6e;
+    background: #003761;
+    border-top: 9mm solid #194998;
     color: #ffffff;
     break-after: page;
 }
@@ -90,7 +97,7 @@ html {
 .cover-subtitle {
     font-size: 18pt;
     margin: 0 0 14mm 0;
-    color: #ffd166;
+    color: #fdc22d;
     font-weight: 600;
 }
 .cover-scope {
@@ -99,8 +106,24 @@ html {
     max-width: 140mm;
     color: #e8eef6;
 }
+.cover-rule {
+    width: 28mm;
+    height: 1.6mm;
+    background: #ec202b;
+    margin: 26mm 0 6mm 0;
+}
+.cover-author {
+    font-size: 13pt;
+    font-weight: 700;
+    margin: 0 0 1mm 0;
+}
+.cover-author-title {
+    font-size: 10.5pt;
+    color: #c9d8ea;
+    margin: 0;
+}
 .cover-meta {
-    margin-top: 40mm;
+    margin-top: 18mm;
     font-size: 9pt;
     color: #c9d8ea;
 }
@@ -112,7 +135,7 @@ nav.toc {
 .toc-title {
     font-size: 18pt;
     margin: 0 0 6mm 0;
-    color: #0f3d6e;
+    color: #194998;
     border: none;
 }
 nav.toc ul {
@@ -145,14 +168,15 @@ h2 {
     break-before: page;
     string-set: chapter content();
     font-size: 17pt;
-    color: #0f3d6e;
+    color: #194998;
     margin: 0 0 4mm 0;
     padding-bottom: 2mm;
-    border-bottom: 1.5pt solid #0f3d6e;
+    border-bottom: 1.5pt solid #194998;
+    box-shadow: 0 1.5pt 0 0 #ec202b;
 }
 h3 {
     font-size: 12pt;
-    color: #0f3d6e;
+    color: #194998;
     margin: 6mm 0 2mm 0;
 }
 h4 {
@@ -205,7 +229,7 @@ code {
 pre {
     background: #f6f8fb;
     border: 0.6pt solid #d5dde8;
-    border-left: 2.4pt solid #0f3d6e;
+    border-left: 2.4pt solid #194998;
     border-radius: 2pt;
     padding: 2.2mm 3mm;
     margin: 0 0 3mm 0;
@@ -242,7 +266,7 @@ tr {
     break-inside: avoid;
 }
 th {
-    background: #0f3d6e;
+    background: #194998;
     color: #ffffff;
     text-align: left;
     font-weight: 600;

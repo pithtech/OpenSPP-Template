@@ -150,7 +150,7 @@ Teach these, each tied to the file a participant will open when something breaks
 | `dswd_wellbeing` in the template, built test-first, with tags `m4-step-0` to `m4-step-5` | Source of truth; survives any live failure | Essential |
 | `dswd_wellbeing_broken` folder (three planted faults) | Day 3 minimum track and the drill | Essential |
 | Trainer runbook (`training/module4/runbook.md`) | Commands per block, the four breakages, cut-off times, drop order, fallbacks | Essential |
-| Slides, about 18, one file per slide | Anatomy, patterns, objectives, Module 5 preview | Essential |
+| Slides, 24, one file per slide | Anatomy, patterns, objectives, Module 5 preview | Essential |
 | Anatomy one-pager handout | Fill-in map; desk reference afterwards | Essential |
 | Troubleshooting drill sheet and answer key | Diagnosis practice in pairs | Essential |
 | Quiz bank, 10 items | Optional self-check | Essential |

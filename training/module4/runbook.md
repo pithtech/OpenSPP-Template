@@ -55,11 +55,11 @@ Slides 2 to 5.
 
 Slides 6 and 7.
 
-1. Slide 6: the file tree, worded as in guide 4.3 (the answer key for handout section 2). "You filled this map for
+1. Slide 6: the three rules, read aloud: never edit `upstream/`; inherit, do not redefine; a file not in the manifest
+   does not exist.
+2. Slide 7: the file tree, worded as in guide 4.3 (the answer key for handout section 2). "You filled this map for
    `dswd_asset` at 8:50. What is new: a `data/` file, no menu, and an access file with only its header." Section 2 of
    the handout is filled in as the steps go by; do not wait for it.
-2. Slide 7: the three rules, read aloud: never edit `upstream/`; inherit, do not redefine; a file not in the manifest
-   does not exist.
 
 ## Block 3, 10:20 to 10:40: steps 0 and 1, manifest and data (demo, predict)
 
@@ -92,21 +92,22 @@ Slides 8 to 13.
 
 ## Block 4, 10:40 to 10:55: step 2, the model (demo, predict)
 
-Slides 14 to 16.
+Slides 14 and 15.
 
 1. `git checkout m4-step-2`, but first **delete the import line in `models/__init__.py`** (breakage 3).
 2. Slide 14. Show `models/res_partner.py`: `_inherit`, the `dswd_` prefix, `Many2one` to `spp.vocabulary.code`, the
    namespace domain. Ask: "After update, what changes on screen?"
 3. Slide 15. `./odoo-project update`. No error. Settings > Technical > Fields, search `dswd_`: nothing. **Breakage 3.**
    Ask. Show `models/__init__.py`. Restore the import. `update`. The field is listed. "No view yet: a field without a
-   view is invisible, not broken." Slide 16 is the fallback for the Fields screen.
+   view is invisible, not broken." The screenshot on slide 15 is the fallback for the Fields screen.
 
 ## Block 6, 10:55 to 11:10: step 3, the view (demo, predict)
 
-Slides 17 to 19.
+Slides 16 to 18.
 
-1. Slide 17. Open the upstream form first: `upstream/openspp/spp_registry/views/individual_views.xml`, search
-   `group_tags_section`. "One form serves individuals and households; household sections are `group_*`."
+1. Slide 16. Open the upstream form first: `upstream/openspp/spp_registry/views/individual_views.xml`, search
+   `name="group_` (it lists every household anchor, `group_tags_section` among them). "One form serves individuals and
+   households; household sections are `group_*`."
 2. `git checkout m4-step-3`. Show the view file: `inherit_id`, one XPath on a named anchor, a "4Ps" group, `no_create`,
    `no_open`. (The finished module also sets `readonly="disabled"`, so the field locks with the rest of a disabled
    household's Profile page; the tag does not have it.) Ask: "Where will it appear?" Do not update yet.
@@ -123,28 +124,28 @@ Slides 17 to 19.
    ```
 
    "`&#39;` is a quote: Odoo escapes the attribute values." Fix. `update`. Registry > Browse All (Audit) > All Groups,
-   open a household: set a level. Save (slide 18 is the fallback). Developer menu > View Form: show the inherited view
+   open a household: set a level. Save (slide 17 is the fallback). Developer menu > View Form: show the inherited view
    listed.
 
-4. Slide 19: the two errors of the morning, read bottom up, as a recap. If breakage 4 was dropped, this is where the
+4. Slide 18: the two errors of the morning, read bottom up, as a recap. If breakage 4 was dropped, this is where the
    room sees its lines.
 
 ## Block 7, 11:10 to 11:25: steps 4 and 5, the tests (demo, predict)
 
-Slide 20.
+Slides 19 and 20.
 
-1. `git checkout m4-step-5`. Open `tests/test_wellbeing.py`. Walk one test: `RegistryCommon` gives a household and the
-   vocabulary model; `get_code`; `assertEqual`. "The test says what we want before the code exists."
+1. Slide 19. `git checkout m4-step-5`. Open `tests/test_wellbeing.py`. Walk one test: `RegistryCommon` gives a household
+   and the vocabulary model; `get_code`; `assertEqual`. "The test says what we want before the code exists."
 2. Run `./odoo-project test dswd_wellbeing`. While it runs (about 20 s), show `security/ir.model.access.csv`: header
    only, "no new model, no rows", and `readme/DESCRIPTION.md`.
-3. Read the output: `0 failed, 0 error(s) of 5 tests`, `Passed: 5 | Failed: 0 | Errors: 0` and the `Full log:` line.
-   "This line is the one you read first when a colleague says the module is broken."
+3. Slide 20. Read the output: `0 failed, 0 error(s) of 5 tests`, `Passed: 5 | Failed: 0 | Errors: 0` and the `Full log:`
+   line. "This line is the one you read first when a colleague says the module is broken."
 4. If time: flip `"Subsistence"` to `"Survival"` in `test_household_stores_a_level`, run again, read the
    `AssertionError` and the file:line. Restore.
 
 ## Block 8, 11:25 to 11:35: from a change to a merge (demo only)
 
-Slides 21 to 23. The change is made by hand; Claude Code is in Module 5 this afternoon.
+Slides 21 and 22. The change is made by hand; Claude Code is in Module 5 this afternoon.
 
 Prepare the evening before, in a repository of your own created from the template (never the template itself):
 
@@ -173,8 +174,8 @@ go straight to item 3 on the prepared pull request (5 minutes).
    `git add` it again and commit again), `git push -u origin feat/graduated`. Open the link it prints: the pull request,
    the template headings. Say: "CI starts now; its first run builds the image, so we look at the one I opened
    yesterday."
-3. **CI, review, merge** (3 min), slides 22 and 23, on the prepared pull request: the **Checks** tab (pre-commit, build,
-   the module's test job), a failed run's **Details** if you have one, then **Files changed**: leave one review comment,
+3. **CI, review, merge** (3 min), slide 22, on the prepared pull request: the **Checks** tab (pre-commit, build, the
+   module's test job), a failed run's **Details** if you have one, then **Files changed**: leave one review comment,
    approve, **Merge pull request**, **Delete branch**. Back in the clone: `git switch main`, `git pull`,
    `git branch -d <the prepared branch>`, and `update` if the merge changed a module on your stack (guide 7.4, step 15).
    "Tomorrow you do steps 1 to 11 yourselves; the review is not required in the exercise."
@@ -183,9 +184,9 @@ go straight to item 3 on the prepared pull request (5 minutes).
 
 ## Block 9, 11:35 to 11:50: troubleshooting drill (pairs, paper)
 
-Slide 24.
+Slide 23.
 
-1. Slide 24: the five mistakes, four of which the room watched this morning. Hand out [drill.md](drill.md). 12 minutes,
+1. Slide 23: the five mistakes, four of which the room watched this morning. Hand out [drill.md](drill.md). 12 minutes,
    three excerpts, pairs.
 2. Walk the room; note which pairs reach C (the silent one) and start the debrief with one of them.
 3. Debrief with [drill-answers.md](drill-answers.md): C first, then A, then B. One pair reports each. Bonus D if a pair
@@ -193,7 +194,7 @@ Slide 24.
 
 ## Block 10, 11:50 to 12:00: recap and handoff
 
-Slide 25 (and slide 2).
+Slide 24 (and slide 2).
 
 1. Go back to slide 2, the objectives: read the five, ask for a thumbs up on each.
 2. What moves to Module 5: the production modules read through this morning's parts: the module map, the registry and
@@ -202,7 +203,7 @@ Slide 25 (and slide 2).
 3. Point to Module 6: "Tomorrow you build three modules of your own, starting from `dswd_asset` and `dswd_wellbeing`.
    Before 8:30: `./odoo-project start` and `./odoo-project test dswd_wellbeing` (`0 failed, 0 error(s) of 5 tests`). If
    your laptop does not run Docker, sit with a pair that has a working one."
-4. Back to slide 25. Point to the lunch triage table.
+4. Back to slide 24. Point to the lunch triage table.
 
 ## If the demo machine fails
 

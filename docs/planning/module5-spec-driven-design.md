@@ -128,7 +128,7 @@ Edwin's answer: the hour may run over. Demo B grows from 15 to about 23 minutes;
 | 3:55  | 5   | What it is                               | None                                                                   |
 | 4:00  | 8   | What it reads                            | Add `docs/specs/` and the ADRs to the files shown                      |
 | 4:08  | 12  | Demo A: reading code                     | None                                                                   |
-| 4:20  | 23  | **Demo B: from a specification to a module** | Spec and ADR-002 (2), research (4), plan with one note (4), then test first as before (13) |
+| 4:20  | 23  | **Demo B: from a specification to a module** | The flow (2), spec and ADR-002 (2), research (4), plan with one note (4), test first (11) |
 | 4:43  | 10  | Safe use and review                      | One checklist point added (the acceptance examples)                    |
 | 4:53  | 8   | Demo C: commit, pull request, CI         | The PR body links the spec and ADR-002                                  |
 | 5:01  | 2   | Questions                                |                                                                        |

@@ -9,9 +9,10 @@
 > the production checkout on the trainer's screen.
 > **Slot**: Day 2, 1:00 to 5:00 pm, after Modules 3 and 4. About 87 participants. No user-interface demonstration:
 > the trainer shows code in an editor only.
-> **Claude Code hour** (2026-11-09): 3:55 to 4:55 is a Claude Code demo, paid for by trimming the tours. Its design,
-> objectives and checklist are in [module5-claude-code-design.md](module5-claude-code-design.md); the run of show in
-> section 4 is its section 3.
+> **Claude Code hour** (2026-11-09): 3:55 to about 5:03 is a Claude Code demo, paid for by trimming the tours. Its
+> design, objectives and checklist are in [module5-claude-code-design.md](module5-claude-code-design.md); the run of
+> show in section 4 is its section 3. Demo B starts from a specification
+> ([module5-spec-driven-design.md](module5-spec-driven-design.md)), which runs the hour about 8 minutes over.
 
 ---
 
@@ -100,8 +101,8 @@ for Claude Code comes from the tours, and the triage moves before it.
 | 3:23 | Casework: SWDI levels (card 16) and the trigger-to-case job (card 18); CMS and the bridge in one line each | Medium | 12 |
 | 3:35 | Integration: one slide, the API's rules (card 20); "the rest is on cards 21 to 26" | Tour | 5 |
 | 3:40 | Paper ticket triage: eight tickets in pairs, report-back | | 15 |
-| 3:55 | Claude Code in development (demo; [design](module5-claude-code-design.md) section 4) | | 60 |
-| 4:55 | Closing: how to approach a ticket, the "not today" list, the catalogue | | 5 |
+| 3:55 | Claude Code in development (demo; [design](module5-claude-code-design.md) section 4, Demo B from a specification: [design](module5-spec-driven-design.md) section 7) | | 68 |
+| 5:03 | Closing: how to approach a ticket, the "not today" list, the catalogue | | 5 |
 
 Checkpoint 2 and the buffer are dropped. **Drop order if late**: casework to 6 minutes, then integration to the poster
 only. **Never dropped**: the map, foundation, change requests, the triage, the Claude Code hour and the closing.

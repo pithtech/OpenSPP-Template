@@ -24,7 +24,7 @@ Edwin Gonzales, OpenSPP
 
 <!-- _footer: "Guide 5.1" -->
 
-<style scoped>ol, p { font-size: 0.85em; }</style>
+<style scoped>ol, p { font-size: 0.72em; }</style>
 
 ## By five you can
 
@@ -33,6 +33,8 @@ Edwin Gonzales, OpenSPP
 3. Given a ticket, name the module and the part to open first.
 4. Recognise the production traps (context keys that skip checks, `x_4ps_` fields, raw SQL, `noupdate` data and install hooks, system parameters, approval state) and say why "simplifying" them is dangerous.
 5. Find any module in the catalogue and read its card.
+6. Use Claude Code to read and change code in your repository, and review what it wrote before you trust it.
+7. Give Claude Code a specification and the project's decisions as files, and take a module from them through research, a plan, a test and the code.
 
 A discussion of modules: we read the code, at the file each point is about.
 

@@ -9,8 +9,8 @@ production code in an editor, at the file a point is about. **From 3:55 to about
 trainer's laptop, in Edwin's own repository created from the template, with the stack running (block 12). No production
 code is opened, shown or sent to the service in that hour.
 
-**Cut-offs are hard.** There is no buffer. Drop order if late: casework to 6 minutes (slides 30 and 31 read from the
-deck, no editor); then integration to the poster only (skip slide 32: point at the CONNECT line on the poster and say
+**Cut-offs are hard.** There is no buffer. Drop order if late: casework to 6 minutes (slides 26 and 27 read from the
+deck, no editor); then integration to the poster only (skip slide 28: point at the CONNECT line on the poster and say
 "the rest is on cards 20 to 26"). **Never dropped**: the map, foundation, change requests, the triage, the Claude Code
 hour and the closing. The Claude Code design is in
 [docs/planning/module5-claude-code-design.md](../../docs/planning/module5-claude-code-design.md), and Demo B's flow from
@@ -81,12 +81,12 @@ For the Claude Code hour (block 12), on the same laptop:
    depends on them (plus the bridge schemas, the portal API base, the theme and attachment hardening). Period and the
    approval modules: starter or instance 1 only.
 
-## Block 2b, 1:13 to 1:18: primer (slides 7 to 11)
+## Block 2b, 1:13 to 1:18: primer (slide 7)
 
 "Five things the production modules use on almost every card. This morning did not present them; each has a Reference
-section in your guide. One sentence each now; the cards show them all afternoon." One minute per slide: read the
-sentence and the production example aloud, name the guide section. No questions; they go to the card in the block that
-uses it.
+section in your guide. One sentence each now; the cards show them all afternoon." One minute per row of the table: read
+the sentence and the production example aloud, name the guide section. No questions; they go to the card in the block
+that uses it.
 
 1. **Record rules** (guide 3.12): "An access row says which models a group may use; a record rule says which rows of a
    model a user may see." Example: `dswd_4ps_area` shows each user only the areas in or above their center areas, and
@@ -104,7 +104,7 @@ uses it.
    does the work." Example: the payroll Reject + Rewind wizard offers no rewind once credit instructions exist (card
    13).
 
-## Block 3, 1:18 to 1:53: foundation (deep, cards 2 to 7; slides 12 to 19)
+## Block 3, 1:18 to 1:53: foundation (deep, cards 2 to 7; slides 8 to 15)
 
 The story for the board: _where they are, who they are, who may see and approve, when._
 
@@ -133,12 +133,12 @@ Say, per card:
 - **Period**: fail-loud by design; the December duty: an administrator enters next year's holidays and marks the year
   Seeded.
 
-## Block 4, 1:53 to 1:58: checkpoint 1 (slide 20)
+## Block 4, 1:53 to 1:58: checkpoint 1 (slide 16)
 
 Stand up. Three tickets from [checkpoint-bank.md](checkpoint-bank.md), set 1. Pairs hold up a category card, then name
 the module aloud. Sit down when done.
 
-## Block 5, 1:58 to 2:33: change requests (deep, cards 8 to 10; slides 21 to 24)
+## Block 5, 1:58 to 2:33: change requests (deep, cards 8 to 10; slides 17 to 20)
 
 1. **The upstream architecture first** (7 min, slide): a type is a data record; a detail model holds the proposed
    values; an apply strategy validates, previews and applies; approval comes from `spp.approval.mixin`. "4Ps adds types
@@ -161,13 +161,14 @@ the module aloud. Sit down when done.
    record of another module. "Add Member needs any one of seven documents: a group with `min_required` 1."
 5. **Card 10, field limits** (3 min): code moment `models/res_partner.py`, a `write` override and the context key that
    bypasses it.
-6. **Category prompt** (3 min, on slide 24): "Add the place of birth to the Update Member Personal Information request."
+6. **Category prompt** (3 min, on slide 20): "Add the place of birth to the Update Member Personal Information request."
    M, the detail model; then ask "and what else?" The view, the field mapping in the `noupdate` type data and its
-   migration and version bump, the API schema and service, the supporting-documents trigger path, tests.
+   migration and version bump, the API schema and service if the mobile app sends the field, the supporting-documents
+   trigger path, tests.
 
-## Block 6, 2:33 to 2:48: break (slide 25)
+## Block 6, 2:33 to 2:48: break (slide 21)
 
-## Block 7, 2:48 to 3:13: compliance and FDS (medium, cards 11 and 12; slides 26 to 28)
+## Block 7, 2:48 to 3:13: compliance and FDS (medium, cards 11 and 12; slides 22 to 24)
 
 1. **Card 11** (15 min). Health, school and deworming arrive as `spp.event.data` events through `/cv` (the router lives
    in `dswd_4ps_api_compliance`); FDS attendance arrives as session attendance. Code moment: `models/event_data.py`:
@@ -183,7 +184,7 @@ the module aloud. Sit down when done.
    FDSAR. Code moment: `models/fds_equivalency.py`, `_create_credited_attendance`: "a synthetic session, so the
    compliance pipeline needs no special case."
 
-## Block 8, 3:13 to 3:23: payroll (tour, cards 13 to 15; slide 29)
+## Block 8, 3:13 to 3:23: payroll (tour, cards 13 to 15; slide 25)
 
 "Payroll is the riskiest code in the repository. Today you learn what not to touch, and why."
 
@@ -198,25 +199,26 @@ the module aloud. Sit down when done.
    wants to let `write()` change the name on the snapshot to fix this. What breaks?" The snapshot is frozen to preserve
    the audit, and every later document (the NAPA Summary, the payroll summary, the ORS and DV) reads it; the correction
    is a rewind before the point of no return, not a wider allowlist.
-3. **Cards 14 and 15** (1 min, the slide's last line): catch-up and retro follow the same pattern; read their cards
-   (guide 5.7). Grant rates, the job channels and the raw SQL are on card 13.
+3. **Cards 14 and 15** (1 min, the slide's third bullet and last line): grant rates are never deleted; five job
+   channels; about 110 raw SQL calls (card 13). Catch-up has the same state machine and its own point of no return;
+   retro keeps overpayment and underpayment ledgers and reuses the regular run; read their cards (guide 5.7).
 
-## Block 9, 3:23 to 3:35: casework (medium, cards 16 to 19; slides 30 and 31)
+## Block 9, 3:23 to 3:35: casework (medium, cards 16 to 19; slides 26 and 27)
 
-1. **Card 16, SWDI** (5 min, slide 30). Code moment: `_classify_lowb` in `models/assessment.py` and the two thresholds
+1. **Card 16, SWDI** (5 min, slide 26). Code moment: `_classify_lowb` in `models/assessment.py` and the two thresholds
    in `constants/states.py`. "The well-being level from Module 4, as production computes it from the total score." Card
    17, CMS, in one sentence: "Kilos-Unlad case management on upstream `spp_case_base`; its 117 record rules are on the
    card."
-2. **Card 18, `swdi_cms`** (6 min, slide 31). Seven triggers turn assessment results into cases through the job worker.
+2. **Card 18, `swdi_cms`** (6 min, slide 27). Seven triggers turn assessment results into cases through the job worker.
    Code moment: `data/trigger_config_data.xml`: "a trigger is a data record." A failed event is a row in state `failed`,
    with a Retry action; there is no separate queue. On the slide, the `trigger_type` help text lists six types; the data
    has seven. Ask: "which one do you trust?" The data; help text and manifests drift.
 3. **Card 19, the bridge** (1 min, the slide's last line, pointing at the poster): the registry is the master; casework
-   imports households from it; case events flow back through jobs.
+   looks households up and imports them synchronously, waiting at most 5 seconds; case events flow back through jobs.
 
-If late (drop order 1): casework to 6 minutes, slides 30 and 31 read from the deck, no editor.
+If late (drop order 1): casework to 6 minutes, slides 26 and 27 read from the deck, no editor.
 
-## Block 10, 3:35 to 3:40: integration (tour, cards 20 to 26; slide 32)
+## Block 10, 3:35 to 3:40: integration (tour, cards 20 to 26; slide 28)
 
 1. **Card 20, the API** (4 min). Code moment: `routers/household.py`, `read_grantee_history`: `authenticated_env` (the
    caller's environment, so record rules apply while `dswd_4ps_api.enforce_rbac` is on, as seeded), the scope check, an
@@ -224,10 +226,10 @@ If late (drop order 1): casework to 6 minutes, slides 30 and 31 read from the de
 2. **Cards 21 to 26** (1 min): "The rest of integration is on cards 21 to 26, and guide 5.9's table gives each in one
    line." Do not read them out.
 
-If late (drop order 2): skip slide 32; point at the CONNECT line on the poster and say "the API and the rest of
+If late (drop order 2): skip slide 28; point at the CONNECT line on the poster and say "the API and the rest of
 integration are on cards 20 to 26."
 
-## Block 11, 3:40 to 3:55: ticket triage (slides 33 and 34)
+## Block 11, 3:40 to 3:55: ticket triage (slides 29 and 30)
 
 1. Hand out [triage-sheet.md](triage-sheet.md), one per pair. "Training scenarios, not real incidents. Module, card,
    first file. Ten minutes. Use your catalogue."
@@ -236,19 +238,19 @@ integration are on cards 20 to 26."
    slide with all eight, and the three points at the top of the answer key. Keep it to five minutes: the next block
    reuses ticket 1's question.
 
-## Block 12, 3:55 to 5:03: Claude Code in development (slides 35 to 46)
+## Block 12, 3:55 to 5:03: Claude Code in development (slides 31 to 41)
 
 Demo only, on the trainer's laptop, in **Edwin's own repository** created from the template, on `main` with the stack
 running ("Before the session"). **No production code** is opened, shown or sent: close the production editor window
 before you switch the screen at 3:55. Say once, at the start, that the production 4Ps team works the same way; show
 nothing of it. Live output differs from run to run: when it differs from the rehearsal, that is the lesson (check it
-against the file). The slides' footers are "Guide 5.13", and "Guide 5.14" for the specification flow (slides 39 to 42).
+against the file). The slides' footers are "Guide 5.13", and "Guide 5.14" for the specification flow (slides 34 to 37).
 
-1. **What it is** (3:55, 5 min; slides 35 and 36). "You just found where a change belongs by hand. Claude Code is an AI
+1. **What it is** (3:55, 5 min; slide 31). "You just found where a change belongs by hand. Claude Code is an AI
    assistant in your terminal that does the same kind of work on request: it reads the repository, explains code, finds
    where a change belongs, writes the change and its test, and runs the commands, asking before each action." The table:
    what it is good at, and what stays with the developer: deciding, reviewing, testing, owning the change.
-2. **What it reads before it answers** (4:00, 8 min; slide 37). In VS Code, in Edwin's repository, open each file as you
+2. **What it reads before it answers** (4:00, 8 min; slide 32). In VS Code, in Edwin's repository, open each file as you
    name it: `CLAUDE.md` (scroll to "Known Pitfalls"), the `.claude/rules/` listing (one rule's `paths` line: it loads
    when a matching file is edited), the five agents in `.claude/agents/`, the commands in `.claude/commands/`
    (`/implement`, `/verify-tests`, `/commit`, `/pr`), then `.claude/settings.json`: the `allow` list, the `deny` rules
@@ -256,7 +258,7 @@ against the file). The slides' footers are "Guide 5.13", and "Guide 5.14" for th
    ruff-format, Prettier and the Odoo checks on the edited file) and `includeCoAuthoredBy: false`. Last, `docs/specs/`
    and `docs/architecture/decisions/`: "the change you ask for, and the decisions the project has taken: Demo B starts
    there." "Your repository has all of these: they came with the template."
-3. **Demo A: reading code** (4:08, 12 min; slide 38). Start `claude` in the repository root. Type prompt 1:
+3. **Demo A: reading code** (4:08, 12 min; slide 33). Start `claude` in the repository root. Type prompt 1:
 
    > Where does OpenSPP keep a household's members, and how do I get each member's age?
 
@@ -279,14 +281,14 @@ against the file). The slides' footers are "Guide 5.13", and "Guide 5.14" for th
    find nothing. "A name seen somewhere is not a field. Check the model." Stop the session (Escape) before it edits
    anything.
 
-4. **Demo B: from a specification to a module** (4:20, 23 min; slides 39 to 42). In the second tab:
+4. **Demo B: from a specification to a module** (4:20, 23 min; slides 34 to 37). In the second tab:
    `git switch -c feat/household-children`.
 
-   - **The flow** (2 min; slides 39 and 40). "Real work does not start from a one-line prompt. It starts from a written
+   - **The flow** (2 min; slides 34 and 35). "Real work does not start from a one-line prompt. It starts from a written
      request and the decisions already taken, in files: Claude Code reads them, the team reviews them, they outlast the
-     session." Slide 39: what goes where, and the four steps. Slide 40: what a specification states for each kind of
+     session." Slide 34: what goes where, and the five steps. Slide 35: what a specification states for each kind of
      work, the three skills of this morning. "A rule not written down is one Claude Code will guess."
-   - **The specification and the ADR** (2 min; slide 41). In VS Code, open `docs/specs/dswd_household_children.md`: the
+   - **The specification and the ADR** (2 min; slide 36). In VS Code, open `docs/specs/dswd_household_children.md`: the
      need, the rules (current members, from the birthdate, 0 to 18 inclusive, no birthdate not counted), the four
      acceptance examples, out of scope, and the upstream names "to check, not trusted". Then
      `docs/architecture/decisions/ADR-002-computed-counts-not-stored.md`: "a child turns 19 with no write to the
@@ -309,11 +311,12 @@ against the file). The slides' footers are "Guide 5.13", and "Guide 5.14" for th
      Then: "Address my notes in the plan." Show the revised test list. "That example is in the specification. A plan
      that missed it is why you read the plan."
 
-   - **Test first, then the code** (11 min; slide 42).
+   - **Test first, then the code** (11 min; slide 37).
 
      > Carry out the plan, test first: write the failing test, run it, then the code.
 
-     Say once: "`/implement` does the same with its agents and an expert review; for a demo it is too slow." Then, in
+     Say once, at the slide's line on `/implement`: "`/implement` carries out a plan with its agents and an expert
+     review, but it writes the tests after the code unless you say 'test first'. For a demo it is too slow." Then, in
      order:
 
      - The test file comes first. The reference tests (the rehearsal's): members aged 5, 12, 17 (membership ended) and
@@ -337,38 +340,38 @@ against the file). The slides' footers are "Guide 5.13", and "Guide 5.14" for th
      - Read the diff together (`git diff`, or VS Code's source control view): the specification, the research, the plan,
        the module.
 
-5. **Safe use and review** (4:43, 10 min; slides 43 and 44). Read the checklist (slide 43) against Demo B's diff, point
+5. **Safe use and review** (4:43, 10 min; slides 38 and 39). Read the checklist (slide 38) against Demo B's diff, point
    by point; it is guide 5.13's list. Point 9: hold the diff's tests against the specification's four acceptance
-   examples. Then slide 44: what never goes into a prompt (beneficiary data, passwords, tokens, keys, database dumps,
-   code you may not share). Live: ask Claude Code
+   examples. Then slide 39: what never goes into a prompt, or into a file you ask it to read (beneficiary or other
+   personal data, passwords, tokens, keys, database dumps, code you may not share). Live: ask Claude Code
 
    > Add a comment at the top of upstream/openspp/spp_registry/models/group.py.
 
    The `settings.json` deny rule (`Edit(upstream/**)`, `Write(upstream/**)`) refuses it. "A change to OpenSPP is a pull
    request to OpenSPP, not an edit here." Check `git status`: nothing under `upstream/` changed.
 
-6. **Demo C: commit, pull request, CI** (4:53, 8 min; slide 45). `/commit` on Demo B's module: point at the conventional
+6. **Demo C: commit, pull request, CI** (4:53, 8 min; slide 40). `/commit` on Demo B's module: point at the conventional
    message and the pre-commit hooks running. `/pr`: it pushes the branch and fills the pull request template; point at
    the body: it links the specification and ADR-002; no AI attribution (`includeCoAuthoredBy: false`, and `/commit` and
    `/pr` say so). Then switch to the browser tab with the pull request prepared the evening before: its CI is green (the
    image build is too slow to wait for live). "Review and merge are the same as for a change you wrote yourself: Module
    4 block 8, guide 7.4."
-7. **Questions** (5:01, 2 min; slide 46). Point at guide 5.13 and 5.14, `docs/specs/README.md` and
+7. **Questions** (5:01, 2 min; slide 41). Point at guide 5.13 and 5.14, `docs/specs/README.md` and
    `docs/guides/claude-code-for-developers.md`. "The specification and ADR-002 are in your repository: try the flow
-   yourself after the training.")
+   yourself after the training."
 
 **Fallback.** If the network is down, the service is slow, or a demo goes off the rehearsal for more than two minutes,
 switch to that demo's screen recording and narrate it with the same points; the slides carry each prompt and the
 expected shape of the answer. If running late inside the hour: questions go first, then Demo C shows only the prepared
 pull request.
 
-## Block 13, 5:03 to 5:08: closing (slides 47 and 48)
+## Block 13, 5:03 to 5:08: closing (slides 42 and 43)
 
-1. How to approach a ticket (slide 47, guide 5.11's five steps): read the symptom in the user's words, and reproduce it;
+1. How to approach a ticket (slide 42, guide 5.11's five steps): read the symptom in the user's words, and reproduce it;
    find the module on the map and open its card; read the strip and pick the first file; before changing code, check
    `noupdate` data, context keys, jobs and their state, system parameters; write a failing test that reproduces the
    ticket, then fix, then run the module's tests. "Step 5 is the loop you just saw with Claude Code."
-2. "Not today" (slide 48): the modules on no card, in the catalogue index. "They are for the post-training sessions."
+2. "Not today" (slide 43): the modules on no card, in the catalogue index. "They are for the post-training sessions."
 3. "Keep the catalogue. Tomorrow is hands-on with the modules you built this morning."
 
 ## If something fails

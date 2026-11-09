@@ -15,16 +15,17 @@ test-first change, review and safe use, and commit to pull request. Its design i
 [docs/planning/module5-spec-driven-design.md](../../docs/planning/module5-spec-driven-design.md); guide sections 5.13
 and 5.14 are the participants' text.
 
-| File                                     | For                | Use                                                                                     |
-| ---------------------------------------- | ------------------ | --------------------------------------------------------------------------------------- |
-| [runbook.md](runbook.md)                 | Trainer            | Run of show, what to say per card, the code moments in tab order, drop order, fallbacks |
-| [slides.md](slides.md)                   | Trainer, projected | Marp deck, 48 slides (35 to 46: Claude Code); excerpts are copied from the cards        |
-| [module-cards.md](module-cards.md)       | Everyone, printed  | 26 module cards in session order, then the index of all 66 modules; A4, bound to keep   |
-| [module-map.md](module-map.md)           | Wall, A1           | The poster: the process top to bottom, the two instances, the bridge                    |
-| [category-cards.md](category-cards.md)   | Pairs, printed     | Eight lettered cards (M, V, D, S, W, J, A, T) for "where would you look?"               |
-| [triage-sheet.md](triage-sheet.md)       | Pairs, printed     | Eight fabricated training tickets for the 3:40 triage                                   |
-| [triage-answers.md](triage-answers.md)   | Trainer            | Answer key with the reasoning and every file a full fix touches                         |
-| [checkpoint-bank.md](checkpoint-bank.md) | Trainer            | One standing checkpoint (set 1) with spares; set 2 is kept as spares                    |
+| File                                     | For                | Use                                                                                                                                                        |
+| ---------------------------------------- | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [runbook.md](runbook.md)                 | Trainer            | Run of show, what to say per card, the code moments in tab order, drop order, fallbacks                                                                    |
+| [slides.pptx](slides.pptx)               | Trainer, projected | The deck to present: PowerPoint, built from `slides.md` with `uv run python scripts/slides_pptx/build.py`; edit `slides.md` and rebuild, never the `.pptx` |
+| [slides.md](slides.md)                   | Source of the deck | Marp deck, 43 slides (31 to 41: Claude Code); excerpts are copied from the cards, some abridged                                                            |
+| [module-cards.md](module-cards.md)       | Everyone, printed  | 26 module cards in session order, then the index of all 66 modules; A4, bound to keep                                                                      |
+| [module-map.md](module-map.md)           | Wall, A1           | The poster: the process top to bottom, the two instances, the bridge                                                                                       |
+| [category-cards.md](category-cards.md)   | Pairs, printed     | Eight lettered cards (M, V, D, S, W, J, A, T) for "where would you look?"                                                                                  |
+| [triage-sheet.md](triage-sheet.md)       | Pairs, printed     | Eight fabricated training tickets for the 3:40 triage                                                                                                      |
+| [triage-answers.md](triage-answers.md)   | Trainer            | Answer key with the reasoning and every file a full fix touches                                                                                            |
+| [checkpoint-bank.md](checkpoint-bank.md) | Trainer            | One standing checkpoint (set 1) with spares; set 2 is kept as spares                                                                                       |
 
 ## Preparing (the week before and the evening before)
 

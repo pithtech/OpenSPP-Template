@@ -2,8 +2,9 @@
 
 > **Status**: approved by Edwin (2026-11-09), with the four decisions of section 9. **As built**: Demo B is four
 > slides (the flow, what a specification states, the specification with research and plan, then test first), so the
-> deck has 48 slides; the objectives slide gained objectives 6 and 7 to match guide 5.1; the reference build has five
-> tests, one per acceptance example plus the form, all passing. Builds on the approved
+> deck had 48 slides (43 since the PowerPoint consolidation, `docs/planning/slides-pptx-plan.md`); the objectives
+> slide gained objectives 6 and 7 to match guide 5.1; the reference build has five tests, one per acceptance example
+> plus the form, all passing. Builds on the approved
 > [module5-claude-code-design.md](module5-claude-code-design.md).
 > **Edwin's answers (2026-11-09)**: the hour may run past 4:55 (it is the end of Module 5); the specification is a file,
 > and a pre-written one for the demo module goes into the template repository now, so participants can try it after the

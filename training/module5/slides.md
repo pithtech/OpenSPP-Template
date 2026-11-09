@@ -16,7 +16,7 @@ style: |
 
 ## DSWD-specific implementation of OpenSPP: the 4Ps modules, discussed
 
-OpenSPP and Odoo Foundations Training, Day 2, 1:00 to 5:00
+OpenSPP and Odoo Foundations Training, Day 2, 1:00 to about 5:08
 
 Edwin Gonzales, OpenSPP
 
@@ -33,8 +33,8 @@ Edwin Gonzales, OpenSPP
 3. Given a ticket, name the module and the part to open first.
 4. Recognise the production traps (context keys that skip checks, `x_4ps_` fields, raw SQL, `noupdate` data and install hooks, system parameters, approval state) and say why "simplifying" them is dangerous.
 5. Find any module in the catalogue and read its card.
-6. Use Claude Code to read and change code in your repository, and review what it wrote before you trust it.
-7. Give Claude Code a specification and the project's decisions as files, and take a module from them through research, a plan, a test and the code.
+6. Use Claude Code to read and change code in your repository, and review what it wrote before you trust it (5.13).
+7. Give Claude Code a specification and the project's decisions as files, and take a module from them through research, a plan, a test and the code (5.14).
 
 A discussion of modules: we read the code, at the file each point is about.
 
@@ -104,53 +104,19 @@ Code moment: `dswd_4ps_instance1/__manifest__.py`. A manifest is the map of a de
 
 ---
 
-<!-- _footer: "Guide 5.2, 3.12 · Card 2" -->
+<!-- _footer: "Guide 5.2, 3.12, 3.17, 4.13, 4.4, 5.10, 3.10 · Cards 2, 4, 11, 13" -->
 
-## Primer 1 of 5: record rules (3.12)
+<style scoped>table { font-size: 0.6em; }</style>
 
-An access row says which models a group may use; a record rule says which rows of a model a user may see.
+## Primer: five things on every card
 
-Production: `dswd_4ps_area` shows each user only the areas in or above their center areas, none without one (card 2).
-
----
-
-<!-- _footer: "Guide 5.2, 3.17 · Card 11" -->
-
-## Primer 2 of 5: jobs and scheduled actions (3.17)
-
-A job is work queued with `with_delay()` that runs later in the background; a scheduled action (cron) runs on a clock.
-
-Production: a school attendance event queues a job on `cv_events`, and a daily cron finishes the household (card 11).
-
----
-
-<!-- _footer: "Guide 5.2, 4.13, 4.4 · Card 4" -->
-
-## Primer 3 of 5: migrations and `noupdate` (4.13)
-
-A `noupdate` data file loads once, at install; changing its records on a running database takes a migration.
-
-Production: every group, role and rule file in `dswd_4ps_roles` is `noupdate`: 20 migrations so far (card 4).
-
----
-
-<!-- _footer: "Guide 5.2, 5.10 · Card 2" -->
-
-## Primer 4 of 5: hooks (5.10)
-
-A hook is code Odoo calls at a fixed moment: `post_init_hook` once after install, `_register_hook` at every load.
-
-Production: the `post_init_hook` of `dswd_4ps_area` loads the PSGC areas at install, and never again (card 2).
-
----
-
-<!-- _footer: "Guide 5.2, 3.10 · Card 13" -->
-
-## Primer 5 of 5: wizards (3.10)
-
-A wizard is a temporary model behind a dialog: the user fills in a small form, and its button does the work.
-
-Production: the payroll Reject + Rewind wizard offers no rewind once credit instructions exist (card 13).
+| Concept                               | What it is                                                                                                             | In production                                                                                             |
+| ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Record rules (3.12)                   | An access row says which models a group may use; a record rule says which rows of a model a user may see.              | `dswd_4ps_area` shows each user only the areas in or above their center areas, none without one (card 2). |
+| Jobs and scheduled actions (3.17)     | A job is work queued with `with_delay()` that runs later in the background; a scheduled action (cron) runs on a clock. | A school attendance event queues a job on `cv_events`, and a daily cron finishes the household (card 11). |
+| Migrations and `noupdate` (4.13, 4.4) | A `noupdate` data file loads once, at install; changing its records on a running database takes a migration.           | Every group, role and rule file in `dswd_4ps_roles` is `noupdate`: 20 migrations so far (card 4).         |
+| Hooks (5.10)                          | A hook is code Odoo calls at a fixed moment: `post_init_hook` once after install, `_register_hook` at every load.      | The `post_init_hook` of `dswd_4ps_area` loads the PSGC areas at install, and never again (card 2).        |
+| Wizards (3.10)                        | A wizard is a temporary model behind a dialog: the user fills in a small form, and its button does the work.           | The payroll Reject + Rewind wizard offers no rewind once credit instructions exist (card 13).             |
 
 The glossary (7.6) has a line on each of the five.
 
@@ -171,25 +137,20 @@ The glossary (7.6) has a line on each of the five.
 
 ## Area: a fail-closed record rule (3.12)
 
-`dswd_4ps_area/security/area_record_rules.xml`, lines 41 to 52 (domain wrapped)
+`dswd_4ps_area/security/area_record_rules.xml`, lines 41 to 52, abridged (domain wrapped; the `name` line and the four `perm_` lines cut: the rule is read only). Card 2 has every line.
 
 ```xml
-    <record id="rule_spp_area_center_area_filter" model="ir.rule">
-        <field name="name">Areas: visible only within user's center areas</field>
-        <field name="model_id" ref="spp_area.model_spp_area" />
-        <field
-            name="domain_force"
-        >[] if user.sees_all_areas
-           else (['|', ('id', 'child_of', user.center_area_ids.ids),
-                       ('id', 'parent_of', user.center_area_ids.ids)]
-                 if user.center_area_ids
-                 else [('id', '=', False)])</field>
-        <field name="global" eval="True" />
-        <field name="perm_read" eval="True" />
-        <field name="perm_write" eval="False" />
-        <field name="perm_create" eval="False" />
-        <field name="perm_unlink" eval="False" />
-    </record>
+<record id="rule_spp_area_center_area_filter" model="ir.rule">
+    <field name="model_id" ref="spp_area.model_spp_area" />
+    <field
+        name="domain_force"
+    >[] if user.sees_all_areas
+       else (['|', ('id', 'child_of', user.center_area_ids.ids),
+                   ('id', 'parent_of', user.center_area_ids.ids)]
+             if user.center_area_ids
+             else [('id', '=', False)])</field>
+    <field name="global" eval="True" />
+</record>
 ```
 
 ---
@@ -213,13 +174,13 @@ The glossary (7.6) has a line on each of the five.
 `dswd_4ps_registry/data/vocabulary_client_status.xml`, lines 95 to 101
 
 ```xml
-    <record id="client_status_3" model="spp.vocabulary.code">
-        <field name="vocabulary_id" ref="vocab_client_status" />
-        <field name="code">3</field>
-        <field name="display">3 - Graduated Due to Improved Level of Well-Being</field>
-        <field name="parent_id" ref="client_status_category_delisted" />
-        <field name="sequence">3</field>
-    </record>
+<record id="client_status_3" model="spp.vocabulary.code">
+    <field name="vocabulary_id" ref="vocab_client_status" />
+    <field name="code">3</field>
+    <field name="display">3 - Graduated Due to Improved Level of Well-Being</field>
+    <field name="parent_id" ref="client_status_category_delisted" />
+    <field name="sequence">3</field>
+</record>
 ```
 
 ---
@@ -232,17 +193,16 @@ The glossary (7.6) has a line on each of the five.
 - Local roles take their areas from the identity provider; RITO may lock them.
 - Every group, role and rule file is `noupdate`: 20 migrations so far.
 
-`dswd_4ps_roles/security/groups.xml`, lines 103 to 110
+`dswd_4ps_roles/security/groups.xml`, lines 103 to 110, abridged (the `comment` line cut; card 4 has every line)
 
 ```xml
-    <record id="group_4ps_poo_mswdo" model="res.groups">
-        <field name="name">4Ps POO: MSWDO</field>
-        <field name="comment">Municipal Social Welfare and Development Officer at provincial level.</field>
-        <field name="implied_ids" eval="[
-            Command.link(ref('group_4ps_poo')),
-            Command.link(ref('spp_registry.group_registry_officer')),
-        ]"/>
-    </record>
+<record id="group_4ps_poo_mswdo" model="res.groups">
+    <field name="name">4Ps POO: MSWDO</field>
+    <field name="implied_ids" eval="[
+        Command.link(ref('group_4ps_poo')),
+        Command.link(ref('spp_registry.group_registry_officer')),
+    ]"/>
+</record>
 ```
 
 ---
@@ -261,21 +221,19 @@ The glossary (7.6) has a line on each of the five.
 
 ## Approval flow data: 24 to 3, two tiers
 
-`dswd_4ps_approval_flow_data/data/approval_defs_update_hh_info.xml`, lines 81 to 91 (condition wrapped); its two tiers, SWO III then RGO, follow at lines 94 to 112
+`dswd_4ps_approval_flow_data/data/approval_defs_update_hh_info.xml`, lines 81 to 91, abridged (group and condition wrapped; `model_id`, `approval_type` and `sequence` cut; card 6 has every line); its two tiers, SWO III then RGO, follow at lines 94 to 112
 
 ```xml
-    <record id="approval_def_hh_info_poo_rpmo" model="spp.approval.definition">
-        <field name="name">Family - Update Family Info - CS (24 → 3)</field>
-        <field name="model_id" ref="spp_change_request_v2.model_spp_change_request" />
-        <field name="approval_type">group</field>
-        <field name="approval_group_ids" eval="[Command.link(ref('dswd_4ps_roles.group_4ps_swo_iii'))]" />
-        <field name="sequence">10</field>
-        <field name="use_cel_condition" eval="True" />
-        <field name="cel_condition">record.selected_field_name == "client_status_id"
-            and old_value.code == "24" and new_value.code == "3"</field>
-        <field name="sla_days">10</field>
-        <field name="is_require_comment" eval="True" />
-    </record>
+<record id="approval_def_hh_info_poo_rpmo" model="spp.approval.definition">
+    <field name="name">Family - Update Family Info - CS (24 → 3)</field>
+    <field name="approval_group_ids" eval="[
+        Command.link(ref('dswd_4ps_roles.group_4ps_swo_iii'))]" />
+    <field name="use_cel_condition" eval="True" />
+    <field name="cel_condition">record.selected_field_name == "client_status_id"
+        and old_value.code == "24" and new_value.code == "3"</field>
+    <field name="sla_days">10</field>
+    <field name="is_require_comment" eval="True" />
+</record>
 ```
 
 ---
@@ -291,20 +249,17 @@ The glossary (7.6) has a line on each of the five.
 - Each December, an administrator enters next year's holidays and marks the year Seeded.
 - Dates only, never datetimes.
 
-`dswd_4ps_period/models/holiday_year.py`, lines 34 to 44
+`dswd_4ps_period/models/holiday_year.py`, lines 34 to 44, abridged (`string`, `required` and `default` cut; card 7 has every line)
 
 ```python
-    state = fields.Selection(
-        selection=[
-            ("draft", "Draft"),
-            ("seeded", "Seeded"),
-        ],
-        string="Status",
-        required=True,
-        default="draft",
-        help="Deadlines are only computed across years marked Seeded. A Draft "
-        "year is treated as unmaintained and refused.",
-    )
+state = fields.Selection(
+    selection=[
+        ("draft", "Draft"),
+        ("seeded", "Seeded"),
+    ],
+    help="Deadlines are only computed across years marked Seeded. A Draft "
+    "year is treated as unmaintained and refused.",
+)
 ```
 
 ---
@@ -336,20 +291,16 @@ Stand up. Three symptoms. Category card, then the module.
 
 ## Card 8: a type is a data record
 
-`dswd_4ps_change_request/data/cr_type_change_address.xml`, lines 13 to 23
+`dswd_4ps_change_request/data/cr_type_change_address.xml`, lines 13 to 23, abridged (`description`, `detail_form_view_id`, `icon` and `sequence` cut; card 8 has every line)
 
 ```xml
-    <record id="cr_type_change_address" model="spp.change.request.type">
-        <field name="name">Change Address</field>
-        <field name="code">change_address</field>
-        <field name="description">Change the geographic area and address for a household</field>
-        <field name="target_type">group</field>
-        <field name="detail_model">spp.cr.detail.change_address</field>
-        <field name="detail_form_view_id" ref="dswd_4ps_change_request.spp_cr_detail_change_address_form" />
-        <field name="apply_strategy">field_mapping</field>
-        <field name="auto_apply_on_approve">True</field>
-        <field name="icon">fa-map-marker</field>
-        <field name="sequence">50</field>
+<record id="cr_type_change_address" model="spp.change.request.type">
+    <field name="name">Change Address</field>
+    <field name="code">change_address</field>
+    <field name="target_type">group</field>
+    <field name="detail_model">spp.cr.detail.change_address</field>
+    <field name="apply_strategy">field_mapping</field>
+    <field name="auto_apply_on_approve">True</field>
 ```
 
 9 of the 20 new types are pure field mappings; 11 have a Python apply model.
@@ -371,18 +322,19 @@ Stand up. Three symptoms. Category card, then the module.
 
 ## Documents and limits (cards 9 and 10)
 
-<style scoped>section { font-size: 26px; padding-top: 36px; } section h2 { margin-bottom: 8px; }</style>
+<style scoped>ul, p { font-size: 0.8em; }</style>
 
 - `supporting_docs_data`: which documents each type needs. Add Member needs any one of seven.
 - `field_limit`: caps how often a field may change, in a `write` override.
-- Adding a field to a request type touches more than one file: the detail model and its view; the field mapping in the type's `noupdate` data file, so a migration and a version bump; the API schema and service; the supporting-documents trigger path; the tests.
+- Adding a field to a request type touches more than one file: the detail model and its view; the field mapping in the type's `noupdate` data file, so a migration and a version bump; the API schema and service if the mobile app sends the field; the supporting-documents trigger path; the tests.
 
-`dswd_4ps_supporting_docs_data/data/cr_type_add_member_4ps.xml`, lines 13 to 17
+`dswd_4ps_supporting_docs_data/data/cr_type_add_member_4ps.xml`, lines 13 to 17 (record line wrapped)
 
 ```xml
 <odoo noupdate="1">
 
-    <record id="dswd_4ps_change_request.cr_type_add_member_4ps" model="spp.change.request.type">
+    <record id="dswd_4ps_change_request.cr_type_add_member_4ps"
+            model="spp.change.request.type">
         <field name="document_validation_mode">required</field>
         <field name="trigger_api_paths">addMembers[]</field>
 ```
@@ -415,18 +367,18 @@ Back at 2:48
 `dswd_4ps_compliance/models/event_data.py`, lines 160 to 171
 
 ```python
-            self.with_delay(
-                channel="cv_events",
-                description="CV: Process compliance event (retry)",
-                eta=5,
-            )._cv_process_compliance()
-            return
+    self.with_delay(
+        channel="cv_events",
+        description="CV: Process compliance event (retry)",
+        eta=5,
+    )._cv_process_compliance()
+    return
 
-        self._cv_compute_from_event(self.env["spp.cv.compliance.pipeline"])
+self._cv_compute_from_event(self.env["spp.cv.compliance.pipeline"])
 
-        # Mark household for deferred aggregation by the reconciliation cron
-        if household:
-            household.write({"x_4ps_cv_needs_reconcile": True})
+# Mark household for deferred aggregation by the reconciliation cron
+if household:
+    household.write({"x_4ps_cv_needs_reconcile": True})
 ```
 
 ---
@@ -439,17 +391,14 @@ Back at 2:48
 - FDS attendance arrives as session attendance, not as event data.
 - An equivalency creates a synthetic session, so the compliance pipeline needs no special case.
 
-`dswd_4ps_fds_operations/models/fds_equivalency.py`, lines 439 to 446
+`dswd_4ps_fds_operations/models/fds_equivalency.py`, lines 439 to 446, abridged (lines 443 to 445 cut; card 12 has every line)
 
 ```python
-        session_vals = {
-            "name": _("Equivalency: %(ref)s", ref=self.name),
-            "session_type_id": fds_type.id,
-            "date": self.date_completed,
-            "facilitator_id": self.env.user.id,
-            "session_topic_id": self.substitute_session_id.id or False,
-            "session_subtype_id": special_fds_code.id if special_fds_code else False,
-        }
+session_vals = {
+    "name": _("Equivalency: %(ref)s", ref=self.name),
+    "session_type_id": fds_type.id,
+    "date": self.date_completed,
+}
 ```
 
 ---
@@ -463,18 +412,19 @@ Back at 2:48
 - The cycle run is a state machine (`STATE_SELECTION`). Once credit instructions exist, cancel and rewind are refused: the point of no return.
 - The snapshot, which the code calls NAPA, is sealed: `models/snapshot_beneficiary.py` refuses writes, and every later step reads it. A name corrected after the seal does not appear on that cycle's payroll list, by design.
 
-`dswd_4ps_payroll/models/payroll_cycle_run.py`, lines 147 to 152
+- Grant rates are never deleted. Five job channels; about 110 raw SQL calls.
+
+`dswd_4ps_payroll/models/payroll_cycle_run.py`, lines 147 to 149 (the set wrapped; card 13 has lines 147 to 152)
 
 ```python
 # States from Step 8b onward — Credit Instructions is the point of no return.
 # Cancel is disabled from these states.
-POINT_OF_NO_RETURN_STATES = frozenset({"instructions_generated", "lbp_uploaded", "done"})
-
-# Terminal states: run is closed, no further action allowed.
-TERMINAL_STATES = frozenset({"rejected", "cancelled", "done"})
+POINT_OF_NO_RETURN_STATES = frozenset(
+    {"instructions_generated", "lbp_uploaded", "done"}
+)
 ```
 
-Catch-up (card 14) and retro (card 15) follow the same pattern: read their cards.
+Catch-up (card 14): the same state machine, its own point of no return. Retro (card 15): over- and underpayment ledgers, reusing the regular run.
 
 ---
 
@@ -485,28 +435,25 @@ Catch-up (card 14) and retro (card 15) follow the same pattern: read their cards
 ## Casework: the SWDI level (card 16)
 
 - `swdi`: the yearly well-being assessment. The level comes from the total score (level 3 from 2.83, level 2 from 1.83). This is the well-being level of Module 4, computed: the household's level is copied from the latest assessment, not chosen from a dropdown.
-- `cms` (card 17): Kilos-Unlad case management on `spp_case_base`; read its card.
+- `cms` (card 17): Kilos-Unlad case management on `spp_case_base`, with 117 record rules for six groups, each scoped by the user's own center areas (3.12 at production scale).
 
-`dswd_4ps_swdi/models/assessment.py`, lines 1230 to 1241
+`dswd_4ps_swdi/models/assessment.py`, lines 1233 to 1241, the end of `_classify_lowb` (card 16 has lines 1230 to 1241)
 
 ```python
-        classification is total-score-range-only; the earlier ES/SA dimensional
-        gates were dropped. ES and SA are retained as reported sub-scores, not
-        as gates. Mirrors the mobile engine (swdi-mobile #280/#281):
-        - Level 3: score >= 2.83
-        - Level 2: score >= 1.83
-        - Level 1: otherwise
-        """
-        if score >= LOWB_LEVEL_3_MIN_SCORE:
-            return "3"
-        if score >= LOWB_LEVEL_2_MIN_SCORE:
-            return "2"
-        return "1"
+- Level 3: score >= 2.83
+- Level 2: score >= 1.83
+- Level 1: otherwise
+"""
+if score >= LOWB_LEVEL_3_MIN_SCORE:
+    return "3"
+if score >= LOWB_LEVEL_2_MIN_SCORE:
+    return "2"
+return "1"
 ```
 
 ---
 
-<!-- _footer: "Guide 5.8 · Cards 18, 19" -->
+<!-- _footer: "Guide 5.8, 5.10 · Cards 18, 19" -->
 
 <style scoped>ul, p { font-size: 0.8em; }</style>
 
@@ -515,17 +462,17 @@ Catch-up (card 14) and retro (card 15) follow the same pattern: read their cards
 - Seven triggers, each a data record. Approving an assessment queues an event; a job creates the case.
 - Retries after 5 minutes, 15 minutes, 1 hour. A failed event stays as a row in state `failed`, with a Retry action.
 
-`dswd_4ps_swdi_cms/models/cms_trigger_config.py`, lines 41 to 45
+`dswd_4ps_swdi_cms/models/cms_trigger_config.py`, lines 41 to 43 (abridged; card 18 has the field in full)
 
 ```python
-    trigger_type = fields.Char(
-        string="Trigger Type",
-        required=True,
-        help=("One of: PRIORITY_CASE, GRADUATION, FRVA_HIGH_RISK, CHILD_PROTECTION, MISBEHAVIOR, WAIVE_EXIT."),
-    )
+trigger_type = fields.Char(
+    string="Trigger Type",
+    required=True,
 ```
 
-The bridge (card 19): the registry instance is the master; casework imports households from it, and case events flow back through jobs.
+Its `help`: "One of: PRIORITY_CASE, GRADUATION, FRVA_HIGH_RISK, CHILD_PROTECTION, MISBEHAVIOR, WAIVE_EXIT."
+
+The bridge (card 19): the registry instance is the master. Casework looks households up and imports them synchronously, waiting at most 5 seconds; case events flow back through jobs.
 
 ---
 
@@ -588,18 +535,11 @@ Ten minutes, then report-back.
 
 ---
 
-<!-- _class: lead -->
 <!-- _footer: "Guide 5.13" -->
 
-# Claude Code in development
+## Claude Code in development: what it is
 
-A demo on the trainer's laptop, in a repository made from the template
-
----
-
-<!-- _footer: "Guide 5.13" -->
-
-## What Claude Code is
+A demo on the trainer's laptop, in a repository made from the template.
 
 An AI assistant in your terminal, inside your repository: it reads files, runs commands such as `./odoo-project test`, and writes changes, asking before each action.
 
@@ -656,17 +596,18 @@ _"Use OpenSPP's existing `children_count` field on the household."_
 
 ## From a specification to a module
 
-| File                                | Holds                                        | Written by            |
-| ----------------------------------- | -------------------------------------------- | --------------------- |
-| `docs/specs/<module>.md`            | One change: need, rules, acceptance examples | You                   |
-| `docs/architecture/decisions/`      | A decision that outlives one change (ADR)    | You                   |
-| `docs/planning/research-<topic>.md` | What exists, what is missing, open questions | Claude Code; check    |
-| `docs/planning/plan-<topic>.md`     | The files, the tests first, the steps        | Claude Code; annotate |
+| File                                | Holds                                               | Written by                      |
+| ----------------------------------- | --------------------------------------------------- | ------------------------------- |
+| `docs/architecture/decisions/`      | A decision that outlives one change (ADR)           | You, reviewed in a pull request |
+| `docs/specs/<module>.md`            | One change: need, rules, acceptance examples, scope | You, or the analyst             |
+| `docs/planning/research-<topic>.md` | What exists, what is missing, open questions        | Claude Code, checked by you     |
+| `docs/planning/plan-<topic>.md`     | The files, the tests first, the steps               | Claude Code, annotated by you   |
 
 1. Write the specification and any ADR, on a branch.
 2. Research: it reads them and the OpenSPP code they name, and writes a file. Check it.
 3. Plan: it writes the plan to a file. Add your notes; it addresses them.
-4. Test first, then the code. Review, `/commit`, `/pr`.
+4. Implement, test first. For a larger change, `/implement`; say "test first".
+5. Review with the checklist, including point 9, then `/commit` and `/pr`. The body links the specification and the ADR.
 
 ---
 
@@ -706,7 +647,7 @@ _"Write the plan to docs/planning/plan-household-children.md: the files, the tes
 
 ---
 
-<!-- _footer: "Guide 5.14" -->
+<!-- _footer: "Guide 5.14, 5.13" -->
 
 <style scoped>ul, p { font-size: 0.75em; } table { font-size: 0.7em; }</style>
 
@@ -719,7 +660,10 @@ _"Carry out the plan, test first: write the failing test, run it, then the code.
 | Counts current children     | aged 5, 12, 17 (membership ended), 30 | 2                  |
 | 0 to 18 inclusive           | aged 18 and 19                        | 1                  |
 | No birthdate, not counted   | aged 7, and one with no birthdate     | 1                  |
+| No members                  | none                                  | 0                  |
 | Shown on the household form | the Profile page                      | the field is there |
+
+Say "test first": `/implement` writes the tests after the code unless you ask.
 
 `./odoo-project test dswd_household_children`: red, then green. The lint hook runs after every edit.
 
@@ -751,14 +695,14 @@ _"Carry out the plan, test first: write the failing test, run it, then the code.
 
 ## Safe use
 
-What you type goes to an external AI service. **Never in a prompt**: beneficiary data, passwords, tokens, keys, database dumps, code you may not share.
+What you type goes to an external AI service. **Never in a prompt, or in a file you ask it to read**: beneficiary or other personal data, passwords, tokens, keys, database dumps, code you may not share.
 
 Read every permission request. Never approve a command you do not understand.
 
-Live: ask it to edit a file under `upstream/`. `.claude/settings.json` refuses:
+Live: ask it to edit a file under `upstream/`. `.claude/settings.json` refuses (line 26, abridged):
 
 ```json
-"deny": ["Edit(upstream/**)", "Write(upstream/**)", "Edit(vendor/**)", "Write(vendor/**)"]
+"deny": ["Edit(upstream/**)", "Write(upstream/**)", ...]
 ```
 
 A change to OpenSPP is a pull request to OpenSPP, not an edit here.
@@ -777,7 +721,7 @@ A change to OpenSPP is a pull request to OpenSPP, not an edit here.
 
 ---
 
-<!-- _footer: "Guide 5.13" -->
+<!-- _footer: "Guide 5.13, 5.14" -->
 
 ## Where to read more
 

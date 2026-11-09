@@ -391,7 +391,7 @@ Stand up. Three symptoms. Category card, then the module.
 
 # Break
 
-Back at 3:05
+Back at 2:48
 
 ---
 
@@ -452,16 +452,14 @@ Back at 3:05
 
 ---
 
-<!-- _footer: "Guide 5.7 · Card 13" -->
+<!-- _footer: "Guide 5.7 · Cards 13 to 15" -->
 
 <style scoped>ul, p { font-size: 0.75em; }</style>
 
-## Payroll: what not to break (card 13)
+## Payroll: what not to break (cards 13 to 15)
 
-- About 50,000 lines and the riskiest code in the repository; read before you touch.
 - The cycle run is a state machine (`STATE_SELECTION`). Once credit instructions exist, cancel and rewind are refused: the point of no return.
 - The snapshot, which the code calls NAPA, is sealed: `models/snapshot_beneficiary.py` refuses writes, and every later step reads it. A name corrected after the seal does not appear on that cycle's payroll list, by design.
-- Grant rates are never deleted. Five job channels; about 110 raw SQL calls.
 
 `dswd_4ps_payroll/models/payroll_cycle_run.py`, lines 147 to 152
 
@@ -474,37 +472,7 @@ POINT_OF_NO_RETURN_STATES = frozenset({"instructions_generated", "lbp_uploaded",
 TERMINAL_STATES = frozenset({"rejected", "cancelled", "done"})
 ```
 
----
-
-<!-- _footer: "Guide 5.7 · Cards 14, 15" -->
-
-## Catch-up and retro (cards 14 and 15)
-
-- Catch-up pays households a regular cycle left out: the same state-machine pattern, its own point of no return.
-- Retro keeps overpayment and underpayment ledgers and reuses the regular run.
-
-`dswd_4ps_retro_payroll/models/overpayment.py`, lines 10 to 19
-
-```python
-Recovery is two-phase so it survives the payroll cycle's reject-and-rewind:
-
-    _compute_proposed_recovery(partner, run, gross)   # PROPOSED line(s)
-        → cycle reaches its point of no return (Step 8b)
-    _commit_recovery_for_run(run)                     # PROPOSED → APPLIED
-        → balance drops only now
-    _reverse_recovery_for_run(run)                    # on reject/rewind/cancel
-        → PROPOSED/APPLIED → REVERSED, balance restored
-    _reverse_recovery_for_run(run, partner_ids)       # retro done, credit rejected (#2914)
-        → those households' lines only
-```
-
----
-
-<!-- _class: lead -->
-
-# Checkpoint 2
-
-Stand up. Three symptoms.
+Catch-up (card 14) and retro (card 15) follow the same pattern: read their cards.
 
 ---
 
@@ -512,10 +480,10 @@ Stand up. Three symptoms.
 
 <style scoped>ul, p { font-size: 0.75em; }</style>
 
-## Casework (cards 16 and 17)
+## Casework: the SWDI level (card 16)
 
 - `swdi`: the yearly well-being assessment. The level comes from the total score (level 3 from 2.83, level 2 from 1.83). This is the well-being level of Module 4, computed: the household's level is copied from the latest assessment, not chosen from a dropdown.
-- `cms`: Kilos-Unlad case management on `spp_case_base`; 117 record rules for six groups, each scoped by the user's own center areas (3.12 at production scale).
+- `cms` (card 17): Kilos-Unlad case management on `spp_case_base`; read its card.
 
 `dswd_4ps_swdi/models/assessment.py`, lines 1230 to 1241
 
@@ -536,14 +504,16 @@ Stand up. Three symptoms.
 
 ---
 
-<!-- _footer: "Guide 5.8 · Card 18" -->
+<!-- _footer: "Guide 5.8 · Cards 18, 19" -->
+
+<style scoped>ul, p { font-size: 0.8em; }</style>
 
 ## Assessments become cases (card 18)
 
 - Seven triggers, each a data record. Approving an assessment queues an event; a job creates the case.
 - Retries after 5 minutes, 15 minutes, 1 hour. A failed event stays as a row in state `failed`, with a Retry action.
 
-`dswd_4ps_swdi_cms/models/cms_trigger_config.py`, lines 41 to 50
+`dswd_4ps_swdi_cms/models/cms_trigger_config.py`, lines 41 to 45
 
 ```python
     trigger_type = fields.Char(
@@ -551,42 +521,17 @@ Stand up. Three symptoms.
         required=True,
         help=("One of: PRIORITY_CASE, GRADUATION, FRVA_HIGH_RISK, CHILD_PROTECTION, MISBEHAVIOR, WAIVE_EXIT."),
     )
-
-    is_active = fields.Boolean(
-        string="Active",
-        default=True,
-    )
 ```
+
+The bridge (card 19): the registry instance is the master; casework imports households from it, and case events flow back through jobs.
 
 ---
 
-<!-- _footer: "Guide 5.8 · Card 19" -->
+<!-- _footer: "Guide 5.9 · Cards 20 to 26" -->
 
-## The bridge (card 19)
+<style scoped>p { font-size: 0.8em; }</style>
 
-- The registry instance is the master. Casework looks households up and imports them synchronously (5 s timeout).
-- Case events flow back through jobs.
-- `excludes` decide which side a module can live on.
-
-`dswd_4ps_bridge_client/__manifest__.py`, lines 37 to 45
-
-```python
-    "excludes": ["dswd_4ps_bridge_server"],
-    "depends": [
-        "dswd_4ps_cms",
-        "dswd_4ps_swdi_cms",
-        "dswd_4ps_bridge_shared",
-        # The cross-instance user sync writes oauth_uid / oauth_provider_id and
-        # overrides the _post_oauth_login hook — both from dswd_4ps_auth (the CMS
-        # split instance authenticates against Keycloak via this module).
-        "dswd_4ps_auth",
-```
-
----
-
-<!-- _footer: "Guide 5.9 · Card 20" -->
-
-## The API: the caller's rights, an identifier, a service (card 20)
+## The API's rules (card 20)
 
 `dswd_4ps_api/routers/household.py`, lines 96 to 106
 
@@ -604,22 +549,9 @@ async def read_grantee_history(
     household = service.find_by_identifier(system, value)
 ```
 
-Record rules apply while `dswd_4ps_api.enforce_rbac` is on (seeded on).
+The caller's rights (`authenticated_env`: record rules apply while `dswd_4ps_api.enforce_rbac` is on, seeded on), a scope check, an identifier, never a database id, then a service.
 
----
-
-<!-- _footer: "Guide 5.9 · Cards 21 to 26" -->
-
-## Integration in one line each (cards 21 to 26)
-
-| Card | Module                 | In one line                                                 |
-| ---- | ---------------------- | ----------------------------------------------------------- |
-| 21   | the route modules      | Each adds its routers with a short `_inherit` and `super()` |
-| 22   | the portal APIs        | What the beneficiary portal reads                           |
-| 23   | `dswd_4ps_integration` | An outbound event log the portal polls                      |
-| 24   | `dswd_4ps_newgrs`      | Grievance status in, profile updates out, three flags       |
-| 25   | `dswd_4ps_ods`         | A read-only client for the old Pantawid ODS                 |
-| 26   | `dswd_4ps_auth`        | Keycloak sign-in; a user gets their areas from the claims   |
+The rest of integration is on cards 21 to 26.
 
 ---
 
@@ -631,7 +563,7 @@ In pairs. Eight training scenarios, not real incidents.
 
 For each: the **module**, the **category card**, the **first file**. Use your catalogue.
 
-Twelve minutes, then report-back.
+Ten minutes, then report-back.
 
 ---
 
@@ -651,6 +583,148 @@ Twelve minutes, then report-back.
 | 6   | `export` (no card)         | J      | `models/dswd_export_batch.py`: the chunk jobs on `dswd_export` |
 | 7   | `swdi_cms` (18)            | J      | `models/cms_event.py`                                          |
 | 8   | `payroll_api` (22)         | A      | `services/payroll_service.py`                                  |
+
+---
+
+<!-- _class: lead -->
+<!-- _footer: "Guide 5.13" -->
+
+# Claude Code in development
+
+A demo on the trainer's laptop, in a repository made from the template
+
+---
+
+<!-- _footer: "Guide 5.13" -->
+
+## What Claude Code is
+
+An AI assistant in your terminal, inside your repository: it reads files, runs commands such as `./odoo-project test`, and writes changes, asking before each action.
+
+| It is good at                              | It stays with you              |
+| ------------------------------------------ | ------------------------------ |
+| Reading a large code base                  | Deciding what to build         |
+| The repetitive parts of a change           | Reviewing what it wrote        |
+| Running the loop: test, change, test again | Testing, and owning the change |
+
+---
+
+<!-- _footer: "Guide 5.13" -->
+
+<style scoped>table { font-size: 0.75em; }</style>
+
+## What it reads before it answers
+
+| File                    | What it gives Claude Code                                                                            |
+| ----------------------- | ---------------------------------------------------------------------------------------------------- |
+| `CLAUDE.md`             | The project's rules: naming, extension patterns, the checklist, the commands, the known pitfalls     |
+| `.claude/rules/`        | Loaded when it edits matching files: models, views and data, security, tests, manifests              |
+| `.claude/agents/`       | Five specialists: `odoo-developer`, `code-reviewer`, `ux-expert`, `code-simplifier`, `verify-module` |
+| `.claude/commands/`     | `/implement`, `/verify-tests`, `/analyze`, `/expert-review`, `/commit`, `/pr`                        |
+| `.claude/settings.json` | Allowed commands; no edits under `upstream/`; a lint hook after every edit; no AI attribution        |
+
+Your repository has all of them: they came with the template.
+
+---
+
+<!-- _footer: "Guide 5.13" -->
+
+<style scoped>ul, p { font-size: 0.75em; }</style>
+
+## Demo A: reading code
+
+_"Where does OpenSPP keep a household's members, and how do I get each member's age?"_
+
+Check the answer against the files in `upstream/openspp/spp_registry/models/`:
+
+- `group.py`: the household is a `res.partner` with `is_group`; its members are `group_membership_ids`.
+- `group_membership.py`: `spp.group.membership` with `group`, `individual`, `start_date`, `ended_date`, `is_ended`.
+- `individual.py`: `birthdate`, and `age`. **Trap 1**: `age` is a text field (`"5"`, or `"No Birthdate!"`). Count by `birthdate`.
+
+_"Use OpenSPP's existing `children_count` field on the household."_
+
+**Trap 2**: there is no such field. The name is only an example in a help text and a Studio variable name. A name seen somewhere is not a field: check the model.
+
+---
+
+<!-- _footer: "Guide 5.13" -->
+
+<style scoped>ul, p { font-size: 0.75em; } table { font-size: 0.7em; }</style>
+
+## Demo B: a change, test first
+
+_"Create a module dswd_household_children that shows on each household the number of current members aged 0 to 18. Write the failing test first, run it, then the code."_
+
+| Test                        | Household members                     | Expects            |
+| --------------------------- | ------------------------------------- | ------------------ |
+| Counts current children     | aged 5, 12, 17 (membership ended), 30 | 2                  |
+| 0 to 18 inclusive           | aged 18 and 19                        | 1                  |
+| Shown on the household form | the Profile page                      | the field is there |
+
+`./odoo-project test dswd_household_children`: red, then green. The lint hook runs after every edit.
+
+**Trap 3**: a test that ends a membership also sets `start_date` in the past. OpenSPP refuses an end date earlier than the start date, which defaults to now.
+
+---
+
+<!-- _footer: "Guide 5.13" -->
+
+<style scoped>ol { font-size: 0.72em; }</style>
+
+## Review what it wrote
+
+1. Does the test fail without the change and pass with it? Does it test the behaviour, not the implementation?
+2. Is every new file in the manifest? Is every new field in a view, if users need it?
+3. Is anything changed under `upstream/openspp/`? (It should be blocked; check anyway.)
+4. Do names follow guide 7.1 (`dswd_` prefix, model and XML id patterns)?
+5. Does it claim something about the code you have not seen in a file? Open the file.
+6. Did it run the module's tests, and did you read the summary line yourself?
+7. Nothing secret or personal in the prompt or the diff: no beneficiary data, passwords, tokens or keys.
+8. Commit messages and pull requests carry no AI attribution in this project (`settings.json` turns it off; `/commit` and `/pr` repeat it).
+
+---
+
+<!-- _footer: "Guide 5.13" -->
+
+<style scoped>ul, p { font-size: 0.85em; }</style>
+
+## Safe use
+
+What you type goes to an external AI service. **Never in a prompt**: beneficiary data, passwords, tokens, keys, database dumps, code you may not share.
+
+Read every permission request. Never approve a command you do not understand.
+
+Live: ask it to edit a file under `upstream/`. `.claude/settings.json` refuses:
+
+```json
+"deny": ["Edit(upstream/**)", "Write(upstream/**)", "Edit(vendor/**)", "Write(vendor/**)"]
+```
+
+A change to OpenSPP is a pull request to OpenSPP, not an edit here.
+
+---
+
+<!-- _footer: "Guide 5.13" -->
+
+## Demo C: commit, pull request, CI
+
+1. `/commit`: a conventional commit message; the pre-commit hooks run.
+2. `/pr`: pushes the branch, opens the pull request and fills its template.
+3. No AI attribution: `settings.json` has `includeCoAuthoredBy: false`, and `/commit` and `/pr` say so.
+4. CI on a pull request prepared yesterday evening: pre-commit, image build, module tests.
+5. Review and merge, as for a change you wrote yourself (guide 7.4).
+
+---
+
+<!-- _footer: "Guide 5.13" -->
+
+## Where to read more
+
+- Guide 5.13: what it reads, the test-first loop, the review checklist, safe use, commit and pull request.
+- `docs/guides/claude-code-for-developers.md` in your repository: every file under `.claude/`, and your personal settings in `.claude/settings.local.json`.
+- `CLAUDE.md` in your repository: read it once yourself. It is what Claude Code reads first.
+
+Questions.
 
 ---
 

@@ -369,22 +369,6 @@ A `Many2one` `domain` only filters the dropdown: step 5 adds an `@api.constrains
 
 <!-- _footer: "Guide 7.4" -->
 
-## Claude Code: the review is the job
-
-Ask: _"Add a fourth well-being level, `graduated`, sequence 40, and a test that it resolves."_
-
-Then read the diff before running anything:
-
-- Is the new record in the right file, under the right vocabulary?
-- Is the file still listed in the manifest?
-- Does the test assert something that could fail?
-
-Run the tests. Keep or discard. The tool types; you decide.
-
----
-
-<!-- _footer: "Guide 7.4" -->
-
 <style scoped>
 section { font-size: 24px; }
 </style>
@@ -452,7 +436,7 @@ Drill time: three real excerpts, in pairs, 12 minutes.
 
 **Today**: manifest, data, model, view, security, tests. Inherit, prefix, point at a vocabulary. Read errors bottom up. Run the tests.
 
-**Module 5 (this afternoon)**: the production 4Ps modules, read through today's parts.
+**Module 5 (this afternoon)**: the production 4Ps modules, then Claude Code.
 
 **Module 6 (Day 3)**: your hands on the keyboard. Before Day 3:
 
@@ -461,4 +445,4 @@ Drill time: three real excerpts, in pairs, 12 minutes.
 ./odoo-project test dswd_wellbeing     # 0 failed, 0 error(s) of 5 tests
 ```
 
-No Docker on your laptop? Tomorrow you work with a pair that has one. Lunch triage table today.
+No Docker? Lunch triage table today; tomorrow, pair with a working laptop.

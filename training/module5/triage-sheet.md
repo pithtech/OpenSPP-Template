@@ -1,9 +1,9 @@
 # Module 5 Ticket Triage
 
-Day 2, 4:32 to 4:50. In pairs. **These tickets are training scenarios, written for this exercise; they are not real
+Day 2, 3:40 to 3:55. In pairs. **These tickets are training scenarios, written for this exercise; they are not real
 incidents.** For each ticket, write the module, the category card (M model, V view, D data or vocabulary, S security, W
 wizard, J job, A API, T test) and the first file you would open. Use your module cards; the index at the back lists
-every module, including those with no card. Twelve minutes, then report-back.
+every module, including those with no card. Ten minutes, then report-back.
 
 Names:
 

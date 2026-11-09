@@ -1,11 +1,11 @@
 # Module 5 Runbook: The DSWD 4Ps Modules, Discussed
 
-Day 2, 1:00 to 5:00. Trainer copy. Objectives and rationale are in
+Day 2, 1:00 to about 5:08. Trainer copy. Objectives and rationale are in
 [docs/planning/module5-training-design.md](../../docs/planning/module5-training-design.md); this page is what to do and
 say. Card numbers refer to [module-cards.md](module-cards.md).
 
 **Until 3:55 this is a discussion of modules.** Nothing is clicked in a running system. The screen shows the deck or the
-production code in an editor, at the file a point is about. **From 3:55 to 4:55 it is a Claude Code demo** on the
+production code in an editor, at the file a point is about. **From 3:55 to about 5:03 it is a Claude Code demo** on the
 trainer's laptop, in Edwin's own repository created from the template, with the stack running (block 12). No production
 code is opened, shown or sent to the service in that hour.
 
@@ -13,7 +13,9 @@ code is opened, shown or sent to the service in that hour.
 deck, no editor); then integration to the poster only (skip slide 32: point at the CONNECT line on the poster and say
 "the rest is on cards 20 to 26"). **Never dropped**: the map, foundation, change requests, the triage, the Claude Code
 hour and the closing. The Claude Code design is in
-[docs/planning/module5-claude-code-design.md](../../docs/planning/module5-claude-code-design.md).
+[docs/planning/module5-claude-code-design.md](../../docs/planning/module5-claude-code-design.md), and Demo B's flow from
+a specification in [docs/planning/module5-spec-driven-design.md](../../docs/planning/module5-spec-driven-design.md). The
+Claude Code hour runs about 8 minutes past 4:55 (Edwin's decision): the closing is at 5:03 and ends about 5:08.
 
 ## Before the session
 
@@ -35,12 +37,16 @@ For the Claude Code hour (block 12), on the same laptop:
 - **Edwin's own repository**, created from the template before Day 1 (never the template repository itself, and **no
   production repository** in that terminal or editor window): cloned on an up-to-date `main`, the OpenSPP source
   vendored in `upstream/openspp/` (`./odoo-project vendor`), the stack running (`./odoo-project start`), and
-  `dswd_household_children` **not** in it yet. Check `.claude/settings.json` has the lint hook ("hooks" > PostToolUse),
-  the `upstream/**` deny rules and `includeCoAuthoredBy: false`.
+  `dswd_household_children` **not** in it yet, but `docs/specs/dswd_household_children.md` and ADR-002 present (they
+  come with the template). Check `.claude/settings.json` has the lint hook ("hooks" > PostToolUse), the `upstream/**`
+  deny rules and `includeCoAuthoredBy: false`.
 - A second terminal tab in that repository, font 20pt, for the commands you type yourself; a VS Code window on the same
   repository for opening the files Claude Code names.
-- The pull request prepared the evening before in Edwin's repository, with the same module from the rehearsal, and its
-  CI green; its page open in a browser tab.
+- The pull request prepared the evening before in Edwin's repository, with the same module from the rehearsal, the
+  rehearsal's research and plan files, and a body that links the specification and ADR-002; its CI green; its page open
+  in a browser tab.
+- The rehearsal's `research-household-children.md` and `plan-household-children.md` copied outside the repository and
+  open in VS Code tabs, in case the live research or plan takes over three minutes.
 - The screen recordings of demos A, B and C, made in rehearsal, open in a video player and paused at the start. The
   reference build of the module lives outside the repository
   (`~/Documents/DSWD-4PS-Training-11-2026/claude-code-demo/`); never copy it into the repository.
@@ -48,8 +54,9 @@ For the Claude Code hour (block 12), on the same laptop:
 
 ## Block 1, 1:00 to 1:05: opener (slides 1 to 4)
 
-1. The five objectives, one breath each. "This morning you learned the parts of a module. This afternoon you read the
-   real ones. By five you can take a 4Ps ticket and say which module, which part, which file."
+1. The seven objectives, one breath each (6 and 7 are the Claude Code hour at 3:55). "This morning you learned the parts
+   of a module. This afternoon you read the real ones. By five you can take a 4Ps ticket and say which module, which
+   part, which file."
 2. How to read a card (slide): hold up card 3, registry. Table, key models, the strip, important points, "a ticket
    usually lands in", the code moment. "The strip is the morning: twelve boxes, each with its guide section. A shaded
    box is a part this module uses in a way you must know."
@@ -229,13 +236,13 @@ integration are on cards 20 to 26."
    slide with all eight, and the three points at the top of the answer key. Keep it to five minutes: the next block
    reuses ticket 1's question.
 
-## Block 12, 3:55 to 4:55: Claude Code in development (slides 35 to 43)
+## Block 12, 3:55 to 5:03: Claude Code in development (slides 35 to 46)
 
 Demo only, on the trainer's laptop, in **Edwin's own repository** created from the template, on `main` with the stack
 running ("Before the session"). **No production code** is opened, shown or sent: close the production editor window
 before you switch the screen at 3:55. Say once, at the start, that the production 4Ps team works the same way; show
 nothing of it. Live output differs from run to run: when it differs from the rehearsal, that is the lesson (check it
-against the file). Every slide's footer is "Guide 5.13".
+against the file). The slides' footers are "Guide 5.13", and "Guide 5.14" for the specification flow (slides 39 to 42).
 
 1. **What it is** (3:55, 5 min; slides 35 and 36). "You just found where a change belongs by hand. Claude Code is an AI
    assistant in your terminal that does the same kind of work on request: it reads the repository, explains code, finds
@@ -246,8 +253,9 @@ against the file). Every slide's footer is "Guide 5.13".
    when a matching file is edited), the five agents in `.claude/agents/`, the commands in `.claude/commands/`
    (`/implement`, `/verify-tests`, `/commit`, `/pr`), then `.claude/settings.json`: the `allow` list, the `deny` rules
    on `upstream/**`, the `"hooks"` key (PostToolUse on `Edit|Write` runs `.claude/hooks/post-edit-lint.py`: ruff,
-   ruff-format, Prettier and the Odoo checks on the edited file) and `includeCoAuthoredBy: false`. "Your repository has
-   all of these: they came with the template."
+   ruff-format, Prettier and the Odoo checks on the edited file) and `includeCoAuthoredBy: false`. Last, `docs/specs/`
+   and `docs/architecture/decisions/`: "the change you ask for, and the decisions the project has taken: Demo B starts
+   there." "Your repository has all of these: they came with the template."
 3. **Demo A: reading code** (4:08, 12 min; slide 38). Start `claude` in the repository root. Type prompt 1:
 
    > Where does OpenSPP keep a household's members, and how do I get each member's age?
@@ -271,59 +279,96 @@ against the file). Every slide's footer is "Guide 5.13".
    find nothing. "A name seen somewhere is not a field. Check the model." Stop the session (Escape) before it edits
    anything.
 
-4. **Demo B: a change, test first** (4:20, 15 min; slide 39). In the second tab:
-   `git switch -c feat/household-children`. In Claude Code:
+4. **Demo B: from a specification to a module** (4:20, 23 min; slides 39 to 42). In the second tab:
+   `git switch -c feat/household-children`.
 
-   > Create a module dswd_household_children that shows on each household the number of current members aged 0 to 18.
-   > Write the failing test first, run it, then the code.
+   - **The flow** (2 min; slides 39 and 40). "Real work does not start from a one-line prompt. It starts from a written
+     request and the decisions already taken, in files: Claude Code reads them, the team reviews them, they outlast the
+     session." Slide 39: what goes where, and the four steps. Slide 40: what a specification states for each kind of
+     work, the three skills of this morning. "A rule not written down is one Claude Code will guess."
+   - **The specification and the ADR** (2 min; slide 41). In VS Code, open `docs/specs/dswd_household_children.md`: the
+     need, the rules (current members, from the birthdate, 0 to 18 inclusive, no birthdate not counted), the four
+     acceptance examples, out of scope, and the upstream names "to check, not trusted". Then
+     `docs/architecture/decisions/ADR-002-computed-counts-not-stored.md`: "a child turns 19 with no write to the
+     database, so a stored count goes stale on each birthday. Claude Code would not decide that on its own."
+   - **Research** (4 min). In Claude Code:
 
-   What to point at, in order:
+     > Read docs/specs/dswd_household_children.md and the ADRs it links, then the OpenSPP models they name in
+     > upstream/openspp/. Write docs/planning/research-household-children.md: what exists, what is missing, your
+     > questions. Do not write code.
 
-   - The test file comes first. The reference tests (the rehearsal's): members aged 5, 12, 17 (membership ended) and 30
-     give 2; members aged 18 and 19 give 1; the household form's arch contains the field. Read the test aloud before
-     approving it: "does it test the behaviour?"
-   - **Trap 3**: the test that ends a membership must also set `start_date` in the past. OpenSPP refuses an `ended_date`
-     earlier than `start_date` ("End Date cannot be earlier than Start Date"), and `start_date` defaults to now. If the
-     run fails on that error, say so and let it fix the test; if the test already sets it, point at the line.
-   - `./odoo-project test dswd_household_children`: red (the field does not exist yet).
-   - The code: an Integer computed field `dswd_children_count` ("Children (0 to 18)") on `res.partner`, counting current
-     members (`not is_ended`) whose age from `birthdate` is 0 to 18 inclusive; a view inheriting
-     `spp_registry.view_individuals_form`, after `group_tags_section`; a header-only access file; depends on
-     `spp_registry`. Point at the lint hook's output after each edit.
-   - `./odoo-project test dswd_household_children`: green, `0 failed, 0 error(s) of 3 tests`. Read the summary line
-     yourself, aloud.
-   - `./odoo-project install dswd_household_children`, then Registry > Browse All (Audit) > All Groups, open a
-     household, the Profile page: the "Children (0 to 18)" field.
-   - Read the diff together (`git diff`, or VS Code's source control view).
+     Open the file it writes. Check two names against the files, as in Demo A: `group_membership_ids` and `is_ended`.
+     Point at what it says about `age` (trap 1, caught before any code). If generation takes over three minutes, open
+     the rehearsal's file instead and say so.
 
-5. **Safe use and review** (4:35, 10 min; slides 40 and 41). Read the checklist (slide 40) against Demo B's diff, point
-   by point; it is guide 5.13's list. Then slide 41: what never goes into a prompt (beneficiary data, passwords, tokens,
-   keys, database dumps, code you may not share). Live: ask Claude Code
+   - **Plan** (4 min).
+
+     > Write the plan to docs/planning/plan-household-children.md: the files, the tests first, the steps.
+
+     Read the plan's test list aloud. Add a line in the file, live: `> NOTE: Add a test for a member with no birthdate.`
+     Then: "Address my notes in the plan." Show the revised test list. "That example is in the specification. A plan
+     that missed it is why you read the plan."
+
+   - **Test first, then the code** (11 min; slide 42).
+
+     > Carry out the plan, test first: write the failing test, run it, then the code.
+
+     Say once: "`/implement` does the same with its agents and an expert review; for a demo it is too slow." Then, in
+     order:
+
+     - The test file comes first. The reference tests (the rehearsal's): members aged 5, 12, 17 (membership ended) and
+       30 give 2; members aged 18 and 19 give 1; a member aged 7 and one with no birthdate give 1; a household with no
+       members gives 0; the household form's arch contains the field. Read the test aloud before approving it: "does it
+       test the behaviour? Is each acceptance example there?"
+     - **Trap 3**: the test that ends a membership must also set `start_date` in the past. OpenSPP refuses an
+       `ended_date` earlier than `start_date` ("End Date cannot be earlier than Start Date"), and `start_date` defaults
+       to now. If the run fails on that error, say so and let it fix the test; if the test already sets it, point at the
+       line.
+     - `./odoo-project test dswd_household_children`: red (the field does not exist yet).
+     - The code: an Integer computed field `dswd_children_count` ("Children (0 to 18)") on `res.partner`, **not stored**
+       (ADR-002: point at the absence of `store=True`), counting current members (`not is_ended`) whose age from
+       `birthdate` is 0 to 18 inclusive; a view inheriting `spp_registry.view_individuals_form`, after
+       `group_tags_section`; a header-only access file; depends on `spp_registry`. Point at the lint hook's output after
+       each edit.
+     - `./odoo-project test dswd_household_children`: green, `0 failed, 0 error(s) of 5 tests`. Read the summary line
+       yourself, aloud.
+     - `./odoo-project install dswd_household_children`, then Registry > Browse All (Audit) > All Groups, open a
+       household, the Profile page: the "Children (0 to 18)" field.
+     - Read the diff together (`git diff`, or VS Code's source control view): the specification, the research, the plan,
+       the module.
+
+5. **Safe use and review** (4:43, 10 min; slides 43 and 44). Read the checklist (slide 43) against Demo B's diff, point
+   by point; it is guide 5.13's list. Point 9: hold the diff's tests against the specification's four acceptance
+   examples. Then slide 44: what never goes into a prompt (beneficiary data, passwords, tokens, keys, database dumps,
+   code you may not share). Live: ask Claude Code
 
    > Add a comment at the top of upstream/openspp/spp_registry/models/group.py.
 
    The `settings.json` deny rule (`Edit(upstream/**)`, `Write(upstream/**)`) refuses it. "A change to OpenSPP is a pull
    request to OpenSPP, not an edit here." Check `git status`: nothing under `upstream/` changed.
 
-6. **Demo C: commit, pull request, CI** (4:45, 8 min; slide 42). `/commit` on Demo B's module: point at the conventional
+6. **Demo C: commit, pull request, CI** (4:53, 8 min; slide 45). `/commit` on Demo B's module: point at the conventional
    message and the pre-commit hooks running. `/pr`: it pushes the branch and fills the pull request template; point at
-   the body: no AI attribution (`includeCoAuthoredBy: false`, and `/commit` and `/pr` say so). Then switch to the
-   browser tab with the pull request prepared the evening before: its CI is green (the image build is too slow to wait
-   for live). "Review and merge are the same as for a change you wrote yourself: Module 4 block 8, guide 7.4."
-7. **Questions** (4:53, 2 min; slide 43). Point at guide 5.13 and `docs/guides/claude-code-for-developers.md`.
+   the body: it links the specification and ADR-002; no AI attribution (`includeCoAuthoredBy: false`, and `/commit` and
+   `/pr` say so). Then switch to the browser tab with the pull request prepared the evening before: its CI is green (the
+   image build is too slow to wait for live). "Review and merge are the same as for a change you wrote yourself: Module
+   4 block 8, guide 7.4."
+7. **Questions** (5:01, 2 min; slide 46). Point at guide 5.13 and 5.14, `docs/specs/README.md` and
+   `docs/guides/claude-code-for-developers.md`. "The specification and ADR-002 are in your repository: try the flow
+   yourself after the training.")
 
 **Fallback.** If the network is down, the service is slow, or a demo goes off the rehearsal for more than two minutes,
 switch to that demo's screen recording and narrate it with the same points; the slides carry each prompt and the
 expected shape of the answer. If running late inside the hour: questions go first, then Demo C shows only the prepared
 pull request.
 
-## Block 13, 4:55 to 5:00: closing (slides 44 and 45)
+## Block 13, 5:03 to 5:08: closing (slides 47 and 48)
 
-1. How to approach a ticket (slide 44, guide 5.11's five steps): read the symptom in the user's words, and reproduce it;
+1. How to approach a ticket (slide 47, guide 5.11's five steps): read the symptom in the user's words, and reproduce it;
    find the module on the map and open its card; read the strip and pick the first file; before changing code, check
    `noupdate` data, context keys, jobs and their state, system parameters; write a failing test that reproduces the
    ticket, then fix, then run the module's tests. "Step 5 is the loop you just saw with Claude Code."
-2. "Not today" (slide 45): the modules on no card, in the catalogue index. "They are for the post-training sessions."
+2. "Not today" (slide 48): the modules on no card, in the catalogue index. "They are for the post-training sessions."
 3. "Keep the catalogue. Tomorrow is hands-on with the modules you built this morning."
 
 ## If something fails

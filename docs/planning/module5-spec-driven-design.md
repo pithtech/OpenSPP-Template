@@ -1,6 +1,9 @@
 # Module 5 Addition: From a Specification to a Module with Claude Code (design)
 
-> **Status**: approved by Edwin (2026-11-09), with the four decisions of section 9. Builds on the approved
+> **Status**: approved by Edwin (2026-11-09), with the four decisions of section 9. **As built**: Demo B is four
+> slides (the flow, what a specification states, the specification with research and plan, then test first), so the
+> deck has 48 slides; the objectives slide gained objectives 6 and 7 to match guide 5.1; the reference build has five
+> tests, one per acceptance example plus the form, all passing. Builds on the approved
 > [module5-claude-code-design.md](module5-claude-code-design.md).
 > **Edwin's answers (2026-11-09)**: the hour may run past 4:55 (it is the end of Module 5); the specification is a file,
 > and a pre-written one for the demo module goes into the template repository now, so participants can try it after the
@@ -125,7 +128,7 @@ Edwin's answer: the hour may run over. Demo B grows from 15 to about 23 minutes;
 | 3:55  | 5   | What it is                               | None                                                                   |
 | 4:00  | 8   | What it reads                            | Add `docs/specs/` and the ADRs to the files shown                      |
 | 4:08  | 12  | Demo A: reading code                     | None                                                                   |
-| 4:20  | 23  | **Demo B: from a specification to a module** | Spec and ADR-002 (2), research (4), plan with one note (4), then test first as before (13) |
+| 4:20  | 23  | **Demo B: from a specification to a module** | The flow (2), spec and ADR-002 (2), research (4), plan with one note (4), test first (11) |
 | 4:43  | 10  | Safe use and review                      | One checklist point added (the acceptance examples)                    |
 | 4:53  | 8   | Demo C: commit, pull request, CI         | The PR body links the spec and ADR-002                                  |
 | 5:01  | 2   | Questions                                |                                                                        |

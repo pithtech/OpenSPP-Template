@@ -1803,6 +1803,8 @@ session; read it before your first change to a `dswd_4ps_*` module.
    hooks, system parameters, approval state) and say why "simplifying" them is dangerous.
 5. Find any module in the catalogue and read its card.
 6. Use Claude Code to read and change code in your repository, and review what it wrote before you trust it (5.13).
+7. Give Claude Code a specification and the project's decisions as files, and take a module from them through research,
+   a plan, a test and the code (5.14).
 
 ### 5.2 How to read a production module
 
@@ -2088,6 +2090,7 @@ unless you ask. A rule the session met: OpenSPP refuses a membership whose `ende
 7. Nothing secret or personal in the prompt or the diff: no beneficiary data, passwords, tokens or keys.
 8. Commit messages and pull requests carry no AI attribution in this project (`settings.json` turns it off; `/commit`
    and `/pr` repeat it).
+9. When the change has a specification (5.14): does the code do what each of its acceptance examples says?
 
 **Safe use.** What you type goes to an external AI service. Never put beneficiary or other personal data, passwords,
 tokens, keys, database dumps, or code you may not share into a prompt or a file you ask it to read. Read every
@@ -2095,6 +2098,76 @@ permission request before you approve it, and never approve a command you do not
 
 **From change to merge.** `/commit` writes a conventional commit message and runs the pre-commit hooks; `/pr` opens the
 pull request and fills its template. CI, review and merge are the same as for a change you wrote yourself (7.4).
+
+### 5.14 From a specification to a module
+
+Real work does not start from a one-line prompt. It starts from a written request and the decisions the project has
+already taken. Put both in files in the repository: Claude Code reads them, the team reviews them in a pull request, and
+they are still there after the session ends.
+
+**What goes where.**
+
+| File                                       | Holds                                                        | Written by                      |
+| ------------------------------------------ | ------------------------------------------------------------ | ------------------------------- |
+| `CLAUDE.md`, `.claude/rules/`              | The standing rules for every change                          | The team                        |
+| `docs/principles/`                         | The detail behind the rules (security, naming, testing, UI)  | The team                        |
+| `docs/architecture/decisions/ADR-NNN-*.md` | One decision that outlives one change, with its consequences | You, reviewed in a pull request |
+| `docs/specs/<module>.md`                   | One change: the need, the rules, acceptance examples, scope  | You, or the analyst             |
+| `docs/planning/research-<topic>.md`        | What exists, what is missing, open questions                 | Claude Code, checked by you     |
+| `docs/planning/plan-<topic>.md`            | The files, the tests first, the steps                        | Claude Code, annotated by you   |
+
+A specification says what and why; it does not choose field names or files: that is the plan's job. The template is in
+`docs/specs/README.md`; an ADR's template is in `docs/architecture/decisions/README.md`.
+
+**The flow.** Each step ends with you reading a file before the next one starts.
+
+1. Write the specification in `docs/specs/` and any ADR it needs, on a branch.
+2. Research:
+
+   ```text
+   Read docs/specs/dswd_household_children.md and the ADRs it links, then the OpenSPP models
+   they name in upstream/openspp/. Write docs/planning/research-household-children.md: what
+   exists, what is missing, your questions. Do not write code.
+   ```
+
+   Check every name it gives against the file (5.13). This is where the traps of 5.13 are caught: before any code.
+
+3. Plan:
+
+   ```text
+   Write the plan to docs/planning/plan-household-children.md: the files, the tests first,
+   the steps.
+   ```
+
+   Read it. Add your notes in the file, on a line starting `> NOTE:`, then: `Address my notes in the plan.`
+
+4. Implement, test first:
+
+   ```text
+   Carry out the plan, test first: write the failing test, run it, then the code.
+   ```
+
+   For a larger change, `/implement` carries out the plan with its agents and an expert review; say "test first" (5.13).
+
+5. Review with 5.13's checklist, including point 9, then `/commit` and `/pr`. The pull request body links the
+   specification and the ADR.
+
+**What a specification states, by kind of work.** The three skills of Day 2:
+
+| Kind                             | The specification states                                                                                         |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| A new module with a new model    | The model and its fields with types; which are required; who reads and who writes (the three tiers); the menu    |
+| An extension of an OpenSPP model | The upstream model and view, by their names in `upstream/openspp/`; what to add; where on the view               |
+| A customization through data     | The records to create; the vocabulary namespace and codes; `noupdate` or not; what keeps the codes valid         |
+| All three                        | The 4Ps need in the users' words; the rules; acceptance examples as a table; what is out of scope; the ADRs used |
+
+Each acceptance example becomes a test. A rule that is not written down is one Claude Code will guess: the demo's
+ADR-002 (a count that depends on age is computed when read, not stored, because a child turns 19 with no write to the
+database) is a decision it would not make on its own.
+
+**Try it after the training.** Your repository has the session's example: `docs/specs/dswd_household_children.md` and
+`docs/architecture/decisions/ADR-002-computed-counts-not-stored.md`. On a branch, run the flow above with Claude Code,
+then compare your plan and your tests with what you saw in the session.
 
 ## Module 6: Hands-on Activity
 

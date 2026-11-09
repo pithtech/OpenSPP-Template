@@ -1,22 +1,24 @@
 # Module 5 Materials: DSWD-specific implementation of OpenSPP
 
-Day 2, 1:00 to 5:00. The design behind these materials is in
+Day 2, 1:00 to about 5:08. The design behind these materials is in
 [docs/planning/module5-training-design.md](../../docs/planning/module5-training-design.md). The session is a
 code-reading discussion of the production DSWD 4Ps modules (`dswd-4ps-dp-openspp-v2-module`), organised by the 4Ps
 business process and read through the parts of a module taught in Modules 3 and 4. There is no user-interface
 demonstration and nothing runs on participant laptops. Every fact, path and excerpt is checked at production commit
 `ad98dac9` (2026-11-06).
 
-The last hour, 3:55 to 4:55, is **Claude Code in development**: a demo on the trainer's laptop, in Edwin's own
-repository created from the template (never the template repository, and no production code), of reading code, a
+The last hour, 3:55 to about 5:03, is **Claude Code in development**: a demo on the trainer's laptop, in Edwin's own
+repository created from the template (never the template repository, and no production code), of reading code, a module
+taken from a specification (`docs/specs/dswd_household_children.md` and ADR-002) through research, a plan and a
 test-first change, review and safe use, and commit to pull request. Its design is in
-[docs/planning/module5-claude-code-design.md](../../docs/planning/module5-claude-code-design.md); guide section 5.13 is
-the participants' text.
+[docs/planning/module5-claude-code-design.md](../../docs/planning/module5-claude-code-design.md) and
+[docs/planning/module5-spec-driven-design.md](../../docs/planning/module5-spec-driven-design.md); guide sections 5.13
+and 5.14 are the participants' text.
 
 | File                                     | For                | Use                                                                                     |
 | ---------------------------------------- | ------------------ | --------------------------------------------------------------------------------------- |
 | [runbook.md](runbook.md)                 | Trainer            | Run of show, what to say per card, the code moments in tab order, drop order, fallbacks |
-| [slides.md](slides.md)                   | Trainer, projected | Marp deck, 45 slides (35 to 43: Claude Code); excerpts are copied from the cards        |
+| [slides.md](slides.md)                   | Trainer, projected | Marp deck, 48 slides (35 to 46: Claude Code); excerpts are copied from the cards        |
 | [module-cards.md](module-cards.md)       | Everyone, printed  | 26 module cards in session order, then the index of all 66 modules; A4, bound to keep   |
 | [module-map.md](module-map.md)           | Wall, A1           | The poster: the process top to bottom, the two instances, the bridge                    |
 | [category-cards.md](category-cards.md)   | Pairs, printed     | Eight lettered cards (M, V, D, S, W, J, A, T) for "where would you look?"               |

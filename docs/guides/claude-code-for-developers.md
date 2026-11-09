@@ -27,12 +27,17 @@ How Claude Code is configured for this project and how to get the most out of it
 
 ## Recommended Workflow
 
-1. **Start with Plan mode** (shift+tab twice) for non-trivial features
-2. **Use `/implement`** to carry out the plan with subagents (it writes tests after the code; ask for the failing
-   test first if you want test-first)
-3. **Use `/verify-tests`** after subagent work to catch removed tests
-4. **Use `/commit`** for conventional commit format
-5. **Use `/pr`** for GitHub PR creation
+1. **Write the specification** in `docs/specs/` from its template ([specs/README.md](../specs/README.md)), and an ADR
+   for any decision that outlives the change
+2. **Ask for research**: Claude reads the specification, its ADRs and the OpenSPP code they name, and writes
+   `docs/planning/research-<topic>.md`; check it against the files
+3. **Ask for the plan** in `docs/planning/plan-<topic>.md`; add your notes in the file and have Claude address them
+   (Plan mode, shift+tab twice, works for smaller changes)
+4. **Carry out the plan, test first**: a plain request for a small change, or **`/implement`** to carry out the plan
+   with subagents (it writes tests after the code; ask for the failing test first if you want test-first)
+5. **Use `/verify-tests`** after subagent work to catch removed tests
+6. **Use `/commit`** for conventional commit format
+7. **Use `/pr`** for GitHub PR creation; link the specification in the body
 
 ## Available Subagents
 

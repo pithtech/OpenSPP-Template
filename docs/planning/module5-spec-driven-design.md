@@ -1,6 +1,6 @@
 # Module 5 Addition: From a Specification to a Module with Claude Code (design)
 
-> **Status**: proposal for Edwin's review (2026-11-09). Builds on the approved
+> **Status**: approved by Edwin (2026-11-09), with the four decisions of section 9. Builds on the approved
 > [module5-claude-code-design.md](module5-claude-code-design.md).
 > **Edwin's answers (2026-11-09)**: the hour may run past 4:55 (it is the end of Module 5); the specification is a file,
 > and a pre-written one for the demo module goes into the template repository now, so participants can try it after the
@@ -153,11 +153,12 @@ to show live. The slide says when to use it.
 Order: tests first, then the template files, then the guide and the PDF, then the slides, runbook and notes. One pull
 request. The decks measured in Chrome as before.
 
-## 9. For Edwin to decide
+## 9. Decisions
 
-1. **ADR-002 status**: Accepted (my recommendation; the index's legend reads "approved, implementation pending"), or
-   Proposed so that participants who try it later accept it themselves.
-2. **The note added to the plan live**: the no-birthdate test (recommended), or another.
-3. **The closing at 5:03 to 5:08**: keep all three closing points, or only "Tomorrow is hands-on" if the room is tired.
-4. **Demo C prepared pull request**: it is prepared the evening before from the rehearsal; it should now include the
-   research and plan files, so its body links the spec and ADR-002. Yes or no.
+Taken by Edwin on 2026-11-09:
+
+1. **ADR-002 status**: Accepted.
+2. **The note added to the plan live**: "Add a test for a member with no birthdate."
+3. **The closing at 5:03 to 5:08**: all three points kept.
+4. **Demo C's prepared pull request**: it includes the rehearsal's research and plan files, and its body links the
+   specification and ADR-002.

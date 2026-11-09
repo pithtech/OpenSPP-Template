@@ -1798,6 +1798,7 @@ session; read it before your first change to a `dswd_4ps_*` module.
 4. Recognise the production traps (context keys that skip checks, `x_4ps_` fields, raw SQL, `noupdate` data and install
    hooks, system parameters, approval state) and say why "simplifying" them is dangerous.
 5. Find any module in the catalogue and read its card.
+6. Use Claude Code to read and change code in your repository, and review what it wrote before you trust it (5.13).
 
 ### 5.2 How to read a production module
 
@@ -2039,6 +2040,58 @@ The modules on no card are in the catalogue index, for the post-training session
 `export`, `ecr`, `hazard`, `account_creation`), operations (`theme`, `attachment_hardening`, `post_sql_repair`,
 `pg_partition`), dashboards (`swdi_dashboard`, `cms_nas`) and 17 sample-data, demo and test-only modules.
 
+### 5.13 Claude Code in development
+
+Claude Code is an AI assistant that works in your terminal, inside your repository: it reads files, runs commands such
+as `./odoo-project test`, and writes changes, asking before each action. It is good at reading a large code base, at the
+repetitive parts of a change, and at running the loop. Deciding what to build, reviewing what it wrote, testing and
+owning the change stay with you.
+
+**What it reads before it answers.** Your repository is set up for it:
+
+| File                    | What it gives Claude Code                                                                                                                                             |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CLAUDE.md`             | The project's rules: naming, extension patterns, the checklist, the commands, the known pitfalls                                                                      |
+| `.claude/rules/*.md`    | Loaded when it edits matching files: Python models, XML views and data, security files, tests, manifests                                                              |
+| `.claude/agents/*.md`   | Specialists it can call: `odoo-developer`, `code-reviewer`, `ux-expert`, `code-simplifier`, `verify-module`                                                           |
+| `.claude/commands/*.md` | Commands you type: `/implement` (carry out a plan with its agents), `/verify-tests`, `/analyze`, `/expert-review`, `/commit`, `/pr`                                   |
+| `.claude/settings.json` | Allowed commands; no edits under `upstream/` (denied); after every edit a lint hook runs ruff, Prettier and the Odoo checks on the file; no AI attribution in commits |
+
+`docs/guides/claude-code-for-developers.md` describes each of them and your personal settings.
+
+**Ask it to read, then check.** "Where does OpenSPP keep a household's members, and how do I get each member's age?" is
+a good first question in a code base you do not know. Then open the files it names: the answer is only as good as what
+you verified. Two traps from the session:
+
+- Upstream's `age` on an individual is a **text** field (`"5"`, or `"No Birthdate!"`), computed from `birthdate`. Code
+  that counts or compares by `age` is wrong; use `birthdate`.
+- A name you have seen is not a field. `children_count` appears in OpenSPP only as an example in a help text and as a
+  Studio variable name; the household has no such field.
+
+**Test first, with it.** Ask for the failing test first, run it, then ask for the change, then run the module's tests
+yourself and read the summary line (3.13). Say "test first" in the request: `/implement` writes the tests after the code
+unless you ask. A rule the session met: OpenSPP refuses a membership whose `ended_date` is earlier than its
+`start_date`, and `start_date` defaults to now, so a test that ends a membership also sets `start_date` in the past.
+
+**Review what it wrote.** Before you run or commit anything:
+
+1. Does the test fail without the change and pass with it? Does it test the behaviour, not the implementation?
+2. Is every new file in the manifest? Is every new field in a view, if users need it?
+3. Is anything changed under `upstream/openspp/`? (It should be blocked; check anyway.)
+4. Do names follow 7.1 (`dswd_` prefix, model and XML id patterns)?
+5. Does it claim something about the code you have not seen in a file? Open the file.
+6. Did it run the module's tests, and did you read the summary line yourself?
+7. Nothing secret or personal in the prompt or the diff: no beneficiary data, passwords, tokens or keys.
+8. Commit messages and pull requests carry no AI attribution in this project (`settings.json` turns it off; `/commit`
+   and `/pr` repeat it).
+
+**Safe use.** What you type goes to an external AI service. Never put beneficiary or other personal data, passwords,
+tokens, keys, database dumps, or code you may not share into a prompt or a file you ask it to read. Read every
+permission request before you approve it, and never approve a command you do not understand.
+
+**From change to merge.** `/commit` writes a conventional commit message and runs the pre-commit hooks; `/pr` opens the
+pull request and fills its template. CI, review and merge are the same as for a change you wrote yourself (7.4).
+
 ## Module 6: Hands-on Activity
 
 Day 3, 8:30 to 10:30. You build three modules of your own on your own stack, one for each skill of Day 2: a new module
@@ -2256,7 +2309,8 @@ commits. In your own repository, add the reviewer under **Settings > Collaborato
 (**Settings > Branches**): merges only through a pull request, only with green checks, only after an approval. When an
 assistant such as Claude Code wrote the change, you are its first reviewer: read the diff before you run anything (is
 the record in the right file and vocabulary, is every file still in the manifest, does the test assert something that
-could fail?), run the tests, then keep or discard it. The tool types; you decide.
+could fail?), run the tests, then keep or discard it. The tool types; you decide. Section 5.13 has the full review
+checklist.
 
 **Merge, then sync.** **Merge pull request** puts the change on `main` on GitHub; delete the branch there. Your laptop
 does not know yet: step 15 brings it up to date. If the merge changed a module installed on your stack, run

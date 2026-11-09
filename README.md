@@ -132,7 +132,7 @@ Change `OPENSPP_REF` in `.env`, then `./odoo-project pull` (or `build`), `./odoo
 | Area                       | Location                                                                     |
 | -------------------------- | ---------------------------------------------------------------------------- |
 | Pre-training setup         | [training/SETUP.md](training/SETUP.md)                                       |
-| Participant guide (all modules) | [training/participant-guide.md](training/participant-guide.md)          |
+| Participant guide (all modules) | [training/participant-guide.md](training/participant-guide.md), printable: [training/participant-guide.pdf](training/participant-guide.pdf) |
 | 4Ps program reference      | [training/4ps-program-reference.md](training/4ps-program-reference.md)       |
 | Module 3 training materials | [training/module3/](training/module3/)                                      |
 | Module 4 training materials | [training/module4/](training/module4/)                                      |

@@ -1,0 +1,294 @@
+/* Print layout for the participant guide: A4, page numbers as "page/total", a contents list with page numbers.
+   Colours from the DSWD and 4Ps logos on pantawid.dswd.gov.ph: DSWD blue #194998, navy #003761, red #ec202b,
+   4Ps golden yellow #fdc22d. */
+
+@page {
+    size: A4;
+    margin: 20mm 17mm 18mm 17mm;
+    @top-left {
+        content: string(chapter);
+        font:
+            7.5pt "Helvetica Neue",
+            Helvetica,
+            Arial,
+            sans-serif;
+        color: #5f6b7a;
+    }
+    @top-right {
+        content: "Participant Guide";
+        font:
+            7.5pt "Helvetica Neue",
+            Helvetica,
+            Arial,
+            sans-serif;
+        color: #5f6b7a;
+    }
+    @bottom-left {
+        content: "OpenSPP and Odoo Foundations Training, DSWD 4Ps";
+        font:
+            7.5pt "Helvetica Neue",
+            Helvetica,
+            Arial,
+            sans-serif;
+        color: #5f6b7a;
+    }
+    @bottom-right {
+        content: counter(page) "/" counter(pages);
+        font:
+            8pt "Helvetica Neue",
+            Helvetica,
+            Arial,
+            sans-serif;
+        color: #1f2a37;
+    }
+}
+
+@page :first {
+    margin: 0;
+    background: #003761;
+    @top-left {
+        content: none;
+    }
+    @top-right {
+        content: none;
+    }
+    @bottom-left {
+        content: none;
+    }
+    @bottom-right {
+        content: none;
+    }
+}
+
+body {
+    margin: 0;
+}
+
+html {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 9.6pt;
+    line-height: 1.42;
+    color: #1f2a37;
+}
+
+/* Cover */
+.cover {
+    page: cover;
+    height: 297mm;
+    box-sizing: border-box;
+    padding: 62mm 24mm 24mm 24mm;
+    background: #003761;
+    border-top: 9mm solid #194998;
+    color: #ffffff;
+    break-after: page;
+}
+.cover-org {
+    font-size: 10pt;
+    line-height: 1.5;
+    color: #c9d8ea;
+    margin: 0 0 30mm 0;
+}
+.cover-title {
+    font-size: 28pt;
+    line-height: 1.15;
+    margin: 0 0 6mm 0;
+    font-weight: 700;
+}
+.cover-subtitle {
+    font-size: 18pt;
+    margin: 0 0 14mm 0;
+    color: #fdc22d;
+    font-weight: 600;
+}
+.cover-scope {
+    font-size: 11pt;
+    line-height: 1.5;
+    max-width: 140mm;
+    color: #e8eef6;
+}
+.cover-rule {
+    width: 28mm;
+    height: 1.6mm;
+    background: #ec202b;
+    margin: 26mm 0 6mm 0;
+}
+.cover-author {
+    font-size: 13pt;
+    font-weight: 700;
+    margin: 0 0 1mm 0;
+}
+.cover-author-title {
+    font-size: 10.5pt;
+    color: #c9d8ea;
+    margin: 0;
+}
+.cover-meta {
+    margin-top: 18mm;
+    font-size: 9pt;
+    color: #c9d8ea;
+}
+
+/* Contents */
+nav.toc {
+    break-after: page;
+}
+.toc-title {
+    font-size: 18pt;
+    margin: 0 0 6mm 0;
+    color: #194998;
+    border: none;
+}
+nav.toc ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+nav.toc > ul > li {
+    margin-top: 2.2mm;
+    font-weight: 700;
+}
+nav.toc > ul > li > ul > li {
+    font-weight: 400;
+    margin: 0.6mm 0 0 6mm;
+}
+nav.toc li ul ul {
+    display: none;
+}
+nav.toc a {
+    color: #1f2a37;
+    text-decoration: none;
+}
+nav.toc a::after {
+    content: leader(".") target-counter(attr(href), page);
+    color: #5f6b7a;
+}
+
+/* Headings: each chapter starts a page and names the running header. */
+h2 {
+    break-before: page;
+    string-set: chapter content();
+    font-size: 17pt;
+    color: #194998;
+    margin: 0 0 4mm 0;
+    padding-bottom: 2mm;
+    border-bottom: 1.5pt solid #194998;
+    box-shadow: 0 1.5pt 0 0 #ec202b;
+}
+h3 {
+    font-size: 12pt;
+    color: #194998;
+    margin: 6mm 0 2mm 0;
+}
+h4 {
+    font-size: 10.5pt;
+    margin: 4mm 0 1.5mm 0;
+}
+h2,
+h3,
+h4 {
+    break-after: avoid;
+}
+p,
+li {
+    orphans: 3;
+    widows: 3;
+}
+p {
+    margin: 0 0 2.4mm 0;
+}
+ul,
+ol {
+    margin: 0 0 2.4mm 0;
+    padding-left: 6mm;
+}
+li {
+    margin-bottom: 0.8mm;
+}
+a {
+    color: #0f5fa8;
+    text-decoration: none;
+}
+strong {
+    color: #111827;
+}
+em {
+    color: #374151;
+}
+hr {
+    display: none;
+}
+
+/* Inline code and code blocks: diagrams keep their alignment; only very long lines wrap. */
+code {
+    font-family: Menlo, "SF Mono", Consolas, monospace;
+    font-size: 8.4pt;
+    background: #eef2f7;
+    border-radius: 2pt;
+    padding: 0 1.2pt;
+}
+pre {
+    background: #f6f8fb;
+    border: 0.6pt solid #d5dde8;
+    border-left: 2.4pt solid #194998;
+    border-radius: 2pt;
+    padding: 2.2mm 3mm;
+    margin: 0 0 3mm 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    break-inside: avoid;
+    font-size: 7.4pt;
+}
+pre code {
+    font-size: inherit;
+    line-height: 1.36;
+    background: none;
+    padding: 0;
+}
+.nobr {
+    white-space: nowrap;
+}
+pre.long {
+    break-inside: auto;
+}
+
+/* Tables: header rows repeat on every page, rows never split, long code in cells may break. */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 0 3.5mm 0;
+    font-size: 8.4pt;
+    line-height: 1.32;
+}
+thead {
+    display: table-header-group;
+}
+tr {
+    break-inside: avoid;
+}
+th {
+    background: #194998;
+    color: #ffffff;
+    text-align: left;
+    font-weight: 600;
+    padding: 1.6mm 2mm;
+}
+td {
+    padding: 1.4mm 2mm;
+    border-bottom: 0.5pt solid #d5dde8;
+    vertical-align: top;
+}
+tbody tr:nth-child(even) td {
+    background: #f6f8fb;
+}
+td code,
+th code {
+    font-size: 7.6pt;
+    overflow-wrap: anywhere;
+}
+
+blockquote {
+    margin: 0 0 3mm 0;
+    padding: 2mm 3mm;
+    background: #fff7e0;
+    border-left: 2.4pt solid #e0a800;
+}

@@ -4,13 +4,14 @@ Day 3, 8:30 to 10:30: 90 minutes in which participants build three modules of th
 30 minutes in which the trainer discusses the work done. The design is in
 [docs/planning/module6-training-design.md](../../docs/planning/module6-training-design.md).
 
-| File                                                       | For                   | Use                                                                         |
-| ---------------------------------------------------------- | --------------------- | --------------------------------------------------------------------------- |
-| [exercise-1-development.md](exercise-1-development.md)     | Participants, printed | Development: `dswd_fds_session`, a register of FDS sessions (40 min)        |
-| [exercise-2-extending.md](exercise-2-extending.md)         | Participants, printed | Extending: `dswd_listahanan`, a unique Listahanan ID on households (30 min) |
-| [exercise-3-customization.md](exercise-3-customization.md) | Participants, printed | Customization: `dswd_id_types`, PhilSys as an OpenSPP ID type (15 min)      |
-| [runbook.md](runbook.md)                                   | Trainer               | Run of show, checkpoints, the discussion, fallbacks                         |
-| [slides.md](slides.md)                                     | Trainer, projected    | Marp deck: door, launch, one slide per exercise, errors, push, discussion   |
+| File                                                       | For                   | Use                                                                                                                                                        |
+| ---------------------------------------------------------- | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [exercise-1-development.md](exercise-1-development.md)     | Participants, printed | Development: `dswd_fds_session`, a register of FDS sessions (40 min)                                                                                       |
+| [exercise-2-extending.md](exercise-2-extending.md)         | Participants, printed | Extending: `dswd_listahanan`, a unique Listahanan ID on households (30 min)                                                                                |
+| [exercise-3-customization.md](exercise-3-customization.md) | Participants, printed | Customization: `dswd_id_types`, PhilSys as an OpenSPP ID type (15 min)                                                                                     |
+| [runbook.md](runbook.md)                                   | Trainer               | Run of show, checkpoints, the discussion, fallbacks                                                                                                        |
+| [slides.pptx](slides.pptx)                                 | Trainer, projected    | The deck to present: PowerPoint, built from `slides.md` with `uv run python scripts/slides_pptx/build.py`; edit `slides.md` and rebuild, never the `.pptx` |
+| [slides.md](slides.md)                                     | Trainer, projected    | Marp deck: door, launch, one slide per exercise, errors, push, discussion                                                                                  |
 
 The sheets give a specification, the Day 2 module to copy from (`dswd_asset`, `dswd_wellbeing`), the command after each
 step, what the participant should see, and hints for the lines nobody can guess. They never print a complete file.

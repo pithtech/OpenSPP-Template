@@ -177,7 +177,7 @@ every file).
 | ---------------------------------------------------------- | ------------------- | --------------------------------------------------------------------------------------- |
 | `exercise-1-development.md`, `exercise-2-extending.md`, `exercise-3-customization.md` | Participants, printed | Specification per step, the Day 2 file to copy, the command after each step, what you should see, hints, traps, stretch; no complete files |
 | `runbook.md`                                               | Trainer             | Run of show, checkpoints, the discussion script, fallbacks                              |
-| `slides.md`                                                | Projected           | About 8 slides: door, launch, one per exercise, checkpoints, discussion                 |
+| `slides.md`                                                | Projected           | 11 slides: door, launch, one per exercise, errors, push, discussion, after the training |
 | `README.md`                                                | Trainer             | Index and preparation                                                                    |
 | Participant guide, section 6                               | Participants        | Written after Edwin reviews the materials, as for Module 5                               |
 

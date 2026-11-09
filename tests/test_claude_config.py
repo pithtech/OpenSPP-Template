@@ -64,11 +64,12 @@ class TestContent:
             "commands/commit.md",
             "commands/pr.md",
             "hooks/post-edit-lint.py",
-            "hooks.json",
             "settings.json",
         ):
             assert (CLAUDE_DIR / rel).exists(), rel
         assert not (CLAUDE_DIR / "hooks" / "post-edit-lint.sh").exists()
+        # Claude Code does not read .claude/hooks.json; project hooks live in settings.json.
+        assert not (CLAUDE_DIR / "hooks.json").exists()
 
 
 @pytest.fixture(scope="module")
@@ -94,12 +95,15 @@ class TestSettings:
 
 
 class TestHook:
-    def test_hooks_json_runs_the_python_hook(self):
-        hooks = json.loads((CLAUDE_DIR / "hooks.json").read_text())
-        entry = hooks["hooks"]["PostToolUse"][0]
+    def test_settings_run_the_python_hook_after_edits(self, settings):
+        """Project hooks are read from the "hooks" key of .claude/settings.json (code.claude.com/docs/en/hooks)."""
+        entry = settings["hooks"]["PostToolUse"][0]
         assert entry["matcher"] == "Edit|Write"
-        assert "post-edit-lint.py" in entry["hooks"][0]["command"]
-        assert entry["hooks"][0]["command"].startswith("python ")
+        handler = entry["hooks"][0]
+        assert handler["type"] == "command"
+        assert "post-edit-lint.py" in handler["command"]
+        assert handler["command"].startswith("python ")
+        assert handler["timeout"] == 30
 
     def _run_hook(self, payload, env=None):
         full_env = dict(os.environ, CLAUDE_PROJECT_DIR=str(ROOT))

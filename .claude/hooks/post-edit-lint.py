@@ -6,7 +6,7 @@ pre-commit (ruff, ruff-format, prettier, Odoo 19 checks). Written in Python so
 it behaves the same on Windows, macOS and Linux. Never fails the edit: problems
 are printed for Claude to fix, and any tool error is swallowed.
 
-Configured in .claude/hooks.json as a PostToolUse hook.
+Configured in .claude/settings.json ("hooks" > PostToolUse), where Claude Code reads project hooks.
 """
 
 import json

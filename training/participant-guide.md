@@ -96,6 +96,10 @@ and `./odoo-project url` shows it again. On Windows, with the repository on the 
 your edits at all (the container gets no file-change events from the Windows drive); if a change does not show, use
 `restart` and `update` as on the default profile.
 
+The edit loop is the inner part of a longer path that every change takes: a branch, the loop above, a commit with the
+pre-commit hooks, a push, a pull request, CI on GitHub, a review and a merge. Section 7.4, "From a change to a merge",
+gives the whole path step by step; Module 4 shows it, and Module 6 has you do it.
+
 ---
 
 ## Module 3: Introduction to Odoo

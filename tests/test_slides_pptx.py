@@ -237,3 +237,65 @@ def test_a_slide_without_notes_fails(tmp_path):
     notes = build.parse_notes(NOTES.split("### Slide 4")[0])
     with pytest.raises(build.NotesError, match="slide 4"):
         build.build_deck(build.parse_deck(DECK), base=tmp_path, notes=notes)
+
+
+DECKS = [ROOT / "training" / f"module{n}" for n in (3, 4, 5, 6)]
+
+
+def _all_text(slide):
+    texts = []
+    for shape in slide.shapes:
+        if shape.has_text_frame:
+            texts.append(shape.text_frame.text)
+        elif shape.has_table:
+            texts.extend(cell.text for row in shape.table.rows for cell in row.cells)
+    return texts
+
+
+def _shape_text(slide, name):
+    return next((s.text_frame.text for s in slide.shapes if s.name == name and s.has_text_frame), None)
+
+
+@pytest.mark.parametrize("folder", DECKS, ids=lambda p: p.name)
+class TestRepositoryDecks:
+    """The committed PowerPoint decks: built from their slides.md, readable, and without the trainer's notes."""
+
+    def test_source_fits_at_a_readable_size(self, folder):
+        build = _load()
+        deck = build.parse_deck((folder / "slides.md").read_text(encoding="utf-8"))
+        build.build_deck(deck, base=folder)  # raises FitError on a slide that does not fit
+
+    def test_pptx_matches_its_source(self, folder):
+        build = _load()
+        deck = build.parse_deck((folder / "slides.md").read_text(encoding="utf-8"))
+        prs = pptx.Presentation(str(folder / "slides.pptx"))
+        assert len(prs.slides) == len(deck.slides), "slides.pptx is out of date: rebuild it"
+        fresh = build.build_deck(deck, base=folder)
+        for source, built, expected in zip(deck.slides, prs.slides, fresh.slides, strict=False):
+            title = _shape_text(built, "Title") or ""
+            assert title.startswith(source.title), f"slide {source.number}: {title!r} is not {source.title!r}"
+            assert (_shape_text(built, "Footer") or "") == source.footer, f"slide {source.number} footer"
+            assert _all_text(built) == _all_text(expected), f"slide {source.number} is out of date: rebuild slides.pptx"
+
+    def test_pptx_has_no_speaker_notes(self, folder):
+        prs = pptx.Presentation(str(folder / "slides.pptx"))
+        noted = [
+            n
+            for n, slide in enumerate(prs.slides, 1)
+            if slide.has_notes_slide and slide.notes_slide.notes_text_frame.text.strip()
+        ]
+        assert noted == [], f"speaker notes belong only in the trainer's private copies: slides {noted}"
+
+
+def test_a_long_title_takes_two_lines_and_pushes_the_body_down(tmp_path):
+    build = _load()
+    title = "Compliance: the job retries on a busy lock, then marks the household (3.17)"
+    deck = build.parse_deck(f"---\nmarp: true\n---\n\n## {title}\n\nA paragraph.\n\n---\n\n## Short\n\nA paragraph.\n")
+    prs = build.build_deck(deck, base=tmp_path)
+    tops = []
+    for slide in prs.slides:
+        heading = next(s for s in slide.shapes if s.name == "Title")
+        body = next(s for s in slide.shapes if s.name == "Text")
+        assert body.top >= heading.top + heading.height, "the body starts under the title"
+        tops.append(body.top)
+    assert tops[0] > tops[1]

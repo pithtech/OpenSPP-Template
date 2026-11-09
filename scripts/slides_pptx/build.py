@@ -664,9 +664,22 @@ def _draw_lead(prs_slide, slide, cover):
     _footer(prs_slide, slide, dark=True)
 
 
+TITLE_ADVANCE = 0.56  # bold Arial is wider than the body text
+TWO_LINE_TITLE_PT = 28
+
+
+def _title_geometry(slide):
+    """(size, box height, body top) for a slide's title: one line at TITLE_PT, or two lines at TWO_LINE_TITLE_PT."""
+    width = sum(len(r.text) * (MONO_ADVANCE if r.code else TITLE_ADVANCE) for r in slide.title_runs) * TITLE_PT / 72
+    if width <= BODY_W:
+        return TITLE_PT, TITLE_H, BODY_TOP
+    height = 2 * TWO_LINE_TITLE_PT * LINE / 72 + 0.05
+    return TWO_LINE_TITLE_PT, height, TITLE_TOP + height + 0.12
+
+
 def _layout(slide, base, problems):
     """The body size at which the slide fits; FitError, or a problem noted, when none does."""
-    room = BODY_BOTTOM - BODY_TOP
+    room = BODY_BOTTOM - _title_geometry(slide)[2]
     for block in slide.blocks:
         if isinstance(block, CodeBlock):
             try:
@@ -703,10 +716,11 @@ def _safe_height(block, pt, base):
 
 def _draw_content(prs_slide, slide, base, problems):
     pt = _layout(slide, base, problems)
-    _, frame = _text_box(prs_slide, MARGIN_X, TITLE_TOP, BODY_W, TITLE_H, "Title")
+    title_pt, title_h, top = _title_geometry(slide)
+    _, frame = _text_box(prs_slide, MARGIN_X, TITLE_TOP, BODY_W, title_h, "Title")
     frame.vertical_anchor = MSO_ANCHOR.MIDDLE
-    _write_runs(frame.paragraphs[0], slide.title_runs, TITLE_PT, DSWD_BLUE, bold=True)
-    top = BODY_TOP
+    _exact(frame.paragraphs[0], title_pt)
+    _write_runs(frame.paragraphs[0], slide.title_runs, title_pt, DSWD_BLUE, bold=True)
     images = [b for b in slide.blocks if isinstance(b, ImageBlock)]
     for block in slide.blocks:
         room = BODY_BOTTOM - top

@@ -622,6 +622,7 @@ An AI assistant in your terminal, inside your repository: it reads files, runs c
 | `.claude/agents/`       | Five specialists: `odoo-developer`, `code-reviewer`, `ux-expert`, `code-simplifier`, `verify-module` |
 | `.claude/commands/`     | `/implement`, `/verify-tests`, `/analyze`, `/expert-review`, `/commit`, `/pr`                        |
 | `.claude/settings.json` | Allowed commands; no edits under `upstream/`; a lint hook after every edit; no AI attribution        |
+| `docs/specs/`, ADRs     | The change you ask for, and the decisions the project has taken (guide 5.14)                         |
 
 Your repository has all of them: they came with the template.
 
@@ -647,18 +648,75 @@ _"Use OpenSPP's existing `children_count` field on the household."_
 
 ---
 
-<!-- _footer: "Guide 5.13" -->
+<!-- _footer: "Guide 5.14" -->
+
+<style scoped>table { font-size: 0.7em; } ol { font-size: 0.8em; }</style>
+
+## From a specification to a module
+
+| File                                | Holds                                        | Written by            |
+| ----------------------------------- | -------------------------------------------- | --------------------- |
+| `docs/specs/<module>.md`            | One change: need, rules, acceptance examples | You                   |
+| `docs/architecture/decisions/`      | A decision that outlives one change (ADR)    | You                   |
+| `docs/planning/research-<topic>.md` | What exists, what is missing, open questions | Claude Code; check    |
+| `docs/planning/plan-<topic>.md`     | The files, the tests first, the steps        | Claude Code; annotate |
+
+1. Write the specification and any ADR, on a branch.
+2. Research: it reads them and the OpenSPP code they name, and writes a file. Check it.
+3. Plan: it writes the plan to a file. Add your notes; it addresses them.
+4. Test first, then the code. Review, `/commit`, `/pr`.
+
+---
+
+<!-- _footer: "Guide 5.14" -->
+
+<style scoped>table { font-size: 0.72em; } p { font-size: 0.85em; }</style>
+
+## What a specification states
+
+| Kind                             | The specification states                                                                                      |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| A new module with a new model    | The model and its fields with types; which are required; who reads and who writes (the three tiers); the menu |
+| An extension of an OpenSPP model | The upstream model and view, by their names in `upstream/openspp/`; what to add; where on the view            |
+| A customization through data     | The records to create; the vocabulary namespace and codes; `noupdate` or not; what keeps the codes valid      |
+| All three                        | The 4Ps need in the users' words; the rules; acceptance examples as a table; out of scope; the ADRs it uses   |
+
+It says what and why, not which fields or files: that is the plan's job. Each acceptance example becomes a test.
+
+A rule not written down is one Claude Code will guess.
+
+---
+
+<!-- _footer: "Guide 5.14" -->
+
+<style scoped>ul, p { font-size: 0.75em; }</style>
+
+## Demo B: the specification, the research, the plan
+
+- `docs/specs/dswd_household_children.md`: current members aged 0 to 18, from the birthdate, on the household Profile page; four acceptance examples.
+- `ADR-002`: a count that depends on age is computed when read, not stored. A child turns 19 with no write to the database.
+
+_"Read docs/specs/dswd_household_children.md and the ADRs it links, then the OpenSPP models they name in upstream/openspp/. Write docs/planning/research-household-children.md: what exists, what is missing, your questions. Do not write code."_
+
+_"Write the plan to docs/planning/plan-household-children.md: the files, the tests first, the steps."_
+
+`> NOTE: Add a test for a member with no birthdate.` Then: _"Address my notes in the plan."_
+
+---
+
+<!-- _footer: "Guide 5.14" -->
 
 <style scoped>ul, p { font-size: 0.75em; } table { font-size: 0.7em; }</style>
 
-## Demo B: a change, test first
+## Demo B: test first, then the code
 
-_"Create a module dswd_household_children that shows on each household the number of current members aged 0 to 18. Write the failing test first, run it, then the code."_
+_"Carry out the plan, test first: write the failing test, run it, then the code."_
 
 | Test                        | Household members                     | Expects            |
 | --------------------------- | ------------------------------------- | ------------------ |
 | Counts current children     | aged 5, 12, 17 (membership ended), 30 | 2                  |
 | 0 to 18 inclusive           | aged 18 and 19                        | 1                  |
+| No birthdate, not counted   | aged 7, and one with no birthdate     | 1                  |
 | Shown on the household form | the Profile page                      | the field is there |
 
 `./odoo-project test dswd_household_children`: red, then green. The lint hook runs after every edit.
@@ -669,7 +727,7 @@ _"Create a module dswd_household_children that shows on each household the numbe
 
 <!-- _footer: "Guide 5.13" -->
 
-<style scoped>ol { font-size: 0.72em; }</style>
+<style scoped>ol { font-size: 0.68em; }</style>
 
 ## Review what it wrote
 
@@ -681,6 +739,7 @@ _"Create a module dswd_household_children that shows on each household the numbe
 6. Did it run the module's tests, and did you read the summary line yourself?
 7. Nothing secret or personal in the prompt or the diff: no beneficiary data, passwords, tokens or keys.
 8. Commit messages and pull requests carry no AI attribution in this project (`settings.json` turns it off; `/commit` and `/pr` repeat it).
+9. When the change has a specification: does the code do what each of its acceptance examples says?
 
 ---
 
@@ -709,7 +768,7 @@ A change to OpenSPP is a pull request to OpenSPP, not an edit here.
 ## Demo C: commit, pull request, CI
 
 1. `/commit`: a conventional commit message; the pre-commit hooks run.
-2. `/pr`: pushes the branch, opens the pull request and fills its template.
+2. `/pr`: pushes the branch, opens the pull request and fills its template; the body links the specification and ADR-002.
 3. No AI attribution: `settings.json` has `includeCoAuthoredBy: false`, and `/commit` and `/pr` say so.
 4. CI on a pull request prepared yesterday evening: pre-commit, image build, module tests.
 5. Review and merge, as for a change you wrote yourself (guide 7.4).
@@ -721,6 +780,7 @@ A change to OpenSPP is a pull request to OpenSPP, not an edit here.
 ## Where to read more
 
 - Guide 5.13: what it reads, the test-first loop, the review checklist, safe use, commit and pull request.
+- Guide 5.14 and `docs/specs/README.md`: the specification template. Try the flow yourself on `docs/specs/dswd_household_children.md`.
 - `docs/guides/claude-code-for-developers.md` in your repository: every file under `.claude/`, and your personal settings in `.claude/settings.local.json`.
 - `CLAUDE.md` in your repository: read it once yourself. It is what Claude Code reads first.
 

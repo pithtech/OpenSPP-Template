@@ -196,7 +196,7 @@ pre-commit run prettier --files <changed_files>     # XML/MD/JSON format
 
 | Command          | When                | Purpose                                                 |
 | ---------------- | ------------------- | ------------------------------------------------------- |
-| `/implement`     | Implementing        | Full TDD workflow with subagents and expert review      |
+| `/implement`     | Implementing        | Carry out the plan with subagents and expert review     |
 | `/verify-tests`  | After subagent work | Check test integrity (catch removed tests)              |
 | `/analyze`       | Debugging           | Deep analysis mode - understand before implementing     |
 | `/expert-review` | Review              | Parallel code review from multiple perspectives         |

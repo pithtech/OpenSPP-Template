@@ -28,7 +28,8 @@ How Claude Code is configured for this project and how to get the most out of it
 ## Recommended Workflow
 
 1. **Start with Plan mode** (shift+tab twice) for non-trivial features
-2. **Use `/implement`** for TDD workflow with subagents
+2. **Use `/implement`** to carry out the plan with subagents (it writes tests after the code; ask for the failing
+   test first if you want test-first)
 3. **Use `/verify-tests`** after subagent work to catch removed tests
 4. **Use `/commit`** for conventional commit format
 5. **Use `/pr`** for GitHub PR creation

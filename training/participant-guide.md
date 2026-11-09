@@ -788,8 +788,8 @@ access_dswd_asset_manager,dswd.asset manager,model_dswd_asset,group_asset_manage
   `No matching record found for external id`.
 - `groups.xml` is listed in the manifest **before** the access file, because the access rows refer to the groups.
 
-After `./odoo-project update`, the list opens. Register the laptop in front of you. Then set a warranty end date earlier
-than the purchase date and read the dialog: that sentence is in the Python file.
+After `./odoo-project update`, the list opens. Register the laptop in front of you. Then group by Type. Then set a
+warranty end date earlier than the purchase date and read the dialog: that sentence is in the Python file.
 
 ### 3.12 Record rules: who sees which rows
 
@@ -1431,15 +1431,6 @@ education level, ID type and more. The production 4Ps modules ship about 70 of t
 alone: client status (32 statuses in 9 categories), member status, set groups, indigenous peoples groups (394 codes),
 well-being level, and so on, all under `urn:dswd:4ps:...`.
 
-Why a vocabulary and not a `Selection`:
-
-- a code list changes without a release: Settings > Vocabularies, no code change;
-- deployments differ: a region can hide codes with a deployment profile;
-- every code has a URI other systems can match;
-- 32 client statuses and 394 indigenous peoples groups do not belong in Python.
-
-Static selections are for internal workflow states only.
-
 ```xml
 <odoo noupdate="1">
     <record id="vocab_well_being_level" model="spp.vocabulary">
@@ -1482,6 +1473,15 @@ Static selections are for internal workflow states only.
 
 After `./odoo-project update`, Settings > Vocabularies > Manage Vocabularies lists "4Ps Well-Being Level" with three
 System codes.
+
+Why a vocabulary and not a `Selection`:
+
+- a code list changes without a release: Settings > Vocabularies, no code change;
+- deployments differ: a region can hide codes with a deployment profile;
+- every code has a URI other systems can match;
+- 32 client statuses and 394 indigenous peoples groups do not belong in Python.
+
+Static selections are for internal workflow states only.
 
 ### 4.5 The field on the household
 
@@ -2195,7 +2195,9 @@ and what you should see. They do not print the finished files: writing them is t
 
 Log in and wait for `0 failed, 0 error(s) of 5 tests`. The first test run of the day is the slowest; doing it before the
 session keeps it out of the exercises. If your laptop cannot start the stack, sit with a pair whose laptop can: every
-exercise is done in pairs, one person typing and one reading the sheet and the output, swapping at each exercise.
+exercise is done in pairs, one person typing and one reading the sheet and the output, swapping at each exercise. When
+you are stuck, ask your pair, then your row, then a helper (a participant the trainer has named for your row), then the
+trainer.
 
 Then create the branch for the morning's work:
 

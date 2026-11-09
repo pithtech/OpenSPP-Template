@@ -309,7 +309,7 @@ against the file). The slides' footers are "Guide 5.13", and "Guide 5.14" for th
      Then: "Address my notes in the plan." Show the revised test list. "That example is in the specification. A plan
      that missed it is why you read the plan."
 
-   - **Test first, then the code** (13 min; slide 42).
+   - **Test first, then the code** (11 min; slide 42).
 
      > Carry out the plan, test first: write the failing test, run it, then the code.
 

@@ -9,6 +9,9 @@
 > the production checkout on the trainer's screen.
 > **Slot**: Day 2, 1:00 to 5:00 pm, after Modules 3 and 4. About 87 participants. No user-interface demonstration:
 > the trainer shows code in an editor only.
+> **Claude Code hour** (2026-11-09): 3:55 to 4:55 is a Claude Code demo, paid for by trimming the tours. Its design,
+> objectives and checklist are in [module5-claude-code-design.md](module5-claude-code-design.md); the run of show in
+> section 4 is its section 3.
 
 ---
 
@@ -20,7 +23,7 @@
    editor, at the file each point is about.
 2. **Read every module through Modules 3 and 4.** The morning taught the parts of a module (manifest, models, fields,
    views, security, tests, ORM, `_inherit`, inherited views, vocabularies), and the guide's Reference sections cover
-   wizards, record rules, jobs and migrations, which a ten-minute primer at 1:15 introduces with hooks. The afternoon
+   wizards, record rules, jobs and migrations, which a five-minute primer at 1:13 introduces with hooks. The afternoon
    uses exactly those words. A fixed strip of those categories appears on every module card and in the corner of
    every slide.
 3. **Organised by the 4Ps business process, not alphabetically.** Where they are (area), who they are (registry), who
@@ -46,6 +49,8 @@ By 5:00 a participant can:
 4. Recognise the production traps (context skip flags, `x_4ps_` fields, raw SQL in payroll and compliance, `noupdate`
    data and install hooks, system parameters, approval state) and say why "simplifying" them is dangerous.
 5. Find a module not discussed today in the module catalogue and read its card.
+6. Use Claude Code to read and change code in their repository, and review what it wrote before trusting it (the
+   Claude Code hour; its five objectives are in [module5-claude-code-design.md](module5-claude-code-design.md) section 2).
 
 ## 3. The module card
 
@@ -78,30 +83,32 @@ needs no running stack.
 
 ## 4. Run of show
 
+From [module5-claude-code-design.md](module5-claude-code-design.md) section 3 (Edwin's decision, 2026-11-09): the hour
+for Claude Code comes from the tours, and the triage moves before it.
+
 | Time | Block | Tier | Minutes |
 | --- | --- | --- | --- |
 | 1:00 | Opener: objectives, how to read a card, warm-up ticket with category cards | | 5 |
-| 1:05 | The map: 66 modules on the poster, layers, the two-instance split, bundles (`starter`, `instance1`, `instance2`), "26 cards today" | | 10 |
-| 1:15 | Primer: five slides of one sentence and one production example each: record rules (3.12), jobs and scheduled actions (3.17), migrations and `noupdate` (4.13), hooks (`post_init_hook`, `_register_hook`; 5.10), wizards (3.10) | | 10 |
-| 1:25 | Foundation: area (8), registry (14), roles (9), approvals (7), period (2) | Deep | 40 |
-| 2:05 | Checkpoint 1: three quick tickets, standing vote | | 5 |
-| 2:10 | Change requests: upstream architecture, 4Ps types, approvals, documents, limits, batching and cancellation, access mixin, code moments | Deep | 40 |
-| 2:50 | Break | | 15 |
-| 3:05 | Compliance with period (18) and FDS operations (12) | Medium | 30 |
-| 3:35 | Payroll family: payroll (12), catch-up (3), retro (5) | Tour | 20 |
-| 3:55 | Checkpoint 2 | | 5 |
-| 4:00 | Casework: SWDI (6), CMS (7), the bridge and `swdi_cms` (7) | Medium | 20 |
-| 4:20 | Integration: API authentication and scopes, split API modules, portal APIs, outbound events, NEWGRS, ODS | Tour | 12 |
-| 4:32 | Paper ticket triage: eight tickets in pairs, report-back | | 18 |
-| 4:50 | Closing: how to approach a ticket, the "not today" list, the catalogue | | 7 |
-| 4:57 | Buffer | | 3 |
+| 1:05 | The map: 66 modules on the poster, layers, the two-instance split, bundles (`starter`, `instance1`, `instance2`), "26 cards today" | | 8 |
+| 1:13 | Primer: five slides of one sentence and one production example each, read aloud: record rules (3.12), jobs and scheduled actions (3.17), migrations and `noupdate` (4.13), hooks (`post_init_hook`, `_register_hook`; 5.10), wizards (3.10) | | 5 |
+| 1:18 | Foundation: area (7), registry (12), roles (8), approvals (6), period (2) | Deep | 35 |
+| 1:53 | Checkpoint 1: three quick tickets, standing vote | | 5 |
+| 1:58 | Change requests: upstream architecture, 4Ps types, approvals, documents, limits, batching and cancellation, access mixin, code moments | Deep | 35 |
+| 2:33 | Break | | 15 |
+| 2:48 | Compliance with period (15) and FDS operations (10) | Medium | 25 |
+| 3:13 | Payroll family: the point of no return and the sealed snapshot (card 13), with the snapshot question from checkpoint set 2; cards 14 and 15 by pointer | Tour | 10 |
+| 3:23 | Casework: SWDI levels (card 16) and the trigger-to-case job (card 18); CMS and the bridge in one line each | Medium | 12 |
+| 3:35 | Integration: one slide, the API's rules (card 20); "the rest is on cards 21 to 26" | Tour | 5 |
+| 3:40 | Paper ticket triage: eight tickets in pairs, report-back | | 15 |
+| 3:55 | Claude Code in development (demo; [design](module5-claude-code-design.md) section 4) | | 60 |
+| 4:55 | Closing: how to approach a ticket, the "not today" list, the catalogue | | 5 |
 
-**Drop order if late**: integration to 5 minutes (poster only); checkpoint 2; payroll to 12 minutes; casework to 15
-minutes. **Never dropped**: the map, foundation, change requests, the triage and the closing.
+Checkpoint 2 and the buffer are dropped. **Drop order if late**: casework to 6 minutes, then integration to the poster
+only. **Never dropped**: the map, foundation, change requests, the triage, the Claude Code hour and the closing.
 
 **Engagement without hands-on.** Before each card's back is revealed, a one-line symptom is read and rows hold up a
 category card (M model, V view, D data or vocabulary, S security, W wizard, J job, A API, T test). Predict
-questions in the morning style. Two standing checkpoints. Deep blocks before the break, while energy is highest. No
+questions in the morning style. One standing checkpoint. Deep blocks before the break, while energy is highest. No
 block longer than 40 minutes without a prompt. Pairs for the triage, technicians next to developers.
 
 ## 5. The modules and their talking points
@@ -190,7 +197,7 @@ the code won. The complete list of corrections to the earlier survey:
     one feature. Auth also provisions users on first sign-in, copies the Keycloak area claims, enforces SSO-only login
     and strips technical error details.
 
-## 6. The paper ticket triage (18 minutes)
+## 6. The paper ticket triage (15 minutes)
 
 Eight tickets in pairs, each answered with: module, category card, the first file to open. The tickets are fabricated
 training scenarios, labelled as such on the sheet. Each answer was checked against the code; the key in
@@ -239,7 +246,7 @@ Built in `training/module5/` (see its README):
 
 | Material | File |
 | --- | --- |
-| Deck, 40 slides, excerpts copied from the cards | `slides.md` |
+| Deck, 45 slides, excerpts copied from the cards; slides 35 to 43 are the Claude Code hour | `slides.md` |
 | Trainer runbook: cut-offs, drop order, code moments in tab order, prompts per card | `runbook.md` |
 | 26 module cards and the index of all 66 modules | `module-cards.md` |
 | Module map poster (A1) | `module-map.md` |
@@ -285,6 +292,10 @@ Taken by Edwin on 2026-11-09:
    `noupdate`, hooks, wizards), paid for by shortening the opener to 5 minutes and the map to 10. Foundation still
    starts at 1:25.
 9. **Triage**: tickets 2, 4 and 6 replaced by three unseen scenarios (section 6), each checked against `ad98dac9`.
+10. **Claude Code hour**: DSWD asked for a one-hour lecture and demo of Claude Code in development. It runs 3:55 to 4:55,
+    after the triage, paid for by trimming the tours, the primer and the deep blocks, and by dropping checkpoint 2 and
+    the buffer (section 4). Demo only, in Edwin's own repository created from the template; no production code. See
+    [module5-claude-code-design.md](module5-claude-code-design.md).
 
 ## 11. Production documentation found stale, and other observations
 

@@ -1,10 +1,13 @@
 # Module 5 Checkpoint Bank
 
-Trainer copy. Two standing checkpoints of five minutes. Read the symptom, count to three, pairs hold up a category card,
-then one pair names the module. Three items per checkpoint; the spares replace an item the class has already seen. Every
-symptom comes from a card's "a ticket usually lands in" list, checked at production commit `ad98dac9`.
+Trainer copy. One standing checkpoint of five minutes, after foundation. Read the symptom, count to three, pairs hold up
+a category card, then one pair names the module. Three items; the spares replace an item the class has already seen.
+Every symptom comes from a card's "a ticket usually lands in" list, checked at production commit `ad98dac9`.
 
-## Set 1: after foundation (2:05)
+Checkpoint 2 left the run of show to make room for the Claude Code hour. Its payroll item and the follow-up are now
+asked in the payroll tour (runbook block 8); the rest of set 2 is kept as spares.
+
+## Set 1: after foundation (1:53)
 
 | Symptom                                                                                   | Card answer | Module and first file                                                     |
 | ----------------------------------------------------------------------------------------- | ----------- | ------------------------------------------------------------------------- |
@@ -17,7 +20,7 @@ symptom comes from a card's "a ticket usually lands in" list, checked at product
 Point to make after set 1: the barangay item (and the spare about the approver, if used) ends in a migration, because
 the data is `noupdate`.
 
-## Set 2: after payroll (3:55)
+## Set 2: spares (no longer a checkpoint)
 
 | Symptom                                                                       | Card answer | Module and first file                                                                             |
 | ----------------------------------------------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------- |
@@ -27,8 +30,8 @@ the data is `noupdate`.
 | Spare: "The document type we need is not in the dropdown."                    | D           | `dswd_4ps_supporting_docs_data`, `data/vocabulary_canonical_docs.xml` (card 9)                    |
 | Spare: "The run has been on Running Entitlement for hours."                   | J           | `dswd_4ps_payroll`, `data/queue_data.xml` and the job queue (card 13)                             |
 
-Point to make after set 2: the payroll item is not a bug. "Sometimes the answer to a ticket is: this is how it must
-work, and here is why."
+Point to make with the payroll item (asked in the payroll tour): it is not a bug. "Sometimes the answer to a ticket is:
+this is how it must work, and here is why."
 
 Follow-up to the payroll item (objective 4), one pair answers aloud: "A colleague wants to let `write()` change the name
 on the snapshot to fix this. What breaks?" Answer: the snapshot is frozen to preserve the audit, and every later

@@ -11,8 +11,8 @@ Module 4 built `dswd_wellbeing`. **You copy from** `dswd_wellbeing` in your repo
 
 **Done when** you can show all three:
 
-1. `.\odoo-project install dswd_listahanan` ends with `Install complete. Restarting Odoo...`
-2. `.\odoo-project test dswd_listahanan` ends with `0 failed, 0 error(s) of 3 tests`
+1. `.\odoo-project install dswd_listahanan` prints `Install complete. Restarting Odoo...`
+2. `.\odoo-project test dswd_listahanan` prints `0 failed, 0 error(s) of 3 tests`
 3. The household's Profile page shows a **Listahanan** section, and a second household with the same ID is refused.
 
 ## Step 1: the folder (3 min)
@@ -33,16 +33,16 @@ This module has no vocabulary, so the `data` folder goes. Fix `tests/__init__.py
 | `depends` | `spp_registry` only: no vocabulary this time               |
 | `data`    | the access file and the views file (the data file is gone) |
 
-The access file stays as it is: header only. You add a field to an existing model, not a new model, so there is no new
-access row.
+Rewrite `readme/DESCRIPTION.md` in two sentences of your own. The access file stays as it is: header only. You add a
+field to an existing model, not a new model, so there is no new access row.
 
 ## Step 3: the field (8 min)
 
 `models/res_partner.py` keeps `_inherit = "res.partner"` and gets one field instead of the well-being level:
 
-| Field                | Type | Label         | Notes                                                                                 |
-| -------------------- | ---- | ------------- | ------------------------------------------------------------------------------------- |
-| `dswd_listahanan_id` | Char | Listahanan ID | `index=True` (it is searched); `copy=False` (a duplicated household must not keep it) |
+| Field                | Type | Label         | Notes                                                  |
+| -------------------- | ---- | ------------- | ------------------------------------------------------ |
+| `dswd_listahanan_id` | Char | Listahanan ID | `copy=False` (a duplicated household must not keep it) |
 
 Then the rule: no two households may have the same Listahanan ID. Here the right tool is a **database constraint**, not
 a Python check: the database refuses the duplicate even if two users save at the same moment. Participant guide 3.8
@@ -117,6 +117,8 @@ git commit -m "feat(listahanan): add the Listahanan household ID"
 
 `git add dswd_listahanan` adds this module's folder only. The pre-commit hooks run; if one changes a file, run `git add`
 again and commit again.
+
+At 9:55, whatever step you are on, commit what works, then push and open the pull request: exercise 3, step 7.
 
 ## If something goes wrong
 

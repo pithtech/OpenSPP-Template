@@ -302,7 +302,9 @@ Every field type, related and computed fields in depth, defaults, attributes and
 
 The model needs two import lines to be seen: `from . import dswd_asset` in `models/__init__.py` and
 `from . import models` in `__init__.py`. Forgetting either raises no error; the model is simply absent. After
-`./odoo-project update`, Settings > Technical > Fields, searched by model `dswd.asset`, lists the columns.
+`./odoo-project update`, Settings > Technical > Fields, searched by model `dswd.asset`, lists the columns: fourteen of
+them, the eight you wrote and six Odoo adds to every table (`id`, `display_name`, who and when created and last
+updated).
 
 The output of that `update`, in the same terminal, also says:
 
@@ -774,7 +776,9 @@ access_dswd_asset_manager,dswd.asset manager,model_dswd_asset,group_asset_manage
 - A privilege and a category are what Odoo 19 shows on the user form, under Settings > Users, so an administrator can
   assign a tier with a dropdown.
 - The last record adds a line to a group that another module owns, `spp_security.group_spp_admin`: whoever is an OpenSPP
-  admin is an asset manager. That is why `admin` can open the app without extra setup.
+  admin is an asset manager, without extra setup. (`admin` could open the list even without it, because `admin` is in
+  `base.group_system` and the first access row gives that group every right; the link is what makes `admin` a manager,
+  so it also sees the officer-only button of step 5.)
 - The access file: one row per group and model. The `base.group_system` row comes first, always. `model_dswd_asset` is
   `model_` plus `_name` with dots turned into underscores; a typo there fails at install with
   `No matching record found for external id`.
@@ -1409,6 +1413,11 @@ dswd_wellbeing/
 └── readme/DESCRIPTION.md                  what the module is for
 ```
 
+The build starts with a manifest like Module 3's (3.6): `"depends": ["spp_registry", "spp_vocabulary"]` and, at first,
+only the access file in `data`. The later steps add `data/vocabulary_well_being_level.xml` and then
+`views/res_partner_views.xml` to `data`. `"application": False` keeps the module behind the Apps filter: remove the
+filter to find it.
+
 ### 4.4 Vocabularies: a code list as data
 
 OpenSPP's `spp_vocabulary` module stores code lists in two models: `spp.vocabulary`, a named list with a globally unique
@@ -1503,6 +1512,7 @@ class ResPartner(models.Model):
 - The `domain` keeps the dropdown to the three codes. **A domain only filters the dropdown**: a write from code, an
   import or the API can store any code. The constraint is the real guard.
 - `ondelete="restrict"`: a code in use cannot be deleted.
+- This is the finished file. The session builds the field first; the constraint comes last, written test first (4.10).
 
 After `./odoo-project update` nothing changes on screen; the field exists in Settings > Technical > Fields (search
 `dswd_`). A field without a view is invisible, not broken.
@@ -1662,20 +1672,27 @@ $ ./odoo-project test dswd_wellbeing
 ========== TEST RESULTS ==========
 0 failed, 0 error(s) of 5 tests
 Passed: 5 | Failed: 0 | Errors: 0
+
+Full log: .../odoo-test-logs/dswd_wellbeing_unittest_<date>_<time>.log
 ```
+
+The `Full log:` line names the whole log; open it when the summary is not `0 failed`.
 
 Green tests on your laptop are where a change starts its way to `main`: a branch, a commit, a pull request, CI on
 GitHub, a review, a merge. Section 7.4 gives the whole path.
 
 ### 4.11 The five mistakes of an extension
 
-| Mistake                                                           | Symptom                                                                                   | One-line diagnostic                                                                                                                       |
-| ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| Module not in Apps (folder typo, no manifest, list not refreshed) | search finds nothing                                                                      | remove the "Apps" filter, developer mode on, Update Apps List; the `install` output says `invalid module names, ignored`                  |
-| Data file written but not in manifest `data`                      | update clean, UI unchanged                                                                | `grep vocabulary_ dswd_wellbeing/__manifest__.py` (PowerShell: `Select-String -Path dswd_wellbeing\__manifest__.py -Pattern vocabulary_`) |
-| `restart` instead of `update`, or edited `noupdate` data          | change never shows                                                                        | new field, view or data: `update`; changed `noupdate` record: a fresh database (`stop -v -y`), or a migration (4.4)                       |
-| Wrong XPath anchor (`group_tag_section`, `@class=`)               | `Element '<xpath ...>' cannot be located in parent view`                                  | search `name="group_` in `upstream/openspp/spp_registry/views/individual_views.xml` (4.7)                                                 |
-| Import missing in `models/__init__.py`                            | no error, field absent; or `Field "..." does not exist in model` once a view refers to it | Settings > Technical > Fields, search `dswd_`                                                                                             |
+| Mistake                                                  | Symptom                                                                                   | One-line diagnostic                                                                                                                       |
+| -------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Data file written but not in manifest `data`             | update clean, UI unchanged                                                                | `grep vocabulary_ dswd_wellbeing/__manifest__.py` (PowerShell: `Select-String -Path dswd_wellbeing\__manifest__.py -Pattern vocabulary_`) |
+| Invalid value in a data file (`domain`)                  | `ParseError` in the `update` output, the registry fails to load                           | the field's definition upstream: the `domain` selection in `upstream/openspp/spp_vocabulary/models/vocabulary.py` (4.4)                   |
+| Import missing in `models/__init__.py`                   | no error, field absent; or `Field "..." does not exist in model` once a view refers to it | Settings > Technical > Fields, search `dswd_`                                                                                             |
+| Wrong XPath anchor (`group_tag_section`, `@class=`)      | `Element '<xpath ...>' cannot be located in parent view`                                  | search `name="group_` in `upstream/openspp/spp_registry/views/individual_views.xml` (4.7)                                                 |
+| `restart` instead of `update`, or edited `noupdate` data | change never shows                                                                        | new field, view or data: `update`; changed `noupdate` record: a fresh database (`stop -v -y`), or a migration (4.4)                       |
+
+A module that does not appear in Apps at all (folder typo, no manifest, list not refreshed): remove the "Apps" filter,
+turn developer mode on, click Update Apps List; the `install` output says `invalid module names, ignored`.
 
 Three real log excerpts, as the Module 4 drill uses them:
 
@@ -1784,10 +1801,10 @@ session; read it before your first change to a `dswd_4ps_*` module.
 
 ### 5.2 How to read a production module
 
-The session opens with a short primer on five things the production modules use on almost every card and that Modules 3
-and 4 left to the Reference sections: record rules (3.12), jobs and scheduled actions (3.17), migrations and `noupdate`
-data (4.13, 4.4), hooks such as `post_init_hook` and `_register_hook` (5.10), and wizards (3.10). The glossary (7.6) has
-a line on each.
+After the map (5.3), the session gives a short primer on five things the production modules use on almost every card and
+that Modules 3 and 4 left to the Reference sections: record rules (3.12), jobs and scheduled actions (3.17), migrations
+and `noupdate` data (4.13, 4.4), hooks such as `post_init_hook` and `_register_hook` (5.10), and wizards (3.10). The
+glossary (7.6) has a line on each.
 
 Each card in the catalogue has the same parts:
 
@@ -1873,10 +1890,12 @@ so every change ships a migration: 20 so far.
 several groups, any of which may approve; it replaces two upstream constraints without calling `super()`, so a check
 upstream adds later does not run here. The second is data only: 21 approval definitions, 19 linked to 6 change-request
 types and chosen by CEL conditions on the status transition. A transition no definition matches approves on submit.
+Reinstate Household keeps a catch-all definition, so every reinstatement needs approval; Change Address has no linked
+definition, so it approves on submit.
 
 **`dswd_4ps_period`** (card 7): one compliance period per month, and the Philippine working-day calendar. It fails loud:
 a year not marked Seeded raises an error rather than give a deadline that is too early. Each December an administrator
-enters next year's holidays.
+enters next year's holidays and marks the year Seeded.
 
 ### 5.5 Change requests: the Beneficiary Update System
 
@@ -1944,8 +1963,8 @@ reuses the regular run.
 - **`dswd_4ps_swdi_cms`** (card 18): seven triggers, each a data record, turn assessment results into cases. Approving
   an assessment queues an event; a job creates the case and retries after 5 minutes, 15 minutes and 1 hour. A failed
   event stays as a row in state `failed`, with a Retry action.
-- **The bridge** (card 19): the registry instance is the master. Casework looks households up and imports them; case
-  events flow back through jobs.
+- **The bridge** (card 19): the registry instance is the master. Casework looks households up and imports them
+  synchronously, waiting at most 5 seconds; case events flow back through jobs.
 
 ### 5.9 Integration
 
@@ -2011,6 +2030,9 @@ A worked example. "The list of reasons for a grantee change needs 'working abroa
 enough for a fresh database; an existing database also needs a migration that creates the code, and a version bump
 (4.13). Then a test that the code exists. One line of XML; three files for a release.
 
+In the session you practise this in pairs on eight training tickets (the triage sheet): for each, the module, the
+category card and the first file. The answers are discussed at the end of the triage.
+
 ### 5.12 Not today
 
 The modules on no card are in the catalogue index, for the post-training sessions: registry tools (`registry_import`,
@@ -2063,7 +2085,7 @@ would take an installed module's folder away from under it.)
 | --- | ------------- | ------------------ | --------------------------------------------------------------------- | ---------------- | ---------------------------------------------- | ------ |
 | 1   | Development   | `dswd_fds_session` | A register of Family Development Sessions held in each barangay       | `dswd_asset`     | `training/module6/exercise-1-development.md`   | 40 min |
 | 2   | Extending     | `dswd_listahanan`  | A Listahanan ID on every household, never shared by two households    | `dswd_wellbeing` | `training/module6/exercise-2-extending.md`     | 30 min |
-| 3   | Customization | `dswd_id_types`    | PhilSys as an ID type in OpenSPP, with a check of the number's format | `dswd_wellbeing` | `training/module6/exercise-3-customization.md` | 20 min |
+| 3   | Customization | `dswd_id_types`    | PhilSys as an ID type in OpenSPP, with a check of the number's format | `dswd_wellbeing` | `training/module6/exercise-3-customization.md` | 15 min |
 
 What each one practises, and where this guide explains it:
 
@@ -2082,25 +2104,31 @@ If the session ends before you finish exercise 3, finish it afterwards: the shee
 
 For every exercise:
 
-1. `.\odoo-project install <module>` ends with `Install complete. Restarting Odoo...`
-2. `.\odoo-project test <module>` ends with `0 failed`
+1. `.\odoo-project install <module>` prints `Install complete. Restarting Odoo...`
+2. `.\odoo-project test <module>` prints `0 failed`
 3. You can show the result on screen
 
-Read every command's output to the end. If it does not end with the "complete" line, the command failed, and the browser
+Read every command's output to the end. If it does not print the "complete" line, the command failed, and the browser
 still shows the old screens: a failed `install` or `update` leaves the previous version of the server running.
 
-Then commit the exercise (7.4, steps 8 and 9): `git add` the module's files by name, `git status`, and
-`git commit -m "feat(fds): register FDS sessions"` (or `feat(listahanan): ...`, `feat(id-types): ...`). The hooks run;
-if one changes a file, add it and commit again.
+Then commit the exercise (7.4, steps 8 and 9): `git add` the module's folder (`git add dswd_fds_session`), `git status`,
+and `git commit -m "feat(fds): register FDS sessions"` (or `feat(listahanan): ...`, `feat(id-types): ...`). Adding the
+folder is the one exception to 7.4's "add files by name": a new module's folder holds only that module's files, and
+`git status` shows them before the commit. The hooks run; if one changes a file, add it and commit again.
 
-At the end of the session, push the branch and open a pull request (7.4, steps 10 and 11):
+At 9:55, whatever exercise you are on, commit what works, then push the branch and open a pull request (7.4, steps 10
+and 11):
 
 ```powershell
 git push -u origin module6
 ```
 
 CI starts on GitHub. Its first run builds the image, so it finishes after the session; check it later in the pull
-request's **Checks** tab and, when it is green, merge it (steps 12 to 15). A review is not required for this exercise.
+request's **Checks** tab and, when it is green, merge it, delete the branch, then `git switch main`, `git pull`,
+`git branch -d module6` (steps 12 to 15). A review is not required for this exercise.
+
+If you finish an exercise after the session, commit it and run `git push` again: the pull request updates itself and CI
+runs again.
 
 ### 6.5 When something goes wrong
 
@@ -2225,7 +2253,10 @@ pull request updates itself and CI runs again. Never merge red.
 file in the manifest? Is nothing edited under `upstream/openspp/`? Do names follow 7.1? No passwords or keys? The
 reviewer comments on lines in the **Files changed** tab and approves when satisfied; the author answers by pushing new
 commits. In your own repository, add the reviewer under **Settings > Collaborators**. A project can also protect `main`
-(**Settings > Branches**): merges only through a pull request, only with green checks, only after an approval.
+(**Settings > Branches**): merges only through a pull request, only with green checks, only after an approval. When an
+assistant such as Claude Code wrote the change, you are its first reviewer: read the diff before you run anything (is
+the record in the right file and vocabulary, is every file still in the manifest, does the test assert something that
+could fail?), run the tests, then keep or discard it. The tool types; you decide.
 
 **Merge, then sync.** **Merge pull request** puts the change on `main` on GitHub; delete the branch there. Your laptop
 does not know yet: step 15 brings it up to date. If the merge changed a module installed on your stack, run

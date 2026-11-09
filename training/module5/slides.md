@@ -22,17 +22,23 @@ Edwin Gonzales, OpenSPP
 
 ---
 
+<!-- _footer: "Guide 5.1" -->
+
+<style scoped>ol, p { font-size: 0.85em; }</style>
+
 ## By five you can
 
-1. Place any `dswd_4ps_*` module on the map: its layer and its instance.
-2. Given a 4Ps event, name the module that handles it and the `spp_*` module it extends.
+1. Place any `dswd_4ps_*` module on the map: what part of the 4Ps process it serves and which instance it installs on.
+2. Given a 4Ps event (a grantee changes, a school attendance form arrives, a payroll run, an SWDI assessment), name the module that handles it and the `spp_*` module it extends.
 3. Given a ticket, name the module and the part to open first.
-4. Recognise the production traps and say why "simplifying" them is dangerous.
+4. Recognise the production traps (context keys that skip checks, `x_4ps_` fields, raw SQL, `noupdate` data and install hooks, system parameters, approval state) and say why "simplifying" them is dangerous.
 5. Find any module in the catalogue and read its card.
 
 A discussion of modules: we read the code, at the file each point is about.
 
 ---
+
+<!-- _footer: "Guide 5.2 · Catalogue: How to read a card" -->
 
 ## How to read a card
 
@@ -43,12 +49,13 @@ A discussion of modules: we read the code, at the file each point is about.
 | The strip                 | the twelve parts of a module from this morning; ■ = notable |
 | Important points          | what changes how you work on it                             |
 | A ticket usually lands in | files, each with a symptom                                  |
-| Code moment               | the file we open now                                        |
+| Code moment, excerpt      | the file we open now, and the lines shown                   |
 
-The strip: Manifest 3.6 · Models 3.7/4.6 · Fields 3.8 · Views 3.9/4.7-4.8 · Wizards 3.10 · Security 3.11-3.12/4.9 ·
-Tests 3.13/4.10 · ORM 3.15 · Jobs 3.17 · Reports 3.18 · Vocabularies 4.4 · Migrations 4.13
+The strip: Manifest 3.6 · Models 3.7/4.6 · Fields 3.8 · Views 3.9/4.7-4.8 · Wizards 3.10 · Security 3.11-3.12/4.9 · Tests 3.13/4.10 · ORM 3.15 · Jobs 3.17 · Reports 3.18 · Vocabularies 4.4 · Migrations 4.13
 
 ---
+
+<!-- _footer: "Guide 5.2, 5.11 · Category cards" -->
 
 ## Your category cards
 
@@ -60,21 +67,29 @@ Warm-up: "The list of reasons for a grantee change needs 'working abroad'."
 
 ---
 
+<!-- _footer: "Guide 5.3 · Map poster" -->
+
+<style scoped>table { font-size: 0.65em; } td:last-child { white-space: nowrap; } p { font-size: 0.75em; }</style>
+
 ## The map: 66 modules, 26 cards
 
-| Question       | Modules                                                                          |
-| -------------- | -------------------------------------------------------------------------------- |
-| Where          | `area`                                                                           |
-| Who            | `registry`                                                                       |
-| Who may        | `roles`, `approval_multi_group`, `approval_flow_data`                            |
-| When           | `period`                                                                         |
-| Change         | `change_request`, `supporting_docs_data`, `field_limit`                          |
-| Verify         | `compliance`, `fds_operations`                                                   |
-| Pay            | `payroll`, `catchup_payroll`, `retro_payroll`                                    |
-| Assess, manage | `swdi`, `cms`, `swdi_cms`                                                        |
-| Connect        | `api` and its route modules, portal APIs, `integration`, `newgrs`, `ods`, `auth` |
+| Question       | Modules                                                                                          | Cards    |
+| -------------- | ------------------------------------------------------------------------------------------------ | -------- |
+| Where          | `area`                                                                                           | 2        |
+| Who            | `registry`                                                                                       | 3        |
+| Who may        | `roles`, `approval_multi_group`, `approval_flow_data`                                            | 4 to 6   |
+| When           | `period`                                                                                         | 7        |
+| Change         | `change_request`, `supporting_docs_data`, `field_limit`                                          | 8 to 10  |
+| Verify         | `compliance`, `fds_operations`                                                                   | 11, 12   |
+| Pay            | `payroll`, `catchup_payroll`, `retro_payroll`                                                    | 13 to 15 |
+| Assess, manage | `swdi`, `cms`, `swdi_cms`                                                                        | 16 to 18 |
+| Connect        | the bridge, `api` and its route modules, the portal APIs, `integration`, `newgrs`, `ods`, `auth` | 19 to 26 |
+
+Under all of them sits OpenSPP: `spp_registry`, `spp_area`, `spp_vocabulary`, `spp_security`, `spp_programs`, `spp_change_request_v2`, `spp_event_data`, `spp_case_base`, `spp_api_v2`.
 
 ---
+
+<!-- _footer: "Guide 5.3 · Card 1" -->
 
 ## Two instances, or one (card 1)
 
@@ -87,6 +102,8 @@ Code moment: `dswd_4ps_instance1/__manifest__.py`. A manifest is the map of a de
 
 ---
 
+<!-- _footer: "Guide 5.2, 3.12 · Card 2" -->
+
 ## Primer 1 of 5: record rules (3.12)
 
 An access row says which models a group may use; a record rule says which rows of a model a user may see.
@@ -94,6 +111,8 @@ An access row says which models a group may use; a record rule says which rows o
 Production: `dswd_4ps_area` shows each user only the areas in or above their center areas, none without one (card 2).
 
 ---
+
+<!-- _footer: "Guide 5.2, 3.17 · Card 11" -->
 
 ## Primer 2 of 5: jobs and scheduled actions (3.17)
 
@@ -103,6 +122,8 @@ Production: a school attendance event queues a job on `cv_events`, and a daily c
 
 ---
 
+<!-- _footer: "Guide 5.2, 4.13, 4.4 · Card 4" -->
+
 ## Primer 3 of 5: migrations and `noupdate` (4.13)
 
 A `noupdate` data file loads once, at install; changing its records on a running database takes a migration.
@@ -110,6 +131,8 @@ A `noupdate` data file loads once, at install; changing its records on a running
 Production: every group, role and rule file in `dswd_4ps_roles` is `noupdate`: 20 migrations so far (card 4).
 
 ---
+
+<!-- _footer: "Guide 5.2, 5.10 · Card 2" -->
 
 ## Primer 4 of 5: hooks (5.10)
 
@@ -119,22 +142,30 @@ Production: the `post_init_hook` of `dswd_4ps_area` loads the PSGC areas at inst
 
 ---
 
+<!-- _footer: "Guide 5.2, 3.10 · Card 13" -->
+
 ## Primer 5 of 5: wizards (3.10)
 
 A wizard is a temporary model behind a dialog: the user fills in a small form, and its button does the work.
 
 Production: the payroll Reject + Rewind wizard offers no rewind once credit instructions exist (card 13).
 
+The glossary (7.6) has a line on each of the five.
+
 ---
+
+<!-- _footer: "Guide 5.4 · Card 2" -->
 
 ## Foundation: area (card 2)
 
 - PSGC regions to barangays in `spp.area`; about 42,000 barangays queued as jobs at install.
 - The install hook runs once: every later data fix is a migration (10 so far).
-- Fail-closed: no center areas, no areas.
+- Fail-closed: a user with no center areas sees no areas.
 - `area_scope_ids`: 15 to 20 s per dashboard tile at 7.4 million households, 99 ms after. Do not simplify it.
 
 ---
+
+<!-- _footer: "Guide 5.4, 3.12 · Card 2" -->
 
 ## Area: a fail-closed record rule (3.12)
 
@@ -161,15 +192,19 @@ Production: the payroll Reject + Rewind wizard offers no rewind once credit inst
 
 ---
 
+<!-- _footer: "Guide 5.4 · Card 3" -->
+
 ## Foundation: registry (card 3)
 
 - Extends `res.partner`: `listahanan_id`, `client_status_id`, `grantee_id`, `member_id_4ps`, ...
-- 27 vocabularies: 32 client statuses in 9 categories, 57 set groups, 394 IP groups.
-- Writes go through `_4ps_write_hook`, wired into the audit decorator by `_register_hook`.
-- Three field-name styles: none, `x_4ps_`, `dswd_export_`. Search all before adding a field.
-- Status 3 is a permanent exit: only a server-side path can move a household out.
+- 27 vocabularies: 32 client statuses in 9 categories, 57 set groups, 394 IP groups. A status's `parent_id` is its category.
+- Writes go through `_4ps_write_hook`, wired into the audit decorator by `_register_hook`: a breakpoint in `write()` may never be reached.
+- Status 3 is a permanent exit: a normal user's write cannot move a household out; a server-side path can.
+- Three field-name styles: no prefix, `x_4ps_`, `dswd_export_`. Search all three before adding a field.
 
 ---
+
+<!-- _footer: "Guide 5.4, 4.4 · Card 3" -->
 
 ## Registry: a status and its category (4.4)
 
@@ -187,9 +222,11 @@ Production: the payroll Reject + Rewind wizard offers no rewind once credit inst
 
 ---
 
+<!-- _footer: "Guide 5.4 · Card 4" -->
+
 ## Foundation: roles (card 4)
 
-- 54 groups and 48 roles: POO, RPMO and NPMO umbrella groups are the approval tiers.
+- 54 groups and 48 roles: POO, RPMO and NPMO umbrella groups are the approval tiers; sub-roles such as MSWDO and SWO III imply them through `implied_ids` (3.11).
 - Local roles take their areas from the identity provider; RITO may lock them.
 - Every group, role and rule file is `noupdate`: 20 migrations so far.
 
@@ -208,18 +245,21 @@ Production: the payroll Reject + Rewind wizard offers no rewind once credit inst
 
 ---
 
+<!-- _footer: "Guide 5.4 · Cards 5, 6" -->
+
 ## Approvals (cards 5 and 6)
 
-- `approval_multi_group`: several groups per tier, any of them may approve. It replaces two upstream constraints
-  **without `super()`**.
+- `approval_multi_group`: several groups per tier, any of them may approve. It replaces two upstream constraints **without `super()`**.
 - `approval_flow_data`: 21 definitions, 19 linked to 6 change-request types, chosen by CEL on the status transition.
 - No match: approves on submit. Reinstate Household keeps a catch-all; Change Address has no linked definition.
 
 ---
 
+<!-- _footer: "Guide 5.4 · Card 6" -->
+
 ## Approval flow data: 24 to 3, two tiers
 
-`dswd_4ps_approval_flow_data/data/approval_defs_update_hh_info.xml`, lines 81 to 91 (condition wrapped)
+`dswd_4ps_approval_flow_data/data/approval_defs_update_hh_info.xml`, lines 81 to 91 (condition wrapped); its two tiers, SWO III then RGO, follow at lines 94 to 112
 
 ```xml
     <record id="approval_def_hh_info_poo_rpmo" model="spp.approval.definition">
@@ -238,10 +278,15 @@ Production: the payroll Reject + Rewind wizard offers no rewind once credit inst
 
 ---
 
+<!-- _footer: "Guide 5.4 · Card 7" -->
+
+<style scoped>ul, p { font-size: 0.8em; }</style>
+
 ## Foundation: period (card 7)
 
 - One `spp.compliance.period` per month; the Philippine working-day calendar.
-- Fail-loud: a year not Seeded raises an error. Each December, an administrator seeds next year.
+- Fail-loud: a year not marked Seeded raises an error rather than give a deadline that is too early.
+- Each December, an administrator enters next year's holidays and marks the year Seeded.
 - Dates only, never datetimes.
 
 `dswd_4ps_period/models/holiday_year.py`, lines 34 to 44
@@ -270,18 +315,22 @@ Stand up. Three symptoms. Category card, then the module.
 
 ---
 
+<!-- _footer: "Guide 5.5" -->
+
 ## Change requests: the upstream shape
 
-| Part           | Is                                                |
-| -------------- | ------------------------------------------------- |
-| Type           | a data record: `spp.change.request.type`          |
-| Detail model   | the proposed values, one model per type           |
-| Apply strategy | validate, preview, apply                          |
-| Approval       | `spp.approval.mixin`, multi-tier, routed by rules |
+| Part           | Is                                                                       |
+| -------------- | ------------------------------------------------------------------------ |
+| Type           | A data record, `spp.change.request.type`, in a `data/cr_type_*.xml` file |
+| Detail model   | The proposed values, one model per type (`models/cr_detail_*.py`)        |
+| Apply strategy | Validates, previews and applies the change                               |
+| Approval       | `spp.approval.mixin`, multi-tier, routed by the approval definitions     |
 
-4Ps adds 20 types (22 type files) and rules. It does not change this shape.
+4Ps adds 20 new types and rules. It does not change this shape.
 
 ---
+
+<!-- _footer: "Guide 5.5 · Card 8" -->
 
 ## Card 8: a type is a data record
 
@@ -305,19 +354,26 @@ Stand up. Three symptoms. Category card, then the module.
 
 ---
 
+<!-- _footer: "Guide 5.5, 5.10 · Card 8" -->
+
 ## Change requests: what to know (card 8)
 
-- Batching under a ticket number; a `cancelled` state added to the approval mixin itself.
-- Derived requests: a newborn's Add Member creates Update Pregnancy and Update Member Additional Information requests.
-- Access is checked in code (`models/cr_parent_access.py`), not by a record rule. Read the docstring.
-- 14 context keys of its own, 11 of them skip or override a check. Never pass one to make a test green.
+- Requests are batched under a ticket number; a `cancelled` state is added to the approval mixin.
+- Some requests create others: a newborn's Add Member creates Update Pregnancy and Update Member Additional Information requests for the parents.
+- Record access is checked in code (`models/cr_parent_access.py`), not by a record rule. Its docstring says why.
+- 14 context keys of its own; 11 skip or override a check. Never pass one to make a test pass.
 
 ---
 
+<!-- _footer: "Guide 5.5 · Cards 9, 10" -->
+
 ## Documents and limits (cards 9 and 10)
 
+<style scoped>section { font-size: 26px; padding-top: 36px; } section h2 { margin-bottom: 8px; }</style>
+
 - `supporting_docs_data`: which documents each type needs. Add Member needs any one of seven.
-- `field_limit`: how often a field may change, enforced in a `write` override.
+- `field_limit`: caps how often a field may change, in a `write` override.
+- Adding a field to a request type touches more than one file: the detail model and its view; the field mapping in the type's `noupdate` data file, so a migration and a version bump; the API schema and service; the supporting-documents trigger path; the tests.
 
 `dswd_4ps_supporting_docs_data/data/cr_type_add_member_4ps.xml`, lines 13 to 17
 
@@ -339,16 +395,20 @@ Back at 3:05
 
 ---
 
+<!-- _footer: "Guide 5.6 · Card 11" -->
+
 ## Compliance (card 11)
 
-- Health, school and deworming arrive as `spp.event.data` through `/cv` (router in `dswd_4ps_api_compliance`).
-- Reconcile later: the event job writes one row and marks the household; a daily reconcile finishes it.
-- Per-household advisory locks. Status rows are a cache rebuilt from events.
-- The school threshold is the constant 85 in `compliance_pipeline.py`.
+- School attendance, health and deworming forms arrive through the `/cv` API (the router is in `dswd_4ps_api_compliance`) as `spp.event.data` events.
+- The event's `create` hands the work to a job (3.17); the job takes a per-household lock, writes one row and marks the household; a daily reconcile finishes it. Status rows are a cache rebuilt from events.
+- When a submitted form changes nothing, look at the event and its job before the code.
+- The school threshold is the constant 85 in `models/compliance_pipeline.py`. A system parameter with a similar name only feeds display fields.
 
 ---
 
-## Compliance: an event hands its work to a job (3.17)
+<!-- _footer: "Guide 5.6, 3.17 · Card 11" -->
+
+## Compliance: the job retries on a busy lock, then marks the household (3.17)
 
 `dswd_4ps_compliance/models/event_data.py`, lines 160 to 171
 
@@ -369,10 +429,13 @@ Back at 3:05
 
 ---
 
+<!-- _footer: "Guide 5.6 · Card 12" -->
+
 ## FDS operations (card 12)
 
-- Session library, parent groups (`pg_max_members`, default 30), plans with approval, attendance, the FDSAR.
-- Equivalency creates a synthetic session, so the compliance pipeline needs no special case.
+- Session library, parent groups (up to `pg_max_members`, 30 by default), plans with approval, attendance, the FDS Accomplishment Report.
+- FDS attendance arrives as session attendance, not as event data.
+- An equivalency creates a synthetic session, so the compliance pipeline needs no special case.
 
 `dswd_4ps_fds_operations/models/fds_equivalency.py`, lines 439 to 446
 
@@ -389,10 +452,15 @@ Back at 3:05
 
 ---
 
+<!-- _footer: "Guide 5.7 · Card 13" -->
+
+<style scoped>ul, p { font-size: 0.75em; }</style>
+
 ## Payroll: what not to break (card 13)
 
-- The run is a state machine. Once credit instructions exist, cancel and rewind are refused.
-- The snapshot, which the code calls NAPA, is sealed; every later step reads it.
+- About 50,000 lines and the riskiest code in the repository; read before you touch.
+- The cycle run is a state machine (`STATE_SELECTION`). Once credit instructions exist, cancel and rewind are refused: the point of no return.
+- The snapshot, which the code calls NAPA, is sealed: `models/snapshot_beneficiary.py` refuses writes, and every later step reads it. A name corrected after the seal does not appear on that cycle's payroll list, by design.
 - Grant rates are never deleted. Five job channels; about 110 raw SQL calls.
 
 `dswd_4ps_payroll/models/payroll_cycle_run.py`, lines 147 to 152
@@ -407,6 +475,8 @@ TERMINAL_STATES = frozenset({"rejected", "cancelled", "done"})
 ```
 
 ---
+
+<!-- _footer: "Guide 5.7 · Cards 14, 15" -->
 
 ## Catch-up and retro (cards 14 and 15)
 
@@ -438,10 +508,14 @@ Stand up. Three symptoms.
 
 ---
 
+<!-- _footer: "Guide 5.8 · Cards 16, 17" -->
+
+<style scoped>ul, p { font-size: 0.75em; }</style>
+
 ## Casework (cards 16 and 17)
 
-- `swdi`: the yearly well-being assessment. The level comes from the total score (thresholds 1.83 and 2.83).
-- `cms`: Kilos-Unlad case management on `spp_case_base`; 117 record rules for six groups, scoped by the user's areas.
+- `swdi`: the yearly well-being assessment. The level comes from the total score (level 3 from 2.83, level 2 from 1.83). This is the well-being level of Module 4, computed: the household's level is copied from the latest assessment, not chosen from a dropdown.
+- `cms`: Kilos-Unlad case management on `spp_case_base`; 117 record rules for six groups, each scoped by the user's own center areas (3.12 at production scale).
 
 `dswd_4ps_swdi/models/assessment.py`, lines 1230 to 1241
 
@@ -461,6 +535,8 @@ Stand up. Three symptoms.
 ```
 
 ---
+
+<!-- _footer: "Guide 5.8 · Card 18" -->
 
 ## Assessments become cases (card 18)
 
@@ -484,6 +560,8 @@ Stand up. Three symptoms.
 
 ---
 
+<!-- _footer: "Guide 5.8 · Card 19" -->
+
 ## The bridge (card 19)
 
 - The registry instance is the master. Casework looks households up and imports them synchronously (5 s timeout).
@@ -505,6 +583,8 @@ Stand up. Three symptoms.
 ```
 
 ---
+
+<!-- _footer: "Guide 5.9 · Card 20" -->
 
 ## The API: the caller's rights, an identifier, a service (card 20)
 
@@ -528,18 +608,22 @@ Record rules apply while `dswd_4ps_api.enforce_rbac` is on (seeded on).
 
 ---
 
+<!-- _footer: "Guide 5.9 · Cards 21 to 26" -->
+
 ## Integration in one line each (cards 21 to 26)
 
-| Card | Module            | In one line                                             |
-| ---- | ----------------- | ------------------------------------------------------- |
-| 21   | the route modules | a twelve-line `_inherit` and `super()` adds the routers |
-| 22   | the portal APIs   | one four-line pattern opens every endpoint              |
-| 23   | `integration`     | an outbound event log the portal polls                  |
-| 24   | `newgrs`          | three touchpoints, three flags                          |
-| 25   | `ods`             | a read-only client for the old ODS                      |
-| 26   | `auth`            | a Keycloak identity becomes a user with areas           |
+| Card | Module                 | In one line                                                 |
+| ---- | ---------------------- | ----------------------------------------------------------- |
+| 21   | the route modules      | Each adds its routers with a short `_inherit` and `super()` |
+| 22   | the portal APIs        | What the beneficiary portal reads                           |
+| 23   | `dswd_4ps_integration` | An outbound event log the portal polls                      |
+| 24   | `dswd_4ps_newgrs`      | Grievance status in, profile updates out, three flags       |
+| 25   | `dswd_4ps_ods`         | A read-only client for the old Pantawid ODS                 |
+| 26   | `dswd_4ps_auth`        | Keycloak sign-in; a user gets their areas from the claims   |
 
 ---
+
+<!-- _footer: "Guide 5.11 · Triage sheet" -->
 
 ## Ticket triage
 
@@ -550,6 +634,8 @@ For each: the **module**, the **category card**, the **first file**. Use your ca
 Twelve minutes, then report-back.
 
 ---
+
+<!-- _footer: "Triage sheet · Cards 2, 6, 8, 9, 12, 18, 22; index" -->
 
 <style scoped>table { font-size: 0.7em; }</style>
 
@@ -568,16 +654,19 @@ Twelve minutes, then report-back.
 
 ---
 
+<!-- _footer: "Guide 5.11" -->
+
 ## How to approach a 4Ps ticket
 
-1. Read the symptom in the user's words.
-2. Find the module on the map.
-3. Read its card: which boxes are shaded?
-4. Open the first file.
-5. Before changing code: `noupdate` data, context flags, jobs.
-6. Write the failing test first.
+1. Read the symptom in the user's words, and reproduce it.
+2. Find the module on the map (5.3) and open its card.
+3. Read the strip: the shaded boxes are where its tickets land. Pick the first file.
+4. Before changing code, check what runs around it: `noupdate` data, context keys, jobs and their state, system parameters.
+5. Write a failing test that reproduces the ticket, then fix, then run the module's tests.
 
 ---
+
+<!-- _footer: "Guide 5.12 · Catalogue index" -->
 
 ## Not today
 

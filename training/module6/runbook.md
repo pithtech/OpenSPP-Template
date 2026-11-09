@@ -11,38 +11,45 @@ minutes of discussion. The trainer walks the room; the sheets carry the steps.
 
 - Demo laptop: stack running, logged in, developer mode on. The three solutions ready to copy into the repository root
   for the discussion (not committed).
-- The sheets printed. The deck open on the door slide from 8:00.
+- The sheets printed. The deck open on the door slide (slide 2) from 8:00.
 - Helpers (anyone whose stack worked on Day 2) told their rows.
 
 ## 8:00 to 8:30: at the door
 
-Door slide: "Open PowerShell in your repository. `.\odoo-project start`, log in, then
-`.\odoo-project test dswd_wellbeing` and wait for `0 failed`. Then `git switch main`, `git pull`,
-`git switch -c module6`." The first test of the day is the slowest; it must not happen inside the exercises. Laptops
-that cannot start: their owners pair with a working laptop now.
+Slide 2. "Open PowerShell in your repository. `.\odoo-project start`, log in, then `.\odoo-project test dswd_wellbeing`
+and wait for `0 failed, 0 error(s) of 5 tests`. Then `git switch main`, `git pull`, `git switch -c module6`." The first
+test of the day is the slowest; it must not happen inside the exercises. Laptops that cannot start: their owners pair
+with a working laptop now.
 
 ## Block 1, 8:30 to 8:35: launch
+
+Slides 1 to 4.
 
 1. "Three modules this morning, one per skill: development, extending, customization. Each is a 4Ps request."
 2. "Done means three proofs: the install line, the test line with `0 failed`, and the screen. That is what we discuss at
    ten."
 3. Rules: pairs at one laptop, one types and one reads; swap at each exercise. Ask your pair, then your row, then a
    helper, then me. "Read every command's output to the end: if it does not say complete, it failed."
-4. The workflow from Module 4 block 8, steps 1 to 11 (participant guide 7.4): all three modules on the `module6` branch,
-   a commit at the end of each exercise, one push and one pull request at 9:55. No review is required.
+4. The workflow from Module 4 block 8, steps 1 to 11 (participant guide 7.4) without step 7, since the commit hooks run
+   the checks: all three modules on the `module6` branch, a commit at the end of each exercise (`git add <module>`, its
+   folder: guide 6.4), one push and one pull request at 9:55. No review is required.
 
 ## Block 2, 8:35 to 9:15: exercise 1, development (`dswd_fds_session`)
 
+Slides 5 and 6 (slide 6, the three habits of guide 6.5, on demand).
+
 - Walk the room from the back. The first ten minutes are copying, renaming and the manifest; most questions are leftover
   `dswd_asset` names.
-- At 8:55, ask: "Who has installed?" Expect few. Whoever is stuck on a `CRITICAL` line: open the full log, search for
-  `Error`.
+- At 8:55, ask: "Who has installed?" Expect few. Whoever is stuck on a `CRITICAL` line: show slide 6, open the full log,
+  search for `Error`, then go back to slide 5.
 - **Checkpoint 9:15**: hands up for "install complete", then for "0 failed". Pairs not there at 9:25 move to exercise 2
   and finish 1 later.
 - Watch for, and note the pair for the discussion: a pair that met the hidden-menu lesson (no access rows), a pair whose
   manifest listed a deleted file.
 
 ## Block 3, 9:15 to 9:45: exercise 2, extending (`dswd_listahanan`)
+
+Slide 7.
 
 - The hint on the sheet carries the uniqueness test; the usual mistakes are a wrong anchor (copy it exactly) and the
   data file still in the manifest.
@@ -51,14 +58,19 @@ that cannot start: their owners pair with a working laptop now.
 
 ## Block 4, 9:45 to 10:00: exercise 3, customization (`dswd_id_types`)
 
+Slides 8 and 9. Exercise 3 has 15 minutes, the push included; the sheet says so.
+
 - Say at 9:45: "Exercise 3 is the smallest. Finish it here if you can; the sheet is complete for afterwards."
 - The usual mistakes: the module's `__init__.py` still importing `models`; a manual PhilSys code added in the UI.
 - Note a pair that reached the refusal on the Identity page.
-- **At 9:55, everyone**, whatever exercise they are on: commit what works, `git push -u origin module6`, open the pull
-  request from the link it prints. CI starts; its first run builds the image and ends after the session. "Check it this
-  afternoon, merge it when it is green: guide 7.4, steps 12 to 15."
+- **At 9:55, everyone** (slide 9), whatever exercise they are on: commit what works, `git push -u origin module6`, open
+  the pull request from the link it prints. CI starts; its first run builds the image and ends after the session. "Check
+  it this afternoon, merge it when it is green, delete the branch, then `git switch main`, `git pull`,
+  `git branch -d module6`: guide 7.4, steps 12 to 15. Finish an exercise later? Commit it and `git push` again."
 
 ## 10:00 to 10:30: discussion
+
+Slide 10 for the discussion, slide 11 (guide 6.6) for the close.
 
 The pair narrates from its laptop or sheet; you reproduce on the demo laptop (copy the solution in, `install`, show). Do
 not switch laptops on the projector.

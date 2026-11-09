@@ -6,16 +6,16 @@ Day 2, 10:10 to 12:00, after Module 3 and a ten-minute break. The design behind 
 tags exist only in a clone of the template repository (yours); a participant's repository is a template copy with one
 commit, no history and no tags, and already holds the finished module.
 
-| File                                             | For                | Use                                                                                                                                                                                                               |
-| ------------------------------------------------ | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [runbook.md](runbook.md)                         | Trainer            | Run of show with commands, the four planted faults and their real log lines, cut-offs, fallbacks                                                                                                                  |
-| [slides.md](slides.md)                           | Trainer, projected | Marp deck, 26 slides (21 content, 5 screenshots) one per block or step, with the change-to-merge workflow in block 8; render with the VS Code Marp extension or `npx @marp-team/marp-cli slides.md -o slides.pdf` |
-| [handout-anatomy.md](handout-anatomy.md)         | Everyone, printed  | Fill-in file map, the three rules, the loop, the five mistakes, the code of every step                                                                                                                            |
-| [drill.md](drill.md)                             | Pairs, printed     | Three real log excerpts to diagnose in block 9                                                                                                                                                                    |
-| [drill-answers.md](drill-answers.md)             | Trainer            | Answer key for the drill                                                                                                                                                                                          |
-| [quiz.md](quiz.md)                               | Participants       | Ten items, an optional self-check; not scheduled in the session                                                                                                                                                   |
-| [quiz-answers.md](quiz-answers.md)               | Trainer            | Answer key with the accepted variants                                                                                                                                                                             |
-| [dswd_wellbeing_broken/](dswd_wellbeing_broken/) | Pairs, block 9     | The module with three planted faults (the drill excerpts); lint passes, Odoo does not                                                                                                                             |
+| File                                             | For                | Use                                                                                                                                                                                                                           |
+| ------------------------------------------------ | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [runbook.md](runbook.md)                         | Trainer            | Run of show with commands, the four planted faults and their real log lines, cut-offs, fallbacks                                                                                                                              |
+| [slides.md](slides.md)                           | Trainer, projected | Marp deck, 26 slides (21 content, 5 screenshots) one per block or step, with the change-to-merge workflow in block 8; render with the VS Code Marp extension or `npx @marp-team/marp-cli slides.md -o slides.pdf`             |
+| [handout-anatomy.md](handout-anatomy.md)         | Everyone, printed  | Fill-in file map, the three rules, the loop, the five mistakes, the code of every step                                                                                                                                        |
+| [drill.md](drill.md)                             | Pairs, printed     | Three real log excerpts to diagnose in block 9                                                                                                                                                                                |
+| [drill-answers.md](drill-answers.md)             | Trainer            | Answer key for the drill                                                                                                                                                                                                      |
+| [quiz.md](quiz.md)                               | Participants       | Ten items, an optional self-check; not scheduled in the session                                                                                                                                                               |
+| [quiz-answers.md](quiz-answers.md)               | Trainer            | Answer key with the accepted variants                                                                                                                                                                                         |
+| [dswd_wellbeing_broken/](dswd_wellbeing_broken/) | Pairs, block 9     | The module with three planted faults; lint passes, Odoo does not. They show one at a time: excerpt B first, then A once the manifest lists the data file; C needs the tests of `dswd_wellbeing`, which the copy does not have |
 
 ## Preparing the demo machine (the evening before)
 
@@ -34,8 +34,10 @@ commit, no history and no tags, and already holds the finished module.
    `upstream/openspp/spp_registry/views/individual_views.xml` at the `group_tags_section` line.
 5. Run `./odoo-project test dswd_wellbeing` once so the image and the test database are warm (about 20 s after that).
 6. Print the handout and the drill for every participant, the answer keys for yourself.
-7. For block 8: in a repository of your own created from the template, open a small pull request (the `graduated` level)
-   and let its CI finish green, so the demo shows CI, a review and a merge without waiting for the image build.
+7. For block 8: clone a repository of your own created from the template (never push from the template clone: its
+   `origin` is the template), run `./odoo-project vendor` and `./odoo-project test dswd_wellbeing` in it once, open a
+   small pull request there (the `graduated` level) and let its CI finish green, so the demo shows CI, a review and a
+   merge without waiting for the image build. Leave the clone on an up-to-date `main`.
 8. Render the deck once (`npx @marp-team/marp-cli training/module4/slides.md -o slides.pdf`) and keep the PDF on the
    laptop as the projector fallback.
 

@@ -25,7 +25,7 @@ requests, the triage and the closing.
   short, print one catalogue per pair and share the PDF.
 - Seat technicians next to developers before 1:00; pairs keep the same partner all afternoon.
 
-## Block 1, 1:00 to 1:05: opener
+## Block 1, 1:00 to 1:05: opener (slides 1 to 4)
 
 1. The five objectives, one breath each. "This morning you learned the parts of a module. This afternoon you read the
    real ones. By five you can take a 4Ps ticket and say which module, which part, which file."
@@ -39,20 +39,21 @@ requests, the triage and the closing.
    vocabulary file. And this file is `noupdate`: on production, a new code also needs a migration; the primer at 1:15
    says what that means."
 
-## Block 2, 1:05 to 1:15: the map (card 1)
+## Block 2, 1:05 to 1:15: the map (card 1; slides 5 and 6)
 
-1. Poster on screen and on the wall. "66 modules with a manifest. 26 cards cover 38 of them. About a quarter of the 66
-   (17 modules) are sample data, demo seeders and tests. You can ignore those on a ticket."
+1. Map slide on screen, poster on the wall. "66 modules with a manifest. 26 cards cover 38 of them. About a quarter of
+   the 66 (17 modules) are sample data, demo seeders and tests. You can ignore those on a ticket."
 2. Read the poster top to bottom as the 4Ps process: where (area), who (registry), who may (roles, approvals), when
-   (period); then change, verify, pay, assess, manage; then connect.
+   (period); then change, verify, pay, assess, manage; then connect, which starts with the bridge (card 19). The Cards
+   column sends participants from the slide to the printed card; under all of them sits OpenSPP.
 3. Two instances: instance 1 is the registry and operations, instance 2 is casework; the bridge joins them; `starter`
    puts both on one database. **Code moment**: `dswd_4ps_instance1/__manifest__.py`, the `depends` list grouped by
    layer. "A manifest is the map of a deployment; section 3.6."
 4. Predict: "Which modules install on both instances?" Area, registry, roles, the API and auth: the casework side
    depends on them (plus the bridge schemas, the portal API base, the theme and attachment hardening). Period and the
-   approval modules: instance 1 only.
+   approval modules: starter or instance 1 only.
 
-## Block 2b, 1:15 to 1:25: primer (five slides)
+## Block 2b, 1:15 to 1:25: primer (slides 7 to 11)
 
 "Five things the production modules use on almost every card. This morning did not present them; each has a Reference
 section in your guide. One sentence each now; the cards show them all afternoon." Two minutes per slide: the sentence,
@@ -74,7 +75,7 @@ the production example, the guide section. No questions until the end.
    does the work." Example: the payroll Reject + Rewind wizard offers no rewind once credit instructions exist (card
    13).
 
-## Block 3, 1:25 to 2:05: foundation (deep, cards 2 to 7)
+## Block 3, 1:25 to 2:05: foundation (deep, cards 2 to 7; slides 12 to 19)
 
 The story for the board: _where they are, who they are, who may see and approve, when._
 
@@ -93,20 +94,22 @@ Say, per card:
   `area_scope_ids` back to `child_of`: 15 to 20 seconds per dashboard tile at 7.4 million households, 99 ms after."
 - **Registry**: three field-name styles (no prefix, `x_4ps_`, `dswd_export_`): "search all of them before adding a
   field." The write path goes through `_4ps_write_hook`, wired into the audit decorator: "a breakpoint in `write()` may
-  never fire." The permanent-exit lock: status 3 cannot be left except by a server-side path.
+  never fire." The permanent-exit lock: a normal user's write cannot move a household out of status 3; a server-side
+  path (an approved change request, CMS) can.
 - **Roles**: every group, role and rule file is `noupdate`: "a role change is a migration, never only an XML edit." Keep
   the recursion context flags.
 - **Approvals**: "an override without `super()`: if upstream adds a check, it does not run here." Then the flow data: 21
   definitions, 19 linked to 6 types; a transition no definition matches auto-approves, except on Reinstate Household,
   which keeps a catch-all.
-- **Period**: fail-loud by design; the December duty.
+- **Period**: fail-loud by design; the December duty: an administrator enters next year's holidays and marks the year
+  Seeded.
 
-## Block 4, 2:05 to 2:10: checkpoint 1
+## Block 4, 2:05 to 2:10: checkpoint 1 (slide 20)
 
 Stand up. Three tickets from [checkpoint-bank.md](checkpoint-bank.md), set 1. Pairs hold up a category card, then name
 the module aloud. Sit down when done.
 
-## Block 5, 2:10 to 2:50: change requests (deep, cards 8 to 10)
+## Block 5, 2:10 to 2:50: change requests (deep, cards 8 to 10; slides 21 to 24)
 
 1. **The upstream architecture first** (8 min, slide): a type is a data record; a detail model holds the proposed
    values; an apply strategy validates, previews and applies; approval comes from `spp.approval.mixin`. "4Ps adds types
@@ -119,7 +122,8 @@ the module aloud. Sit down when done.
    - Point out: Change Address has no linked approval definition, so it approves on submit (card 6). "The approval you
      saw just before the checkpoint is on Update Household Info."
    - `models/cr_parent_access.py`: the docstring says why access is checked in code, not by a record rule. "A follow-up
-     to section 3.12: at this scale a rule was the wrong tool."
+     to 3.12: a rule cannot say: whatever the header's rules allow you. So access follows the parent, in code." (Odoo
+     evaluates rule domains as superuser, so a rule on the parent would skip the parent's own rules.)
 3. **Important points** (7 min): batching under a ticket number; the `cancelled` state added to the approval mixin
    itself; derived requests (a newborn's Add Member creates Update Pregnancy and Update Member Additional Information
    requests); the context keys that skip checks (14, of which 11 skip or override): "never pass one to make a test
@@ -128,12 +132,13 @@ the module aloud. Sit down when done.
    record of another module. "Add Member needs any one of seven documents: a group with `min_required` 1."
 5. **Card 10, field limits** (3 min): code moment `models/res_partner.py`, a `write` override and the context key that
    bypasses it.
-6. **Category prompt** (3 min): "Add the place of birth to the Update Member Personal Information request." M, the
-   detail model; then ask "and what else?" View, the `noupdate` type data and its migration, the API schema, tests.
+6. **Category prompt** (3 min, on slide 24): "Add the place of birth to the Update Member Personal Information request."
+   M, the detail model; then ask "and what else?" The view, the field mapping in the `noupdate` type data and its
+   migration and version bump, the API schema and service, the supporting-documents trigger path, tests.
 
-## Block 6, 2:50 to 3:05: break
+## Block 6, 2:50 to 3:05: break (slide 25)
 
-## Block 7, 3:05 to 3:35: compliance and FDS (medium, cards 11 and 12)
+## Block 7, 3:05 to 3:35: compliance and FDS (medium, cards 11 and 12; slides 26 to 28)
 
 1. **Card 11** (18 min). Health, school and deworming arrive as `spp.event.data` events through `/cv` (the router lives
    in `dswd_4ps_api_compliance`); FDS attendance arrives as session attendance. Code moment: `models/event_data.py`:
@@ -141,7 +146,7 @@ the module aloud. Sit down when done.
    the household flag. Then the top of `models/compliance_pipeline.py`, read for structure only.
 2. Say: "Reconcile later, not on every write: the event job writes one row and marks the household; a daily reconcile
    finishes it. Status rows are a cache rebuilt from events." And: "the school threshold is the constant 85 in the
-   pipeline; the system parameter of the same name only feeds display fields." The per-pillar household rules for
+   pipeline; the system parameter of a similar name only feeds display fields." The per-pillar household rules for
    payment live in payroll's entitlement manager, not here.
 3. Category prompt: "A child's attendance was submitted, the household is still non-compliant." J: the event job and the
    reconcile, before any code.
@@ -149,24 +154,25 @@ the module aloud. Sit down when done.
    FDSAR. Code moment: `models/fds_equivalency.py`, `_create_credited_attendance`: "a synthetic session, so the
    compliance pipeline needs no special case."
 
-## Block 8, 3:35 to 3:55: payroll (tour, cards 13 to 15)
+## Block 8, 3:35 to 3:55: payroll (tour, cards 13 to 15; slides 29 and 30)
 
 "Payroll is the riskiest code in the repository. Today you learn what not to touch, and why."
 
 1. **Card 13** (12 min). Code moment: `models/payroll_cycle_run.py`, `STATE_SELECTION` and the frozensets under it, then
-   `action_cancel`; then the `write()` guard in `models/snapshot_beneficiary.py`. Say: "Once credit instructions exist,
-   cancel and rewind are refused: the point of no return. The snapshot, which the code calls NAPA, is sealed and every
-   later step reads it. Grant rates are never deleted. Five job channels and about 110 raw SQL calls: read before you
+   `action_cancel`; then the `write()` guard in `models/snapshot_beneficiary.py`. Say: "About 50,000 lines. Once credit
+   instructions exist, cancel and rewind are refused: the point of no return. The snapshot, which the code calls NAPA,
+   is sealed and every later step reads it: a name corrected after the seal does not appear on that cycle's payroll
+   list, by design. Grant rates are never deleted. Five job channels and about 110 raw SQL calls: read before you
    touch."
 2. **Card 14** (3 min): catch-up, the same state-machine pattern with its own point of no return.
 3. **Card 15** (5 min): retro, overpayment and underpayment ledgers, reusing the regular run; the frozen-after-create
    fields in `models/overpayment.py`.
 
-## Block 9, 3:55 to 4:00: checkpoint 2
+## Block 9, 3:55 to 4:00: checkpoint 2 (slide 31)
 
 Stand up. Set 2 from the checkpoint bank.
 
-## Block 10, 4:00 to 4:20: casework (medium, cards 16 to 19)
+## Block 10, 4:00 to 4:20: casework (medium, cards 16 to 19; slides 32 to 34)
 
 1. **Card 16, SWDI** (6 min). Code moment: `_classify_lowb` in `models/assessment.py` and the two thresholds in
    `constants/states.py`. "The well-being level from Module 4, as production computes it from the total score."
@@ -179,17 +185,19 @@ Stand up. Set 2 from the checkpoint bank.
 4. **Card 19, the bridge** (4 min, from the poster). The registry is the master; casework looks households up and
    imports them synchronously; events flow back through jobs. Code moment: `excludes` in the two bridge manifests.
 
-## Block 11, 4:20 to 4:32: integration (tour, cards 20 to 26)
+## Block 11, 4:20 to 4:32: integration (tour, cards 20 to 26; slides 35 and 36)
 
 1. **Card 20, the API** (6 min). Code moment: `routers/household.py`, `read_grantee_history`: `authenticated_env` (the
    caller's environment, so record rules apply while `dswd_4ps_api.enforce_rbac` is on, as seeded), the scope check, an
    identifier instead of a database id, the service call.
-2. **Cards 21 to 26** (6 min, one sentence each from the poster): the route modules add routers with a twelve-line
-   `_inherit` and `super()` (card 21); the portal APIs share one four-line pattern (card 22); `integration` is an
-   outbound event log the portal polls (card 23); NEWGRS has three touchpoints behind three flags (card 24); ODS is a
-   read-only client (card 25); auth turns a Keycloak identity into a user with areas (card 26).
+2. **Cards 21 to 26** (6 min, one sentence each, the slide's lines, which are the guide's): the route modules each add
+   their routers with a short `_inherit` and `super()`, twelve lines of method (card 21); the portal APIs are what the
+   beneficiary portal reads, and one four-line pattern opens every endpoint (card 22); `integration` is an outbound
+   event log the portal polls (card 23); NEWGRS takes grievance status in and sends profile updates out, behind three
+   flags (card 24); ODS is a read-only client for the old Pantawid ODS (card 25); auth is Keycloak sign-in, and a user
+   gets their areas from the claims (card 26).
 
-## Block 12, 4:32 to 4:50: ticket triage
+## Block 12, 4:32 to 4:50: ticket triage (slides 37 and 38)
 
 1. Hand out [triage-sheet.md](triage-sheet.md), one per pair. "Training scenarios, not real incidents. Module, card,
    first file. Twelve minutes. Use your catalogue."
@@ -197,10 +205,12 @@ Stand up. Set 2 from the checkpoint bank.
    (four categories; ticket 6 has no card). One pair per ticket, then "who had something different?" Then the answers
    slide with all eight, and the three points at the top of the answer key.
 
-## Block 13, 4:50 to 4:57: closing
+## Block 13, 4:50 to 4:57: closing (slides 39 and 40)
 
-1. How to approach a ticket, on the last slide: read the symptom; find the module on the map; read its card's strip;
-   open the first file; check `noupdate`, context flags and jobs before changing code; write the failing test first.
+1. How to approach a ticket (slide 39, guide 5.11's five steps): read the symptom in the user's words, and reproduce it;
+   find the module on the map and open its card; read the strip and pick the first file; before changing code, check
+   `noupdate` data, context keys, jobs and their state, system parameters; write a failing test that reproduces the
+   ticket, then fix, then run the module's tests.
 2. "Not today": the modules on no card, in the catalogue index. "They are for the post-training sessions."
 3. "Keep the catalogue. Tomorrow is hands-on with the modules you built this morning."
 

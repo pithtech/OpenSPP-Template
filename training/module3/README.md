@@ -11,7 +11,7 @@ no tags).
 | [runbook.md](runbook.md)                 | Trainer            | Run of show with commands, the planted fault and its real log line, cut-offs, drop order                                              |
 | [slides.md](slides.md)                   | Trainer, projected | Marp deck, screenshots from a real stack; render with the VS Code Marp extension or `npx @marp-team/marp-cli slides.md -o slides.pdf` |
 | [handout-anatomy.md](handout-anatomy.md) | Everyone, printed  | Five words, fill-in file map, the loop, field types, the four mistakes, the code per step, the bridge to Module 4 on the back         |
-| [command-card.md](command-card.md)       | Everyone, printed  | The eight commands and the three log lines to recognise                                                                               |
+| [command-card.md](command-card.md)       | Everyone, printed  | The nine commands and the three log lines to recognise                                                                                |
 
 No quiz: assessment is Module 6.
 

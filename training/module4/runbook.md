@@ -22,6 +22,8 @@ there is no block 5.
 
 ## Switch to the live build (in the break, before 10:10)
 
+Slide 1 (title) is up while the room comes back.
+
 The `m4-step-N` tags do not contain `dswd_asset`, so take it out of the database before its folder disappears, and drop
 the tablet edit from Module 3's block 9 so git can switch:
 
@@ -38,28 +40,39 @@ reproduce.) Developer mode is on (Settings > Activate the developer mode) so App
 
 ## Block 1, 10:10 to 10:15: the end state (screenshots)
 
-1. Slide "What you will see at noon": a household's Profile page with the "4Ps" section and the Well-Being Level
-   dropdown open. Do not show it live: the demo database must not have the module before the live build.
+Slides 2 to 5.
+
+1. Slide 2, the objectives, in one breath (block 10 comes back to it). Slide 3, the requirement; slide 4, "What you will
+   see at noon": a household's Profile page with the "4Ps" section and the Well-Being Level dropdown open. Do not show
+   it live: the demo database must not have the module before the live build.
 2. Say: "Survival, Subsistence, Self-Sufficient: the SWDI levels. Since EO 120 the level decides whether a household
    stays in the program past seven years. By noon you will know every file it took to put that dropdown there, and how
    to find out why it is missing when it is."
-3. One slide: where this lives in production (`dswd_4ps_registry`, 27 vocabularies, same pattern).
+3. Slide 5: where this lives in production (`dswd_4ps_registry`, 27 vocabularies, same pattern). The household's level
+   is copied from the latest SWDI assessment (guide 4.12, 5.8).
 
 ## Block 2, 10:15 to 10:20: module anatomy (paper)
 
-1. Slide: the file tree. "You filled this map for `dswd_asset` at 8:50. What is new: a `data/` file, no menu, and an
-   access file with only its header." Section 2 of the handout is filled in as the steps go by; do not wait for it.
-2. The three rules, read aloud: never edit `upstream/`; inherit, do not redefine; a file not in the manifest does not
-   exist.
+Slides 6 and 7.
+
+1. Slide 6: the file tree, worded as in guide 4.3 (the answer key for handout section 2). "You filled this map for
+   `dswd_asset` at 8:50. What is new: a `data/` file, no menu, and an access file with only its header." Section 2 of
+   the handout is filled in as the steps go by; do not wait for it.
+2. Slide 7: the three rules, read aloud: never edit `upstream/`; inherit, do not redefine; a file not in the manifest
+   does not exist.
 
 ## Block 3, 10:20 to 10:40: steps 0 and 1, manifest and data (demo, predict)
 
-1. Show `__manifest__.py` and `__init__.py`. "This is an installable module. It does nothing." Apps > Update Apps List >
-   remove the **Apps** filter (the module is not an application) > search "Well" > Install. `./odoo-project logs` and
-   point at `Loading module dswd_wellbeing` (an install from Apps runs in the server, so `logs` shows it).
-2. `git checkout m4-step-1`, then, before running anything, **plant both breakages**: delete the data line from the
-   manifest, and change `social_assistance` to `administrative` in the data file. The order matters: the file is
-   `noupdate="1"`, so a bad value is only caught the first time the file loads.
+Slides 8 to 13.
+
+1. Slides 8 and 9. Show `__manifest__.py` and `__init__.py`. "This is an installable module. It does nothing." Apps >
+   Update Apps List > remove the **Apps** filter (the module is not an application) > search "Well" > Install.
+   `./odoo-project logs` and point at `Loading module dswd_wellbeing` (an install from Apps runs in the server, so
+   `logs` shows it). Slide 10, the loop: point at the install row, then the update row; the `noupdate` row comes back
+   after breakage 2.
+2. Slide 11. `git checkout m4-step-1`, then, before running anything, **plant both breakages**: delete the data line
+   from the manifest, and change `social_assistance` to `administrative` in the data file. The order matters: the file
+   is `noupdate="1"`, so a bad value is only caught the first time the file loads.
 3. Show the data file: one vocabulary, three codes. Ask: "After update, where will I see them?" Run
    `./odoo-project update`. Settings > Vocabularies: nothing. **Breakage 1.** Ask for the cause. Show the manifest. Add
    the line. Do not update yet.
@@ -72,22 +85,27 @@ reproduce.) Developer mode is on (Settings > Activate the developer mode) so App
    Open `upstream/openspp/spp_vocabulary/models/vocabulary.py` at the `domain` selection. Fix. `update`. Show the
    vocabulary and its three System codes. Say: "A failed update rolls back; a `noupdate` record that did load is never
    reloaded. Fix values before the first load. After that, only a fresh database or a migration changes it: shipped
-   codes of a system vocabulary cannot be deleted."
+   codes of a system vocabulary cannot be deleted." Slide 12 is the fallback for the live screen.
 5. Say what `get_code("urn:dswd:4ps:well-being-level", "survival")` means; it is what the tests use.
+6. Slide 13. Ask: "Why not a Selection with three values?" (32 client statuses, 394 IP groups, deployment profiles, no
+   release to change a code.)
 
 ## Block 4, 10:40 to 10:55: step 2, the model (demo, predict)
 
+Slides 14 to 16.
+
 1. `git checkout m4-step-2`, but first **delete the import line in `models/__init__.py`** (breakage 3).
-2. Show `models/res_partner.py`: `_inherit`, the `dswd_` prefix, `Many2one` to `spp.vocabulary.code`, the namespace
-   domain. Ask: "Why not a Selection with three values?" (32 client statuses, 394 IP groups, deployment profiles, no
-   release to change a code.)
-3. `./odoo-project update`. No error. Settings > Technical > Fields, search `dswd_`: nothing. **Breakage 3.** Ask. Show
-   `models/__init__.py`. Restore the import. `update`. The field is listed. "No view yet: a field without a view is
-   invisible, not broken."
+2. Slide 14. Show `models/res_partner.py`: `_inherit`, the `dswd_` prefix, `Many2one` to `spp.vocabulary.code`, the
+   namespace domain. Ask: "After update, what changes on screen?"
+3. Slide 15. `./odoo-project update`. No error. Settings > Technical > Fields, search `dswd_`: nothing. **Breakage 3.**
+   Ask. Show `models/__init__.py`. Restore the import. `update`. The field is listed. "No view yet: a field without a
+   view is invisible, not broken." Slide 16 is the fallback for the Fields screen.
 
 ## Block 6, 10:55 to 11:10: step 3, the view (demo, predict)
 
-1. Open the upstream form first: `upstream/openspp/spp_registry/views/individual_views.xml`, search
+Slides 17 to 19.
+
+1. Slide 17. Open the upstream form first: `upstream/openspp/spp_registry/views/individual_views.xml`, search
    `group_tags_section`. "One form serves individuals and households; household sections are `group_*`."
 2. `git checkout m4-step-3`. Show the view file: `inherit_id`, one XPath on a named anchor, a "4Ps" group, `no_create`,
    `no_open`. (The finished module also sets `readonly="disabled"`, so the field locks with the rest of a disabled
@@ -105,52 +123,77 @@ reproduce.) Developer mode is on (Settings > Activate the developer mode) so App
    ```
 
    "`&#39;` is a quote: Odoo escapes the attribute values." Fix. `update`. Registry > Browse All (Audit) > All Groups,
-   open a household: set a level. Save. Developer menu > View Form: show the inherited view listed.
+   open a household: set a level. Save (slide 18 is the fallback). Developer menu > View Form: show the inherited view
+   listed.
+
+4. Slide 19: the two errors of the morning, read bottom up, as a recap. If breakage 4 was dropped, this is where the
+   room sees its lines.
 
 ## Block 7, 11:10 to 11:25: steps 4 and 5, the tests (demo, predict)
+
+Slide 20.
 
 1. `git checkout m4-step-5`. Open `tests/test_wellbeing.py`. Walk one test: `RegistryCommon` gives a household and the
    vocabulary model; `get_code`; `assertEqual`. "The test says what we want before the code exists."
 2. Run `./odoo-project test dswd_wellbeing`. While it runs (about 20 s), show `security/ir.model.access.csv`: header
    only, "no new model, no rows", and `readme/DESCRIPTION.md`.
-3. Read the output: `0 failed, 0 error(s) of 5 tests` and the `Full log:` line. "This line is the one you read first
-   when a colleague says the module is broken."
+3. Read the output: `0 failed, 0 error(s) of 5 tests`, `Passed: 5 | Failed: 0 | Errors: 0` and the `Full log:` line.
+   "This line is the one you read first when a colleague says the module is broken."
 4. If time: flip `"Subsistence"` to `"Survival"` in `test_household_stores_a_level`, run again, read the
    `AssertionError` and the file:line. Restore.
 
 ## Block 8, 11:25 to 11:35: from a change to a merge (demo only)
 
-Prepare the evening before, in a repository of your own created from the template: a pull request for a small change
-(for example the `graduated` level below) whose CI has already run green, so the room does not wait for the image build.
+Slides 21 to 24.
 
-1. **Claude Code makes a change** (3 min). In the module folder: ask Claude Code to "add a fourth well-being level,
-   `graduated`, with sequence 40, and a test that it resolves". Review the diff on screen: is the file in the manifest?
-   Is the code in the right namespace? Run the tests. Say: "The review is the job. The tool types."
-2. **The path to `main`** (4 min), slide "From a change to a merge": on the demo laptop, `git switch -c feat/graduated`,
-   `git add` the two files by name, `git commit -m "feat(wellbeing): add the graduated level"` (the hooks run on
-   screen), `git push -u origin feat/graduated`. Open the link it prints: the pull request, the template headings. Say:
-   "CI starts now; its first run builds the image, so we look at the one I opened yesterday."
-3. **CI, review, merge** (3 min), slides "CI" and "Review, then merge", on the prepared pull request: the **Checks** tab
-   (pre-commit, build, the module's test job), a failed run's **Details** if you have one, then **Files changed**: leave
-   one review comment, approve, **Merge pull request**, delete the branch. Back on the laptop: `git switch main`,
-   `git pull`. "Tomorrow you do steps 1 to 11 yourselves; the review is not required in the exercise."
+Prepare the evening before, in a repository of your own created from the template (never the template itself):
+
+- Clone it next to the template clone, run `./odoo-project vendor` and `./odoo-project test dswd_wellbeing` in it once
+  (a rehearsal of item 1), and open it in a second VS Code window. The template clone's `origin` is the template
+  repository, so nothing in this block is pushed from it; check `git remote -v` in the clone you push from.
+- In it, open a pull request for a small change (for example the `graduated` level below) and let its CI finish green,
+  so the room does not wait for the image build.
+- Leave the clone on an up-to-date `main` (`git switch main`, `git pull`), so the live change starts at 7.4 step 1.
+
+1. **Claude Code makes a change** (3 min), slide 21. In your own repository's clone, in the module folder: ask Claude
+   Code to "add a fourth well-being level, `graduated`, with sequence 40, and a test that it resolves". Review the diff
+   on screen: is the record in the right file and vocabulary? Is the file still in the manifest? Does the test assert
+   something that could fail? Run the tests (`./odoo-project test dswd_wellbeing` in that clone). Say: "The review is
+   the job. The tool types."
+2. **The path to `main`** (4 min), slide 22: in the same clone, on its up-to-date `main`,
+   `git switch -c feat/graduated`, `git add` the two files by name, `git status`,
+   `git commit -m "feat(wellbeing): add the graduated level"` (the hooks run on screen; if one reformats a file,
+   `git add` it again and commit again), `git push -u origin feat/graduated`. Open the link it prints: the pull request,
+   the template headings. Say: "CI starts now; its first run builds the image, so we look at the one I opened
+   yesterday."
+3. **CI, review, merge** (3 min), slides 23 and 24, on the prepared pull request: the **Checks** tab (pre-commit, build,
+   the module's test job), a failed run's **Details** if you have one, then **Files changed**: leave one review comment,
+   approve, **Merge pull request**, **Delete branch**. Back in the clone: `git switch main`, `git pull`,
+   `git branch -d <the prepared branch>`, and `update` if the merge changed a module on your stack (guide 7.4, step 15).
+   "Tomorrow you do steps 1 to 11 yourselves; the review is not required in the exercise."
 4. Close the demo branch's pull request without merging, or keep it as an example.
 
 ## Block 9, 11:35 to 11:50: troubleshooting drill (pairs, paper)
 
-1. Hand out [drill.md](drill.md). 12 minutes, three excerpts, pairs.
+Slide 25.
+
+1. Slide 25: the five mistakes, four of which the room watched this morning. Hand out [drill.md](drill.md). 12 minutes,
+   three excerpts, pairs.
 2. Walk the room; note which pairs reach C (the silent one) and start the debrief with one of them.
-3. Debrief with [drill-answers.md](drill-answers.md): C first, then A, then B. One pair reports each.
+3. Debrief with [drill-answers.md](drill-answers.md): C first, then A, then B. One pair reports each. Bonus D if a pair
+   reached it.
 
 ## Block 10, 11:50 to 12:00: recap and handoff
 
-1. Objectives slide: read the five, ask for a thumbs up on each.
+Slide 26 (and slide 2).
+
+1. Go back to slide 2, the objectives: read the five, ask for a thumbs up on each.
 2. What moves to Module 5: the production modules read through this morning's parts: the module map, the registry and
    its hierarchical vocabularies, roles and approvals, change requests, compliance, payroll, casework, APIs.
 3. Point to Module 6: "Tomorrow you build three modules of your own, starting from `dswd_asset` and `dswd_wellbeing`.
-   Before 8:30: `./odoo-project start` and `test dswd_wellbeing`. If your laptop does not run Docker, sit with a pair
-   that has a working one."
-4. Point to the lunch triage table.
+   Before 8:30: `./odoo-project start` and `./odoo-project test dswd_wellbeing` (`0 failed, 0 error(s) of 5 tests`). If
+   your laptop does not run Docker, sit with a pair that has a working one."
+4. Back to slide 26. Point to the lunch triage table.
 
 ## If the demo machine fails
 

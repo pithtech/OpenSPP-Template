@@ -1,7 +1,7 @@
 # Module 6, Exercise 3: Customization, `dswd_id_types`
 
-Day 3, about 20 minutes, in pairs. Swap who types. If the session ends before you finish, finish it afterwards: the
-sheet is complete on its own.
+Day 3, 15 minutes in the session (about 20 in all), in pairs. Swap who types. If the session ends before you finish,
+finish it afterwards: the sheet is complete on its own.
 
 **The 4Ps request.** 4Ps identifies members with PhilSys, the Philippine national ID. Add PhilSys to the ID types
 OpenSPP offers on a registrant, with a format check, so a mistyped number is refused.
@@ -12,8 +12,8 @@ as data) and read one upstream file for the record's shape.
 
 **Done when** you can show all three:
 
-1. `.\odoo-project install dswd_id_types` ends with `Install complete. Restarting Odoo...`
-2. `.\odoo-project test dswd_id_types` ends with `0 failed, 0 error(s) of 2 tests`
+1. `.\odoo-project install dswd_id_types` prints `Install complete. Restarting Odoo...`
+2. `.\odoo-project test dswd_id_types` prints `0 failed, 0 error(s) of 2 tests`
 3. On an individual's **Identity** page, **PhilSys** is in the ID type list, and the number `12345678` is refused.
 
 ## Step 1: the folder (3 min)
@@ -35,6 +35,8 @@ The module's own `__init__.py` must no longer import `models` (the folder is gon
 | `name`    | DSWD 4Ps: Philippine ID Types                                        |
 | `depends` | `spp_registry` (registrant IDs), `spp_vocabulary` (the ID Type list) |
 | `data`    | the access file (header only, as before) and `data/id_types.xml`     |
+
+Rewrite `readme/DESCRIPTION.md` in two sentences of your own.
 
 ## Step 3: the data (7 min)
 
@@ -99,7 +101,8 @@ again and commit again.
 
 ## Step 7: push and open the pull request (2 min)
 
-This was the last exercise. Send the branch with all three modules to GitHub:
+This was the last exercise. At 9:55, do this step whatever exercise you are on: commit what works, then send the branch
+to GitHub:
 
 ```powershell
 git push -u origin module6
@@ -107,8 +110,11 @@ git push -u origin module6
 
 Open the link it prints and create the pull request (base `main`), answering the template's headings. CI starts: its
 first run builds the image and finishes after the session. Later, in the pull request's **Checks** tab, wait for green,
-then **Merge pull request** and bring your laptop up to date (participant guide 7.4, steps 12 to 15). A review is not
-required for this exercise.
+then **Merge pull request**, delete the branch, and bring your laptop up to date: `git switch main`, `git pull`,
+`git branch -d module6` (participant guide 7.4, steps 12 to 15). A review is not required for this exercise.
+
+If you finish an exercise after the push, commit it and run `git push` again: the pull request updates itself and CI
+runs again.
 
 ## If something goes wrong
 
@@ -127,4 +133,4 @@ names on its last lines: open that file and search for `Error`.
 ## Stretch
 
 - PhilHealth as a second code (its number is twelve digits: `^\d{12}$`), with a test.
-- The 4Ps household ID card number, for households (`target_type` `group`), with your own format.
+- The 4Ps ID card number (`4ps_id`), for individuals, with your own format.

@@ -11,12 +11,12 @@ modules open side by side in VS Code.
 
 **Done when** you can show all three:
 
-1. `.\odoo-project install dswd_fds_session` ends with `Install complete. Restarting Odoo...`
-2. `.\odoo-project test dswd_fds_session` ends with `0 failed, 0 error(s) of 2 tests`
+1. `.\odoo-project install dswd_fds_session` prints `Install complete. Restarting Odoo...`
+2. `.\odoo-project test dswd_fds_session` prints `0 failed, 0 error(s) of 2 tests`
 3. The **FDS Sessions** tile opens, a session saves, and a negative attendee count is refused.
 
-Read every command's output to the end. If it does not end with the "complete" line, it failed, and the browser still
-shows the old screens.
+Read every command's output to the end. If it does not print the "complete" line, it failed, and the browser still shows
+the old screens.
 
 ## Step 1: the folder (5 min)
 
@@ -45,6 +45,7 @@ nothing should be left.
 | `data`    | the access file, the views file, the menus file, in that order       |
 
 Keep `application`, `installable` and `auto_install` as `dswd_asset` has them. Remove the lines for files you deleted.
+Rewrite `readme/DESCRIPTION.md` in two sentences of your own.
 
 ## Step 3: the model (10 min)
 
@@ -96,6 +97,8 @@ In `views/dswd_fds_session_views.xml`, change every record id, `name`, `model` a
 - **Search**: search by topic and by barangay; a "Group By" barangay.
 - **Action**: name "FDS Sessions", the model `dswd.fds.session`, list and form.
 
+Delete the **Assign to me** button from the form header: its method is gone, and its group belongs to `dswd_asset`.
+
 In `views/menus.xml`: a top-level menu (the tile) named **FDS Sessions** with this module's icon
 (`dswd_fds_session,static/description/icon.png`, the file you copied), and under it a menu **Sessions** that opens the
 action.
@@ -134,6 +137,8 @@ git commit -m "feat(fds): register FDS sessions"
 
 `git add dswd_fds_session` adds this module's folder only. The pre-commit hooks run; if one changes a file, run
 `git add` again and commit again.
+
+At 9:55, whatever step you are on, commit what works, then push and open the pull request: exercise 3, step 7.
 
 ## If something goes wrong
 

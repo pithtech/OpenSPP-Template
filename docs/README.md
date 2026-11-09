@@ -10,26 +10,28 @@ docs/
 │   └── decisions/
 ├── principles/          # Development standards (naming, security, testing, UI, ...)
 ├── guides/              # How-to guides (CLI, Windows setup, extending OpenSPP, testing, Claude Code)
+├── specs/               # Specifications, one per change, read by Claude Code before it plans
 └── planning/            # Research and plan that shaped this template
 ```
 
 ## Quick Links
 
-| Need to...                                   | Go to...                                                                   |
-| -------------------------------------------- | -------------------------------------------------------------------------- |
-| Set up Windows for the training              | [guides/windows-setup.md](guides/windows-setup.md)                         |
-| Review the training as a participant        | [../training/participant-guide.md](../training/participant-guide.md)         |
+| Need to...                                   | Go to...                                                                     |
+| -------------------------------------------- | ---------------------------------------------------------------------------- |
+| Set up Windows for the training              | [guides/windows-setup.md](guides/windows-setup.md)                           |
+| Review the training as a participant         | [../training/participant-guide.md](../training/participant-guide.md)         |
 | Learn what 4Ps is and how it maps to OpenSPP | [../training/4ps-program-reference.md](../training/4ps-program-reference.md) |
 | Teach or follow Module 3                     | [../training/module3/](../training/module3/README.md)                        |
 | Teach or follow Module 4                     | [../training/module4/](../training/module4/README.md)                        |
-| Use the developer CLI                        | [guides/odoo-project-cli.md](guides/odoo-project-cli.md)                   |
-| Extend an OpenSPP model, view, or workflow   | [guides/extending-openspp.md](guides/extending-openspp.md)                 |
-| Create a new module                          | [guides/module-development.md](guides/module-development.md)              |
-| Write and run tests                          | [guides/testing-guide.md](guides/testing-guide.md)                         |
+| Use the developer CLI                        | [guides/odoo-project-cli.md](guides/odoo-project-cli.md)                     |
+| Extend an OpenSPP model, view, or workflow   | [guides/extending-openspp.md](guides/extending-openspp.md)                   |
+| Create a new module                          | [guides/module-development.md](guides/module-development.md)                 |
+| Write and run tests                          | [guides/testing-guide.md](guides/testing-guide.md)                           |
 | Use Claude Code effectively                  | [guides/claude-code-for-developers.md](guides/claude-code-for-developers.md) |
-| Understand the architecture                  | [architecture/vision.md](architecture/vision.md)                           |
-| Read coding principles                       | [principles/](principles/)                                                 |
-| Check or write an ADR                        | [architecture/decisions/](architecture/decisions/)                         |
+| Understand the architecture                  | [architecture/vision.md](architecture/vision.md)                             |
+| Read coding principles                       | [principles/](principles/)                                                   |
+| Check or write an ADR                        | [architecture/decisions/](architecture/decisions/)                           |
+| Write a specification for a change           | [specs/](specs/README.md)                                                    |
 
 ## Getting Started
 

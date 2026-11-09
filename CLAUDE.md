@@ -13,6 +13,7 @@ Extension modules for the DSWD Pantawid Pamilyang Pilipino Program (4Ps) on **Op
 | Principles                       | `docs/principles/`                                         |
 | Guides (CLI, extending, testing) | `docs/guides/`                                             |
 | Architecture and decisions       | `docs/architecture/`, `docs/architecture/decisions/`       |
+| Specifications, one per change   | `docs/specs/` — read the spec and its ADRs before planning |
 
 **Never edit anything under `upstream/openspp/`.** Read it to learn models, hooks, views, groups, and test helpers
 before extending them. Upstream changes belong in a pull request to OpenSPP, not here.

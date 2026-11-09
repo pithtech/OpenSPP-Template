@@ -1,24 +1,25 @@
 # Architecture Decision Records (ADRs)
 
 An ADR records one significant decision: the context, the options, what was decided, and the consequences. Write one
-whenever a choice will be hard to reverse or will shape many modules (naming, security model, integration approach,
-data model boundaries).
+whenever a choice will be hard to reverse or will shape many modules (naming, security model, integration approach, data
+model boundaries).
 
 ## ADR Index
 
-| #                                           | Title                             | Status       | Date       | Summary                                              |
-| ------------------------------------------- | --------------------------------- | ------------ | ---------- | ---------------------------------------------------- |
-| [001](ADR-001-dswd-module-prefix.md)        | `dswd_` module prefix             | **Accepted** | 2026-11-06 | Our modules use `dswd_`; `spp_` stays upstream-only  |
+| #                                            | Title                       | Status       | Date       | Summary                                             |
+| -------------------------------------------- | --------------------------- | ------------ | ---------- | --------------------------------------------------- |
+| [001](ADR-001-dswd-module-prefix.md)         | `dswd_` module prefix       | **Accepted** | 2026-11-06 | Our modules use `dswd_`; `spp_` stays upstream-only |
+| [002](ADR-002-computed-counts-not-stored.md) | Age-based counts not stored | **Accepted** | 2026-11-09 | Counts that depend on age are computed when read    |
 
 ## Status Legend
 
-| Status         | Meaning                                         |
-| -------------- | ----------------------------------------------- |
-| **Proposed**   | Under discussion, not yet approved              |
-| **Accepted**   | Approved, implementation pending or in progress |
-| **Implemented**| Fully implemented                               |
-| **Deprecated** | No longer recommended                           |
-| **Superseded** | Replaced by another ADR                         |
+| Status          | Meaning                                         |
+| --------------- | ----------------------------------------------- |
+| **Proposed**    | Under discussion, not yet approved              |
+| **Accepted**    | Approved, implementation pending or in progress |
+| **Implemented** | Fully implemented                               |
+| **Deprecated**  | No longer recommended                           |
+| **Superseded**  | Replaced by another ADR                         |
 
 ## Creating a New ADR
 
@@ -32,8 +33,7 @@ data model boundaries).
 ```markdown
 # ADR-NNN: Title
 
-**Status**: Proposed
-**Date**: YYYY-MM-DD
+**Status**: Proposed **Date**: YYYY-MM-DD
 
 ## Context
 

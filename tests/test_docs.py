@@ -122,3 +122,46 @@ def test_no_file_points_at_the_old_vendor_checkout_path():
         if "vendor/openspp" in path.read_text(encoding="utf-8", errors="ignore"):
             offenders.append(str(path.relative_to(ROOT)))
     assert offenders == []
+
+
+SPEC_SECTIONS = (
+    "## The need",
+    "## Who uses it",
+    "## Rules",
+    "## Where it appears",
+    "## Acceptance examples",
+    "## Out of scope",
+    "## Upstream models and views it relies on",
+)
+
+
+class TestSpecifications:
+    """Specifications in docs/specs/ are what Claude Code reads before it researches and plans a change."""
+
+    def test_template_has_every_section(self):
+        readme = (ROOT / "docs" / "specs" / "README.md").read_text(encoding="utf-8")
+        for section in SPEC_SECTIONS:
+            assert section in readme, f"docs/specs/README.md template lacks {section!r}"
+
+    def test_demo_specification_follows_the_template(self):
+        spec = (ROOT / "docs" / "specs" / "dswd_household_children.md").read_text(encoding="utf-8")
+        assert "**Status**: Approved" in spec
+        for section in SPEC_SECTIONS:
+            assert section in spec, f"dswd_household_children.md lacks {section!r}"
+
+    def test_demo_specification_links_its_adr(self):
+        spec = (ROOT / "docs" / "specs" / "dswd_household_children.md").read_text(encoding="utf-8")
+        assert "../architecture/decisions/ADR-002-computed-counts-not-stored.md" in spec
+
+    def test_claude_md_points_at_the_specifications(self):
+        assert "`docs/specs/`" in (ROOT / "CLAUDE.md").read_text(encoding="utf-8")
+
+
+class TestDecisionRecords:
+    def test_adr_002_is_accepted_and_indexed(self):
+        decisions = ROOT / "docs" / "architecture" / "decisions"
+        adr = (decisions / "ADR-002-computed-counts-not-stored.md").read_text(encoding="utf-8")
+        assert "**Status**: Accepted" in adr
+        for section in ("## Context", "## Options Considered", "## Decision", "## Consequences"):
+            assert section in adr
+        assert "(ADR-002-computed-counts-not-stored.md)" in (decisions / "README.md").read_text(encoding="utf-8")

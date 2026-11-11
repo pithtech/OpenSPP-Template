@@ -118,8 +118,6 @@ Code moment: `dswd_4ps_instance1/__manifest__.py`. A manifest is the map of a de
 | Hooks (5.10)                          | A hook is code Odoo calls at a fixed moment: `post_init_hook` once after install, `_register_hook` at every load.      | The `post_init_hook` of `dswd_4ps_area` loads the PSGC areas at install, and never again (card 2).        |
 | Wizards (3.10)                        | A wizard is a temporary model behind a dialog: the user fills in a small form, and its button does the work.           | The payroll Reject + Rewind wizard offers no rewind once credit instructions exist (card 13).             |
 
-The glossary (7.6) has a line on each of the five.
-
 ---
 
 <!-- _footer: "Guide 5.4 · Card 2" -->

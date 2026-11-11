@@ -4,7 +4,7 @@ Day 2, 10:10 to 12:00, after the ten-minute break that follows Module 3. Trainer
 rationale are in [docs/planning/module4-training-design.md](../../docs/planning/module4-training-design.md); this page
 is only what to do and say, with the commands and the real error lines.
 
-**Cut-offs are hard, and there is no buffer.** Drop order if late: the live commit and push in block 8 (show slide 21's
+**Cut-offs are hard, and there is no buffer.** Drop order if late: the live commit and push in block 8 (show slide 22's
 table and go straight to the prepared pull request, 5 minutes), then breakage 4 in block 6. Blocks 9 and 10 are never
 dropped. Block numbers follow the design; there is no block 5.
 
@@ -63,7 +63,7 @@ Slides 6 and 7.
 
 ## Block 3, 10:20 to 10:40: steps 0 and 1, manifest and data (demo, predict)
 
-Slides 8 to 13.
+Slides 8 to 14.
 
 1. Slides 8 and 9. Show `__manifest__.py` and `__init__.py`. "This is an installable module. It does nothing." Apps >
    Update Apps List > remove the **Apps** filter (the module is not an application) > search "Well" > Install.
@@ -73,7 +73,7 @@ Slides 8 to 13.
 2. Slide 11. `git checkout m4-step-1`, then, before running anything, **plant both breakages**: delete the data line
    from the manifest, and change `social_assistance` to `administrative` in the data file. The order matters: the file
    is `noupdate="1"`, so a bad value is only caught the first time the file loads.
-3. Show the data file: one vocabulary, three codes. Ask: "After update, where will I see them?" Run
+3. Slide 12. Show the data file: one vocabulary, three codes. Ask: "After update, where will I see them?" Run
    `./odoo-project update`. Settings > Vocabularies: nothing. **Breakage 1.** Ask for the cause. Show the manifest. Add
    the line. Do not update yet.
 4. **Breakage 2.** Ask: "Will this fail in lint, on update, or never?" `./odoo-project lint` passes.
@@ -85,27 +85,27 @@ Slides 8 to 13.
    Open `upstream/openspp/spp_vocabulary/models/vocabulary.py` at the `domain` selection. Fix. `update`. Show the
    vocabulary and its three System codes. Say: "A failed update rolls back; a `noupdate` record that did load is never
    reloaded. Fix values before the first load. After that, only a fresh database or a migration changes it: shipped
-   codes of a system vocabulary cannot be deleted." Slide 12 is the fallback for the live screen.
+   codes of a system vocabulary cannot be deleted." Slide 13 is the fallback for the live screen.
 5. Say what `get_code("urn:dswd:4ps:well-being-level", "survival")` means; it is what the tests use.
-6. Slide 13. Ask: "Why not a Selection with three values?" (32 client statuses, 394 IP groups, deployment profiles, no
+6. Slide 14. Ask: "Why not a Selection with three values?" (32 client statuses, 394 IP groups, deployment profiles, no
    release to change a code.)
 
 ## Block 4, 10:40 to 10:55: step 2, the model (demo, predict)
 
-Slides 14 and 15.
+Slides 15 and 16.
 
 1. `git checkout m4-step-2`, but first **delete the import line in `models/__init__.py`** (breakage 3).
-2. Slide 14. Show `models/res_partner.py`: `_inherit`, the `dswd_` prefix, `Many2one` to `spp.vocabulary.code`, the
+2. Slide 15. Show `models/res_partner.py`: `_inherit`, the `dswd_` prefix, `Many2one` to `spp.vocabulary.code`, the
    namespace domain. Ask: "After update, what changes on screen?"
-3. Slide 15. `./odoo-project update`. No error. Settings > Technical > Fields, search `dswd_`: nothing. **Breakage 3.**
+3. Slide 16. `./odoo-project update`. No error. Settings > Technical > Fields, search `dswd_`: nothing. **Breakage 3.**
    Ask. Show `models/__init__.py`. Restore the import. `update`. The field is listed. "No view yet: a field without a
-   view is invisible, not broken." The screenshot on slide 15 is the fallback for the Fields screen.
+   view is invisible, not broken." The screenshot on slide 16 is the fallback for the Fields screen.
 
 ## Block 6, 10:55 to 11:10: step 3, the view (demo, predict)
 
-Slides 16 to 18.
+Slides 17 to 19.
 
-1. Slide 16. Open the upstream form first: `upstream/openspp/spp_registry/views/individual_views.xml`, search
+1. Slide 17. Open the upstream form first: `upstream/openspp/spp_registry/views/individual_views.xml`, search
    `name="group_` (it lists every household anchor, `group_tags_section` among them). "One form serves individuals and
    households; household sections are `group_*`."
 2. `git checkout m4-step-3`. Show the view file: `inherit_id`, one XPath on a named anchor, a "4Ps" group, `no_create`,
@@ -124,28 +124,28 @@ Slides 16 to 18.
    ```
 
    "`&#39;` is a quote: Odoo escapes the attribute values." Fix. `update`. Registry > Browse All (Audit) > All Groups,
-   open a household: set a level. Save (slide 17 is the fallback). Developer menu > View Form: show the inherited view
+   open a household: set a level. Save (slide 18 is the fallback). Developer menu > View Form: show the inherited view
    listed.
 
-4. Slide 18: the two errors of the morning, read bottom up, as a recap. If breakage 4 was dropped, this is where the
+4. Slide 19: the two errors of the morning, read bottom up, as a recap. If breakage 4 was dropped, this is where the
    room sees its lines.
 
 ## Block 7, 11:10 to 11:25: steps 4 and 5, the tests (demo, predict)
 
-Slides 19 and 20.
+Slides 20 and 21.
 
-1. Slide 19. `git checkout m4-step-5`. Open `tests/test_wellbeing.py`. Walk one test: `RegistryCommon` gives a household
+1. Slide 20. `git checkout m4-step-5`. Open `tests/test_wellbeing.py`. Walk one test: `RegistryCommon` gives a household
    and the vocabulary model; `get_code`; `assertEqual`. "The test says what we want before the code exists."
 2. Run `./odoo-project test dswd_wellbeing`. While it runs (about 20 s), show `security/ir.model.access.csv`: header
    only, "no new model, no rows", and `readme/DESCRIPTION.md`.
-3. Slide 20. Read the output: `0 failed, 0 error(s) of 5 tests`, `Passed: 5 | Failed: 0 | Errors: 0` and the `Full log:`
+3. Slide 21. Read the output: `0 failed, 0 error(s) of 5 tests`, `Passed: 5 | Failed: 0 | Errors: 0` and the `Full log:`
    line. "This line is the one you read first when a colleague says the module is broken."
 4. If time: flip `"Subsistence"` to `"Survival"` in `test_household_stores_a_level`, run again, read the
    `AssertionError` and the file:line. Restore.
 
 ## Block 8, 11:25 to 11:35: from a change to a merge (demo only)
 
-Slides 21 and 22. The change is made by hand; Claude Code is in Module 5 this afternoon.
+Slides 22 and 23. The change is made by hand; Claude Code is in Module 5 this afternoon.
 
 Prepare the evening before, in a repository of your own created from the template (never the template itself):
 
@@ -161,20 +161,20 @@ Prepare the evening before, in a repository of your own created from the templat
   finish green, so the room does not wait for the image build.
 - Leave the clone on an up-to-date `main` (`git switch main`, `git pull`), so the live change starts at 7.4 step 1.
 
-Drop rule: if block 7 ran over, skip item 2's live commit and push. Show slide 21's table, say which row is which, and
+Drop rule: if block 7 ran over, skip item 2's live commit and push. Show slide 22's table, say which row is which, and
 go straight to item 3 on the prepared pull request (5 minutes).
 
-1. **The change, by hand** (3 min), slide 21: in the clone, on its up-to-date `main`, `git switch -c feat/graduated`.
+1. **The change, by hand** (3 min), slide 22: in the clone, on its up-to-date `main`, `git switch -c feat/graduated`.
    Paste the test into `tests/test_wellbeing.py` and the `graduated` record into the data file. Show the diff
    (`git diff`): the record sits under the well-being vocabulary, the data file is still in the manifest, and the test
    asserts something that could fail. Run `./odoo-project test dswd_wellbeing` in that clone (about 20 s):
    `0 failed, 0 error(s) of 6 tests`.
-2. **The path to `main`** (4 min), slide 21: `git add` the two files by name, `git status`,
+2. **The path to `main`** (4 min), slide 22: `git add` the two files by name, `git status`,
    `git commit -m "feat(wellbeing): add the graduated level"` (the hooks run on screen; if one reformats a file,
    `git add` it again and commit again), `git push -u origin feat/graduated`. Open the link it prints: the pull request,
    the template headings. Say: "CI starts now; its first run builds the image, so we look at the one I opened
    yesterday."
-3. **CI, review, merge** (3 min), slide 22, on the prepared pull request: the **Checks** tab (pre-commit, build, the
+3. **CI, review, merge** (3 min), slide 23, on the prepared pull request: the **Checks** tab (pre-commit, build, the
    module's test job), a failed run's **Details** if you have one, then **Files changed**: leave one review comment,
    approve, **Merge pull request**, **Delete branch**. Back in the clone: `git switch main`, `git pull`,
    `git branch -d <the prepared branch>`, and `update` if the merge changed a module on your stack (guide 7.4, step 15).
@@ -184,9 +184,9 @@ go straight to item 3 on the prepared pull request (5 minutes).
 
 ## Block 9, 11:35 to 11:50: troubleshooting drill (pairs, paper)
 
-Slide 23.
+Slide 24.
 
-1. Slide 23: the five mistakes, four of which the room watched this morning. Hand out [drill.md](drill.md). 12 minutes,
+1. Slide 24: the five mistakes, four of which the room watched this morning. Hand out [drill.md](drill.md). 12 minutes,
    three excerpts, pairs.
 2. Walk the room; note which pairs reach C (the silent one) and start the debrief with one of them.
 3. Debrief with [drill-answers.md](drill-answers.md): C first, then A, then B. One pair reports each. Bonus D if a pair
@@ -194,7 +194,7 @@ Slide 23.
 
 ## Block 10, 11:50 to 12:00: recap and handoff
 
-Slide 24 (and slide 2).
+Slide 25 (and slide 2).
 
 1. Go back to slide 2, the objectives: read the five, ask for a thumbs up on each.
 2. What moves to Module 5: the production modules read through this morning's parts: the module map, the registry and
@@ -203,7 +203,7 @@ Slide 24 (and slide 2).
 3. Point to Module 6: "Tomorrow you build three modules of your own, starting from `dswd_asset` and `dswd_wellbeing`.
    Before 8:30: `./odoo-project start` and `./odoo-project test dswd_wellbeing` (`0 failed, 0 error(s) of 5 tests`). If
    your laptop does not run Docker, sit with a pair that has a working one."
-4. Back to slide 24. Point to the lunch triage table.
+4. Back to slide 25. Point to the lunch triage table.
 
 ## If the demo machine fails
 

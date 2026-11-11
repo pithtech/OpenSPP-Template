@@ -184,6 +184,12 @@ Installable, does nothing. **Predict**: where will it appear after we install it
     </record>
 ```
 
+---
+
+<!-- _footer: "Guide 4.4" -->
+
+## Step 1: the vocabulary (continued)
+
 Abridged (full file: guide 4.4): `name`, `description` and `definition` left out; `subsistence` (sequence 20) and `self_sufficient` (sequence 30) follow the same shape.
 
 **Predict**: after `update`, where will the three codes show?

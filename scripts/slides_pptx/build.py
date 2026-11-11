@@ -74,8 +74,11 @@ FOOTER_PT = 12
 # here fits in Consolas and wherever Consolas is replaced.
 TEXT_ADVANCE = 0.5
 MONO_ADVANCE = 0.6
-LINE = 1.2
-CODE_LINE = 1.2
+# Height of one line in ems, as measured here. Paragraphs are written with single spacing, which each viewer draws from
+# the font's own line height: about 1.15 for Arial and 1.17 for Consolas in PowerPoint, about 1.22 in Google Slides
+# (an exact height in points is not kept there: it becomes a multiple of that line height, and text overflows).
+LINE = 1.3
+CODE_LINE = 1.3
 CODE_PAD = 0.12
 LIST_INDENT = 0.4
 CELL_PAD = 0.08
@@ -526,16 +529,16 @@ def _space_after(paragraph, pt):
     paragraph.space_after = Pt(pt)
 
 
-def _exact(paragraph, pt, factor=LINE):
-    """Exact line spacing, so the heights measured here are the heights drawn."""
-    paragraph.line_spacing = Pt(pt * factor)
+def _single_spacing(paragraph):
+    """Single line spacing: a multiple of the font's line height, which every viewer draws the same way (see LINE)."""
+    paragraph.line_spacing = 1.0
 
 
 def _draw_list(frame, block, size, first, depth=0):
     for index, item in enumerate(block.items):
         paragraph = frame.paragraphs[0] if first and index == 0 and depth == 0 else frame.add_paragraph()
         _bullet(paragraph, block.ordered, block.start + index, depth)
-        _exact(paragraph, size)
+        _single_spacing(paragraph)
         _write_runs(paragraph, item.runs, size, TEXT)
         _space_after(paragraph, size * 0.35)
         for child in item.children:
@@ -560,7 +563,7 @@ def _draw_code(slide, block, top, slide_number):
     for index, line in enumerate(block.text.splitlines() or [""]):
         paragraph = frame.paragraphs[0] if index == 0 else frame.add_paragraph()
         paragraph.alignment = PP_ALIGN.LEFT
-        _exact(paragraph, pt, CODE_LINE)
+        _single_spacing(paragraph)
         run = paragraph.add_run()
         run.text = line
         _font(run.font, size=pt, color=TEXT, name=CODE_FONT)
@@ -598,7 +601,7 @@ def _draw_table(slide, block, top, pt):
             frame = cell.text_frame
             frame.word_wrap = True
             paragraph = frame.paragraphs[0]
-            _exact(paragraph, size)
+            _single_spacing(paragraph)
             runs = row[c] if c < len(row) else []
             if r == 0:
                 _write_runs(paragraph, [Run(plain(runs), bold=True)], size, WHITE, bold=True)
@@ -719,7 +722,7 @@ def _draw_content(prs_slide, slide, base, problems):
     title_pt, title_h, top = _title_geometry(slide)
     _, frame = _text_box(prs_slide, MARGIN_X, TITLE_TOP, BODY_W, title_h, "Title")
     frame.vertical_anchor = MSO_ANCHOR.MIDDLE
-    _exact(frame.paragraphs[0], title_pt)
+    _single_spacing(frame.paragraphs[0])
     _write_runs(frame.paragraphs[0], slide.title_runs, title_pt, DSWD_BLUE, bold=True)
     images = [b for b in slide.blocks if isinstance(b, ImageBlock)]
     for block in slide.blocks:
@@ -748,10 +751,10 @@ def _draw_content(prs_slide, slide, base, problems):
             if isinstance(block, ListBlock):
                 _draw_list(frame, block, pt, True)
             elif isinstance(block, Heading):
-                _exact(paragraph, pt + 2)
+                _single_spacing(paragraph)
                 _write_runs(paragraph, block.runs, pt + 2, NAVY, bold=True)
             else:
-                _exact(paragraph, pt)
+                _single_spacing(paragraph)
                 _write_runs(paragraph, block.runs, pt, TEXT)
             top += height
         top += GAP
@@ -779,7 +782,7 @@ def _draw_code_lenient(prs_slide, block, top):
     for index, line in enumerate(lines):
         paragraph = frame.paragraphs[0] if index == 0 else frame.add_paragraph()
         paragraph.alignment = PP_ALIGN.LEFT
-        _exact(paragraph, pt, CODE_LINE)
+        _single_spacing(paragraph)
         run = paragraph.add_run()
         run.text = line
         _font(run.font, size=pt, color=TEXT, name=CODE_FONT)

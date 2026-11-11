@@ -299,3 +299,30 @@ def test_a_long_title_takes_two_lines_and_pushes_the_body_down(tmp_path):
         assert body.top >= heading.top + heading.height, "the body starts under the title"
         tops.append(body.top)
     assert tops[0] > tops[1]
+
+
+def test_line_spacing_is_single_not_exact_points(tmp_path):
+    """Google Slides turns an exact line height into a multiple of the font's own, so lines come out taller than
+    measured and overflow their boxes; single spacing is drawn the same everywhere."""
+    build = _load()
+    prs = build.build_deck(build.parse_deck(DECK), base=tmp_path)
+    paragraphs = [
+        p
+        for slide in prs.slides
+        for shape in slide.shapes
+        if shape.has_text_frame and shape.name in ("Text", "Code")
+        for p in shape.text_frame.paragraphs
+    ]
+    assert paragraphs
+    assert all(p.line_spacing == 1.0 for p in paragraphs), "line spacing must be the single multiple, not points"
+
+
+def test_fit_allows_for_lines_taller_than_the_font(tmp_path):
+    """A 14-line code block and four lines of text fit at 1.2 ems per line but not at the 1.3 a viewer may draw."""
+    build = _load()
+    assert build.LINE >= 1.3 and build.CODE_LINE >= 1.3
+    code = "\n".join(f"line_{n} = {n}" for n in range(build.MAX_CODE_LINES))
+    words = " ".join(f"word{n}" for n in range(60))
+    deck = build.parse_deck(f"---\nmarp: true\n---\n\n## Full\n\n```python\n{code}\n```\n\n{words}\n")
+    with pytest.raises(build.FitError, match="slide 1"):
+        build.build_deck(deck, base=tmp_path)

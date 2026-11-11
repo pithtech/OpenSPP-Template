@@ -125,6 +125,12 @@ Fill in the file map on your handout, section 3, as we go. Every file and its ro
 }
 ```
 
+---
+
+<!-- _footer: "Guide 3.6" -->
+
+## Step 0: a module is a folder and a manifest (continued)
+
 Abridged: the full manifest is in Guide 3.6. Odoo needs a folder and a manifest, nothing more. The `dswd_` prefix is **our** project's rule, the way `spp_` is OpenSPP's: it says who owns the code, not what it is about.
 
 A file not listed in `data` does not exist to Odoo: no error, it is simply ignored.
@@ -153,6 +159,12 @@ class DswdAsset(models.Model):
     warranty_end_date = fields.Date()
     is_in_use = fields.Boolean(default=True)
 ```
+
+---
+
+<!-- _footer: "Guide 3.7" -->
+
+## Step 1: the model is the table (continued)
 
 Plus `from . import dswd_asset` in `models/__init__.py` and `from . import models` in `__init__.py`; forget either and the model is silently absent.
 
@@ -270,7 +282,7 @@ Odoo hides a menu whose model you cannot read, and `admin` is not the superuser:
 
 <!-- _footer: "Guide 3.11" -->
 
-## Step 3: groups and access rows
+## Step 3: the groups
 
 ```xml
 <record id="group_asset_officer" model="res.groups">
@@ -284,6 +296,14 @@ Odoo hides a menu whose model you cannot read, and `admin` is not the superuser:
 </record>
 ```
 
+Abridged: the category, privilege, viewer and manager records are in Guide 3.11. The last record makes every OpenSPP admin an asset manager.
+
+---
+
+<!-- _footer: "Guide 3.11" -->
+
+## Step 3: the access rows
+
 ```csv
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_dswd_asset_system,dswd.asset system,model_dswd_asset,base.group_system,1,1,1,1
@@ -292,7 +312,7 @@ access_dswd_asset_officer,dswd.asset officer,model_dswd_asset,group_asset_office
 access_dswd_asset_manager,dswd.asset manager,model_dswd_asset,group_asset_manager,1,1,1,1
 ```
 
-Abridged: the category, privilege, viewer and manager records are in Guide 3.11. Viewer reads. Officer reads, writes, creates. Manager also deletes. The last record makes every OpenSPP admin an asset manager.
+Viewer reads. Officer reads, writes, creates. Manager also deletes.
 
 ---
 
@@ -390,7 +410,7 @@ Then `a.unlink()` (`True`) and `env.cr.commit()`. A Many2one is itself a record:
 
 <!-- _footer: "Guide 3.18" -->
 
-## Step 6: a PDF report
+## Step 6: a PDF report, the action
 
 ```xml
 <record id="action_report_dswd_asset" model="ir.actions.report">
@@ -401,6 +421,14 @@ Then `a.unlink()` (`True`) and `env.cr.commit()`. A Many2one is itself a record:
     <field name="binding_model_id" ref="model_dswd_asset" />
 </record>
 ```
+
+`binding_model_id` puts it in the Print menu.
+
+---
+
+<!-- _footer: "Guide 3.18" -->
+
+## Step 6: a PDF report, the template
 
 ```xml
 <template id="report_dswd_asset">
@@ -413,7 +441,7 @@ Then `a.unlink()` (`True`) and `env.cr.commit()`. A Many2one is itself a record:
                         <tbody>
 ```
 
-Abridged: the six rows and the closing tags are in Guide 3.18. `binding_model_id` puts it in the Print menu. `docs` is what is being printed. HTML, then PDF.
+Abridged: the six rows and the closing tags are in Guide 3.18. `docs` is what is being printed. HTML, then PDF.
 
 ---
 

@@ -51,7 +51,7 @@ Slides 4 to 6.
 
 ## Block 3, 8:50 to 8:57: step 0, the manifest (demo, then install)
 
-Slides 7 and 8.
+Slides 7 to 9.
 
 1. Slide 7, under a minute: the finished form. "This is the screen you will have at 9:30. Fill in the file map on your
    handout, section 3, as we go."
@@ -66,7 +66,7 @@ Slides 7 and 8.
 
 ## Block 4, 8:57 to 9:10: step 1, the model (demo, predict)
 
-Slides 9 to 12. Installs run in the background; nothing here needs a laptop.
+Slides 10 to 14. Installs run in the background; nothing here needs a laptop.
 
 1. `git checkout m3-step-1`. Open `models/dswd_asset.py`. One field type per minute: Char and `required`, Selection,
    Many2one to `res.users` with a default, Date twice, Boolean, the computed Boolean with `@api.depends`, the
@@ -89,20 +89,20 @@ Slides 9 to 12. Installs run in the background; nothing here needs a laptop.
 
 ## Block 5, 9:10 to 9:14: checkpoint
 
-Slide 12 stays up.
+Slide 14 stays up.
 
 "Is there an IT Assets tile on your home screen?" (Their copy is the finished module, so the tile shows once the install
 is done.) Helpers walk the rows. Anyone red: pair up with a neighbour for the rest of the hour, lunch triage table.
 
 ## Block 6, 9:14 to 9:22: step 2, views, action, menu (demo, predict)
 
-Slides 13 to 15.
+Slides 15 to 17.
 
-1. `git checkout m3-step-2`. Show the list view ("`<list>`, not `<tree>`, in Odoo 19"; slide 13), the form (`<sheet>`,
+1. `git checkout m3-step-2`. Show the list view ("`<list>`, not `<tree>`, in Odoo 19"; slide 15), the form (`<sheet>`,
    named groups), the search view (fields, a filter, a group-by), then the action (`view_mode` list,form) and the two
-   menu items (slide 14). Predict: "where will it appear?"
-2. Predict while slide 14 is still up (slide 15's title gives the answer away): "will the tile appear?" Then
-   `./odoo-project update` and slide 15. Look: **no tile appears, even for admin.** "Odoo hides a menu whose model you
+   menu items (slide 16). Predict: "where will it appear?"
+2. Predict while slide 16 is still up (slide 17's title gives the answer away): "will the tile appear?" Then
+   `./odoo-project update` and slide 17. Look: **no tile appears, even for admin.** "Odoo hides a menu whose model you
    cannot read." Open the action by its URL, `http://localhost:8069/odoo/action-dswd_asset.action_dswd_asset` (with the
    dev profile, the port `start` printed): **AccessError, even as admin**. Read it:
    ```
@@ -114,14 +114,14 @@ Slides 13 to 15.
 
 ## Block 7, 9:22 to 9:34: step 3, groups and access rows (demo, then do)
 
-Slides 16 and 17.
+Slides 18 to 20.
 
 1. `git checkout m3-step-3`. Show `security/groups.xml`: a category, a privilege, viewer, officer, manager, and the last
    record that links the manager tier into `spp_security.group_spp_admin`: "every OpenSPP admin is now an asset
    manager." (`admin` opens the app through the first access row, `base.group_system`; the link is what makes it a
    manager, which is why it sees the officer-only button at step 5.) Show the four access rows: "viewer reads; officer
    reads, writes, creates; manager also deletes; system first, always."
-2. `./odoo-project update` (slide 17). The IT Assets tile appears and the list opens. Create the demo laptop: tag
+2. `./odoo-project update` (slide 20). The IT Assets tile appears and the list opens. Create the demo laptop: tag
    `LT-0001`, make and model, type Laptop, today's purchase date, a warranty end date about six months ahead. Then a
    second asset, `PR-0001`, type Printer. (The shell demo in block 8b reads exactly these two records; if you show the
    bad-warranty dialog on the demo laptop, discard that change.)
@@ -130,7 +130,7 @@ Slides 16 and 17.
 
 ## Block 8, 9:34 to 9:40: step 4, the tests (demo, then start yours)
 
-Slide 18.
+Slide 21.
 
 1. `git checkout m3-step-4`. "The tests were written with each step since step 1; step 4 completes the module
    description, so this is where we read them." Open `tests/test_dswd_asset.py`: `setUp` creates one asset;
@@ -143,13 +143,13 @@ Slide 18.
 
 ## Block 8b, 9:40 to 9:48: steps 5 and 6, the ORM and a PDF report (demo)
 
-Slides 19 to 22.
+Slides 22 to 26.
 
 1. `git checkout m3-step-5`. Show the two methods: "no decorator, `self` is the record; `@api.model`, the whole table."
    Show the button in the form header (the finished module also gives it `groups="dswd_asset.group_asset_officer"`, so
    viewers do not see it). `./odoo-project update`. Press "Assign to me" on the demo laptop: the custodian changes.
    "That is `write` in one line."
-2. `./odoo-project shell` (slide 20): `Asset = env["dswd.asset"]`, `Asset.search_count([])` (2),
+2. `./odoo-project shell` (slide 23): `Asset = env["dswd.asset"]`, `Asset.search_count([])` (2),
    `Asset.search([("asset_type", "=", "laptop")]).mapped("name")` (`['LT-0001']`), create `LT-0099`, `write` (prints
    `True`), `a.custodian_id.name` (`'OdooBot'`: the shell runs as the superuser),
    `Asset.find_warranty_expiring(365).mapped("name")` (`['LT-0001']`), `a.unlink()` (`True`). "Nothing is saved until
@@ -157,13 +157,13 @@ Slides 19 to 22.
 3. `git checkout m3-step-6`. Show the report file: an action and a template (the tag prints the date and user with
    `t-esc`; the finished module uses `t-out`, the Odoo 19 form). `update`. On the asset form: Print > Asset Sheet. The
    PDF opens. "HTML with `t-` attributes, then wkhtmltopdf. `docs` is what you printed."
-4. Slide 22, one minute: the four mistakes; you saw the first today (the warning at 9:08, the error at 9:20). If late,
+4. Slide 26, one minute: the four mistakes; you saw the first today (the warning at 9:08, the error at 9:20). If late,
    skip it and point to Guide 3.19.
 5. If late: show the PDF and the two files, skip the shell.
 
 ## Block 9, 9:48 to 9:56: the hand-off (never dropped)
 
-Slides 23 to 26.
+Slides 27 to 30.
 
 1. **The question.** "4Ps needs a well-being level on every household. Which file do we start with?" Take answers; most
    say a new model. Open Registry > Browse All (Audit) > All Groups, a household: the form shows dozens of fields, and
@@ -178,7 +178,7 @@ Slides 23 to 26.
 
 ## Block 10, 9:56 to 10:00: close
 
-Slide 26 stays up.
+Slide 30 stays up.
 
 1. "Read your test summary line." Hands up for `0 failed`.
 2. "Leave the stack running; Module 4 needs nothing from it. Break until 10:10; helpers, see me." Then switch the demo
